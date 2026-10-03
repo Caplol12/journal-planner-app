@@ -19,6 +19,7 @@ import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { PagesOverview } from './components/PagesOverview';
 import { PlannerView } from './components/PlannerView';
+import { AdminPanel } from './components/admin/AdminPanel';
 import {
   NewJournalModal,
   EditCoverModal,
@@ -30,7 +31,7 @@ import {
 export default function App() {
   const [journals, setJournals] = useState<Journal[]>(() => loadStoredJournals());
   const [settings, setSettings] = useState<AppSettings>(() => loadStoredSettings());
-  const [currentView, setCurrentView] = useState<'dashboard' | 'pages-overview' | 'planner'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'pages-overview' | 'planner' | 'admin'>('dashboard');
   const [selectedJournalId, setSelectedJournalId] = useState<string | null>(null);
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'all' | 'templates' | 'favorites'>('all');
@@ -334,6 +335,28 @@ export default function App() {
           onDeletePage={handleDeletePage}
           onEditCover={() => setEditingJournal(selectedJournal)}
         />
+      ) : currentView === 'admin' ? (
+        <div className="flex min-h-screen w-full">
+          <AdminPanel onBackToApp={() => setCurrentView('dashboard')} />
+          <Sidebar
+            currentTab={currentTab}
+            onSelectTab={(tab) => {
+              setCurrentTab(tab);
+              setCurrentView('dashboard');
+            }}
+            onNewJournal={() => {
+              setCurrentView('dashboard');
+              setIsNewJournalOpen(true);
+            }}
+            journalCount={journals.length}
+            starredCount={journals.filter((j) => j.starred).length}
+            settings={settings}
+            onUpdateSettings={setSettings}
+            onOpenBackup={() => setIsBackupOpen(true)}
+            onOpenAdmin={() => setCurrentView('admin')}
+            isAdminActive={true}
+          />
+        </div>
       ) : (
         <div className="flex min-h-screen w-full">
           {/* Main Dashboard Layout */}
@@ -376,6 +399,8 @@ export default function App() {
             settings={settings}
             onUpdateSettings={setSettings}
             onOpenBackup={() => setIsBackupOpen(true)}
+            onOpenAdmin={() => setCurrentView('admin')}
+            isAdminActive={false}
           />
         </div>
       )}

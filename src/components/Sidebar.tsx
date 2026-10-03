@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Bookmark, Star, Plus, Volume2, VolumeX, Download, Upload } from 'lucide-react';
+import { BookOpen, Bookmark, Star, Plus, Volume2, VolumeX, Download, Upload, Shield } from 'lucide-react';
 import { sound } from '../utils/audio';
 import { toPersianDigits } from '../utils/jalali';
 import { AppSettings } from '../types';
@@ -13,6 +13,8 @@ interface SidebarProps {
   settings: AppSettings;
   onUpdateSettings: (settings: AppSettings) => void;
   onOpenBackup: () => void;
+  onOpenAdmin: () => void;
+  isAdminActive?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -24,6 +26,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   settings,
   onUpdateSettings,
   onOpenBackup,
+  onOpenAdmin,
+  isAdminActive,
 }) => {
   const toggleSound = () => {
     const updated = !settings.soundEnabled;
@@ -112,6 +116,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <span className="text-xs font-mono font-bold bg-white/70 px-2 py-0.5 rounded-md shadow-2xs">
               {toPersianDigits(starredCount)}
+            </span>
+          </button>
+
+          <button
+            onClick={() => {
+              sound.playTick(true);
+              onOpenAdmin();
+            }}
+            className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer mt-1 ${
+              isAdminActive
+                ? 'bg-[#ffece5] text-[#ff5024] font-bold'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Shield size={18} className={isAdminActive ? 'text-[#ff5024]' : 'text-slate-400'} />
+              <span>پنل مدیریت</span>
+            </div>
+            <span className="text-[10px] font-bold bg-orange-100 text-[#ff6438] px-2 py-0.5 rounded-md">
+              Supabase
             </span>
           </button>
         </nav>

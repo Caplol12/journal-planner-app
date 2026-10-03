@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Star,
   Search,
@@ -32,6 +32,8 @@ import {
 import { injectHtmlSyncScript } from '../utils/htmlTemplates';
 import { AddHtmlTemplateModal } from './AddHtmlTemplateModal';
 import { TemplateTestPlaygroundModal, TestTemplateItem } from './TemplateTestPlaygroundModal';
+import { CloudTemplate, fetchCloudTemplates } from '../utils/supabaseTemplates';
+import { isSupabaseConfigured } from '../utils/supabase';
 
 interface DashboardProps {
   journals: Journal[];
@@ -203,6 +205,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
     return loadStoredCustomTemplates();
   });
 
+  const [cloudTemplates, setCloudTemplates] = useState<CloudTemplate[]>([]);
+
+  useEffect(() => {
+    if (isSupabaseConfigured()) {
+      fetchCloudTemplates()
+        .then((data) => setCloudTemplates(data))
+        .catch((err) => console.error('Error loading cloud templates in Dashboard:', err));
+    }
+  }, [currentTab]);
+
   const handleSaveCustomHtmlTemplate = (newTemplate: CustomHtmlTemplate) => {
     sound.playAdd();
     setCustomHtmlTemplates((prev) => {
@@ -302,7 +314,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
     isCustom: true,
   }));
 
-  const allDisplayTemplates: TestTemplateItem[] = [...customItems, ...PLANNER_TEMPLATES];
+  const cloudItems: TestTemplateItem[] = cloudTemplates
+    .filter((ct) => ct.is_active)
+    .map((ct) => ({
+      id: `cloud_${ct.id}`,
+      title: ct.title,
+      badge: ct.badge || 'قالب ابری',
+      templateType: 'template-custom-html' as TemplateType,
+      desc: ct.description || 'قالب همگام‌شده از Supabase Storage',
+      pageData: {
+        templateType: 'template-custom-html' as TemplateType,
+        customHtmlContent: ct.html_content,
+        timeSlots: {},
+        habits: [],
+        dailyNotes: '',
+        nonRoutine: { followUps: [], admin: [], docs: [], team: [], misc: [] },
+        priorities: [],
+        todos: [],
+      } as DayPage,
+      customHtmlContent: ct.html_content,
+      isCustom: false,
+    }));
+
+  const allDisplayTemplates: TestTemplateItem[] = [...cloudItems, ...customItems, ...PLANNER_TEMPLATES];
 
   return (
     <main className="flex-1 p-6 md:p-10 flex flex-col gap-8 overflow-y-auto min-h-screen">
@@ -819,9 +853,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         isOpen={Boolean(testPlaygroundTemplate)}
         onClose={() => setTestPlaygroundTemplate(null)}
         template={testPlaygroundTemplate}
-        allTemplates={allDisplayTemplates}
         journals={journals}
-        onSelectTemplate={(newTpl) => setTestPlaygroundTemplate(newTpl)}
         onApplyToJournal={(journalId, pageData, title, customDateKey) => {
           if (onAddSheetTemplateToJournal) {
             onAddSheetTemplateToJournal(journalId, pageData, title, customDateKey);
