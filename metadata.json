@@ -1,0 +1,7 @@
+{
+  "name": "سیستم جامع ژورنال و پلنر روزانه | Digital Journals & Planners",
+  "description": "پلتفرم پیشرفته مدیریت ژورنال‌های چندگانه با جلد سه‌بعدی، پلنر ۲۴ ساعته کرونودکس (Chronodex)، زمان‌بندی خطی، ردیاب عادات و تقویم شمسی",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
