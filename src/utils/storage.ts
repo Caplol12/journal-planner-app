@@ -11,7 +11,7 @@ export function loadStoredCustomTemplates(): CustomHtmlTemplate[] {
     if (!raw) return [];
     return JSON.parse(raw);
   } catch (e) {
-    console.error('Failed to load custom templates', e);
+    console.warn('Failed to load custom templates:', e);
     return [];
   }
 }
@@ -21,7 +21,7 @@ export function saveStoredCustomTemplates(templates: CustomHtmlTemplate[]): void
     localStorage.setItem(STORAGE_KEY_CUSTOM_TEMPLATES, JSON.stringify(templates));
     localStorage.setItem('planner_custom_html_templates', JSON.stringify(templates));
   } catch (e) {
-    console.error('Failed to save custom templates', e);
+    console.warn('Failed to save custom templates:', e);
   }
 }
 
@@ -41,6 +41,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   animationStyle: 'flip',
   autoRolloverTasks: true,
   theme: 'sage',
+  colorMode: 'light',
 };
 
 export function createEmptyTemplate2Page(): DayPage {
@@ -460,7 +461,7 @@ export function loadStoredJournals(): Journal[] {
       }
     }
   } catch (err) {
-    console.error('Failed to parse stored journals:', err);
+    console.warn('Failed to parse stored journals:', err);
   }
   return INITIAL_JOURNALS;
 }
@@ -470,7 +471,7 @@ export function saveStoredJournals(journals: Journal[]): boolean {
     localStorage.setItem(STORAGE_KEY_JOURNALS, JSON.stringify(journals));
     return true;
   } catch (err) {
-    console.error('Failed to save journals to localStorage', err);
+    console.warn('Failed to save journals to localStorage:', err);
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
         new CustomEvent('planner_storage_error', {
@@ -498,7 +499,7 @@ export function saveStoredSettings(settings: AppSettings) {
   try {
     localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
   } catch (err) {
-    console.error('Failed to save settings to localStorage', err);
+    console.warn('Failed to save settings to localStorage:', err);
   }
 }
 

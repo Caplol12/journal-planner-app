@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronRight, ChevronLeft, Calendar, FileText, Settings, Volume2, VolumeX, ArrowRight, PenTool } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Calendar, FileText, Settings, Volume2, VolumeX, ArrowRight, PenTool, Sun, Moon } from 'lucide-react';
 import { Journal, DayPage, AppSettings, CategoryOption, DrawingStroke, PageTextFormat } from '../types';
 import { formatJalaliDate, getDateKey, parseDateKey } from '../utils/jalali';
 import { sound } from '../utils/audio';
@@ -420,7 +420,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
         );
         formatted = true;
       } catch (err) {
-        console.error('Error posting format message to iframe:', err);
+        console.warn('Notice posting format message to iframe:', err);
       }
     }
 
@@ -539,10 +539,10 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
 
   return (
     <div
-      className={`min-h-screen w-full bg-linear-to-br ${activeTheme.bg} p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden`}
+      className={`min-h-screen w-full bg-linear-to-br ${activeTheme.bg} p-3 sm:p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden pb-24 sm:pb-12`}
     >
       {/* Top Navigation Toolbar Inside Journal */}
-      <header className="w-full max-w-5xl bg-white/15 backdrop-blur-md border border-white/25 rounded-3xl p-3 md:px-6 md:py-3.5 flex flex-wrap items-center justify-between gap-3 text-white shadow-xl z-20 mb-6">
+      <header className="w-full max-w-5xl bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 md:px-6 md:py-3.5 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-white shadow-xl z-20 mb-4 sm:mb-6">
         {/* Left: Back button to Pages Overview + Library + Active Journal Title */}
         <div className="flex items-center gap-2">
           <button
@@ -701,6 +701,19 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
             )}
           </button>
 
+          {/* Quick Dark/Light Theme Toggle */}
+          <button
+            onClick={() => {
+              const nextMode: 'light' | 'dark' = settings.colorMode === 'dark' ? 'light' : 'dark';
+              onUpdateSettings({ ...settings, colorMode: nextMode });
+              sound.playTick(true);
+            }}
+            className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer transition-colors border border-white/20"
+            title={settings.colorMode === 'dark' ? 'تغییر به تم روشن' : 'تغییر به تم تاریک'}
+          >
+            {settings.colorMode === 'dark' ? <Sun size={15} className="text-amber-300" /> : <Moon size={15} />}
+          </button>
+
           <button
             onClick={onOpenSettings}
             className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer transition-colors border border-white/20"
@@ -819,7 +832,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
           </div>
         ) : (
           <main
-            className={`w-full ${activeTheme.sheetBg} backdrop-blur-md rounded-3xl md:rounded-[36px] p-6 md:p-8 shadow-2xl border grid grid-cols-1 lg:grid-cols-[1.12fr_1fr] gap-8 md:gap-10 ${pageFlipClass}`}
+            className={`w-full ${activeTheme.sheetBg} backdrop-blur-md rounded-2xl sm:rounded-3xl md:rounded-[36px] p-4 sm:p-6 md:p-8 shadow-2xl border grid grid-cols-1 lg:grid-cols-[1.12fr_1fr] gap-6 md:gap-10 ${pageFlipClass}`}
           >
             {/* LEFT COLUMN: 24h Chronodex & Linear Time Blocking */}
             <div className="flex flex-col gap-8">

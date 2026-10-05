@@ -20,17 +20,22 @@ export async function fetchCloudTemplates(): Promise<CloudTemplate[]> {
   const supabase = getSupabase();
   if (!supabase) return [];
 
-  const { data, error } = await supabase
-    .from('templates')
-    .select('*')
-    .order('created_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('templates')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching cloud templates:', error);
-    throw new Error(`خطا در بارگذاری قالب‌های ابری: ${error.message}`);
+    if (error) {
+      console.warn('Could not fetch cloud templates:', error.message || error);
+      return [];
+    }
+
+    return (data || []) as CloudTemplate[];
+  } catch (err: any) {
+    console.warn('Network or client error fetching cloud templates:', err?.message || err);
+    return [];
   }
-
-  return (data || []) as CloudTemplate[];
 }
 
 export async function uploadTemplateFile(

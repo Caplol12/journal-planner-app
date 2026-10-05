@@ -15,8 +15,12 @@ import {
   FileCheck,
   FileCode,
   Upload,
+  Sun,
+  Moon,
+  Orbit,
+  Users,
 } from 'lucide-react';
-import { Journal, DayPage, TemplateType, CustomHtmlTemplate } from '../types';
+import { Journal, DayPage, TemplateType, CustomHtmlTemplate, ColorMode } from '../types';
 import { toPersianDigits, getDateKey } from '../utils/jalali';
 import { sound } from '../utils/audio';
 import { MiniPlannerSheet } from './MiniPlannerSheet';
@@ -34,6 +38,7 @@ import { AddHtmlTemplateModal } from './AddHtmlTemplateModal';
 import { TemplateTestPlaygroundModal, TestTemplateItem } from './TemplateTestPlaygroundModal';
 import { CloudTemplate, fetchCloudTemplates } from '../utils/supabaseTemplates';
 import { isSupabaseConfigured } from '../utils/supabase';
+import { FavoritesTemplateGallery } from './templates/FavoritesTemplateGallery';
 
 interface DashboardProps {
   journals: Journal[];
@@ -51,6 +56,12 @@ interface DashboardProps {
     customDateKey?: string
   ) => void;
   onCreateJournalWithTemplate?: (title: string, color: string, pageData: DayPage) => void;
+  colorMode?: ColorMode;
+  onToggleColorMode?: () => void;
+  onOpenCalendar?: () => void;
+  onOpenUsers?: () => void;
+  onOpenJournalPage?: (journalId: string, dateKey: string) => void;
+  onUpdateJournalPage?: (journalId: string, dateKey: string, updatedPage: DayPage) => void;
 }
 
 // Collection of Distinct Templates
@@ -193,6 +204,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onCreateFromTemplate,
   onAddSheetTemplateToJournal,
   onCreateJournalWithTemplate,
+  colorMode,
+  onToggleColorMode,
+  onOpenCalendar,
+  onOpenUsers,
+  onOpenJournalPage,
+  onUpdateJournalPage,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
@@ -209,9 +226,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   useEffect(() => {
     if (isSupabaseConfigured()) {
+      let isMounted = true;
       fetchCloudTemplates()
-        .then((data) => setCloudTemplates(data))
-        .catch((err) => console.error('Error loading cloud templates in Dashboard:', err));
+        .then((data) => {
+          if (isMounted && Array.isArray(data)) {
+            setCloudTemplates(data);
+          }
+        })
+        .catch((err) => {
+          console.warn('Cloud templates not loaded:', err?.message || err);
+        });
+      return () => {
+        isMounted = false;
+      };
     }
   }, [currentTab]);
 
@@ -339,41 +366,81 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const allDisplayTemplates: TestTemplateItem[] = [...cloudItems, ...customItems, ...PLANNER_TEMPLATES];
 
   return (
-    <main className="flex-1 p-6 md:p-10 flex flex-col gap-8 overflow-y-auto min-h-screen">
+    <main className="flex-1 p-4 sm:p-6 md:p-10 flex flex-col gap-6 sm:gap-8 overflow-y-auto min-h-screen bg-[#f5f7f9] dark:bg-[#0b1120] text-slate-800 dark:text-slate-100 transition-colors duration-200">
       {/* Top Header & Search */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
-            <span>{currentTab === 'templates' ? '📑' : '📚'}</span>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2.5 sm:gap-3">
+            <span className="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-800 dark:via-slate-700 dark:to-slate-900 border border-slate-300/80 dark:border-slate-600 text-slate-700 dark:text-slate-200 shadow-xs shadow-slate-300/30 text-lg shrink-0">
+              {currentTab === 'templates' ? '📑' : currentTab === 'favorites' ? '⭐' : '📚'}
+            </span>
             <span>
               {currentTab === 'all'
                 ? 'ژورنال‌های من'
                 : currentTab === 'templates'
                 ? 'قالب‌های برگه پلنر روزانه'
-                : 'ژورنال‌های برگزیده و علاقه‌مندی‌ها'}
+                : 'گالری قالب‌های برگزیده (ورق‌زدن تمام برگه‌ها)'}
             </span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {currentTab === 'templates'
               ? 'الگوهای استاندارد برگه پلنر با ساختار یکپارچه کرونودکس ۲۴ ساعته، زمان‌بندی خطی و عادات (مشابه برگه سبز رنگ)'
+              : currentTab === 'favorites'
+              ? 'تصاویر قالب‌ها را انتخاب کنید تا تمام برگه‌های مرتبط در تمام دفترچه‌ها و تاریخ‌ها پشت سر هم برای ورق‌زدن قرار گیرند.'
               : `شامل ${toPersianDigits(filteredJournals.length)} ژورنال شخصی آماده یادداشت`}
           </p>
         </div>
 
-        {/* Live Search */}
-        <div className="relative w-full md:w-72">
-          <Search size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={
-              currentTab === 'templates'
-                ? 'جستجوی عنوان قالب برگه...'
-                : 'جستجوی عنوان ژورنال...'
-            }
-            className="w-full bg-white border border-slate-200 focus:border-[#ff6438] rounded-xl pr-10 pl-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none transition-all shadow-xs"
-          />
+        {/* Live Search & Theme Toggle */}
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <div className="relative flex-1 sm:w-64 md:w-72">
+            <Search size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={
+                currentTab === 'templates'
+                  ? 'جستجوی عنوان قالب برگه...'
+                  : 'جستجوی عنوان ژورنال...'
+              }
+              className="w-full bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 focus:border-[#ff6438] dark:focus:border-[#ff6438] rounded-xl pr-10 pl-4 py-2.5 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all shadow-xs"
+            />
+          </div>
+
+          {onOpenCalendar && (
+            <button
+              type="button"
+              onClick={onOpenCalendar}
+              title="مشاهده تقویم دوگانه کیهانی مدار (شمسی و میلادی با نمای سالانه و ماهانه)"
+              className="flex items-center gap-1.5 px-3 py-2.5 bg-cyan-50 dark:bg-cyan-950/40 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 border border-cyan-200 dark:border-cyan-800/80 rounded-xl text-cyan-700 dark:text-cyan-300 font-bold text-xs shadow-xs transition-all shrink-0 cursor-pointer group active:scale-95"
+            >
+              <Orbit size={16} className="text-cyan-600 dark:text-cyan-400 group-hover:rotate-90 transition-transform duration-300" />
+              <span className="hidden sm:inline">تقویم کیهانی</span>
+            </button>
+          )}
+
+          {onOpenUsers && (
+            <button
+              type="button"
+              onClick={onOpenUsers}
+              title="صفحه ثبت‌نام و فهرست کاربران پایگاه‌داده"
+              className="flex items-center gap-1.5 px-3 py-2.5 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800/80 rounded-xl text-blue-700 dark:text-blue-300 font-bold text-xs shadow-xs transition-all shrink-0 cursor-pointer active:scale-95"
+            >
+              <Users size={16} className="text-blue-600 dark:text-blue-400" />
+              <span className="hidden sm:inline">کاربران دیتابیس</span>
+            </button>
+          )}
+
+          {onToggleColorMode && (
+            <button
+              onClick={onToggleColorMode}
+              title={colorMode === 'dark' ? 'تغییر به تم روشن' : 'تغییر به تم تاریک'}
+              className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-xs transition-colors shrink-0 cursor-pointer"
+            >
+              {colorMode === 'dark' ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
+            </button>
+          )}
         </div>
       </div>
 
@@ -427,7 +494,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               .map((tpl) => (
               <div
                 key={tpl.id}
-                className="bg-white border border-slate-200 hover:border-slate-300 rounded-[32px] p-5 flex flex-col justify-between gap-4 shadow-xs hover:shadow-xl transition-all duration-300 group hover:-translate-y-1"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-[32px] p-5 flex flex-col justify-between gap-4 shadow-xs hover:shadow-xl transition-all duration-300 group hover:-translate-y-1"
               >
                 {/* 1. Miniature Sheet Preview (Exact layout for each template) */}
                 <div className="w-full">
@@ -561,23 +628,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     )}
                   </div>
 
-                  <h3 className="text-sm font-black text-slate-900 group-hover:text-emerald-700 transition-colors">
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                     {tpl.title}
                   </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
                     {tpl.desc}
                   </p>
                 </div>
 
                 {/* 3. Actions: Minimal Test Mode Button + Add Button + Subtle Delete if Custom */}
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                   <button
                     type="button"
                     onClick={() => {
                       sound.playSwoosh();
                       setTestPlaygroundTemplate(tpl);
                     }}
-                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                    className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                     title="تست و کار با برگه بدون ذخیره در دفترچه‌ها"
                   >
                     <Eye size={14} />
@@ -594,7 +661,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         pageData: tpl.pageData,
                       });
                     }}
-                    className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                    className="flex-1 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                     title="افزودن این برگه به دفترچه یادداشت"
                   >
                     <Plus size={14} strokeWidth={2.5} />
@@ -616,6 +683,31 @@ export const Dashboard: React.FC<DashboardProps> = ({
             ))}
           </div>
         </div>
+      ) : currentTab === 'favorites' ? (
+        /* Favorites Templates Visual Gallery & Flipbook */
+        <FavoritesTemplateGallery
+          journals={journals}
+          templates={allDisplayTemplates}
+          onOpenJournalPage={(journalId, dateKey) => {
+            if (onOpenJournalPage) {
+              onOpenJournalPage(journalId, dateKey);
+            } else {
+              onOpenJournal(journalId);
+            }
+          }}
+          onUpdateJournalPage={onUpdateJournalPage}
+          onAddNewPageWithTemplate={(templateType, pageData) => {
+            if (journals.length > 0) {
+              if (onAddSheetTemplateToJournal) {
+                onAddSheetTemplateToJournal(journals[0].id, pageData, 'برگه جدید');
+              } else {
+                onOpenJournal(journals[0].id);
+              }
+            } else {
+              onCreateFromTemplate('ژورنال جدید', '#2d6a4f', templateType);
+            }
+          }}
+        />
       ) : (
         /* Journal Cards Grid (Matching reference image) */
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -627,7 +719,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <div
                 key={journal.id}
                 onClick={() => onOpenJournal(journal.id)}
-                className="bg-white border border-slate-200 hover:border-slate-300 rounded-3xl p-5 flex items-center justify-between gap-4 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer relative group hover:-translate-y-1"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-3xl p-5 flex items-center justify-between gap-4 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer relative group hover:-translate-y-1"
               >
                 {/* Information (Right side in RTL) */}
                 <div className="flex-1 flex flex-col gap-2.5 min-w-0">
@@ -638,7 +730,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         e.stopPropagation();
                         onToggleStar(journal.id);
                       }}
-                      className="text-slate-300 hover:text-amber-400 transition-colors p-1 cursor-pointer"
+                      className="text-slate-300 dark:text-slate-600 hover:text-amber-400 transition-colors p-1 cursor-pointer"
                       title={journal.starred ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
                     >
                       <Star
@@ -648,14 +740,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         }`}
                       />
                     </button>
-                    <h3 className="text-base font-extrabold text-slate-900 truncate tracking-tight">
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white truncate tracking-tight">
                       {journal.title}
                     </h3>
                   </div>
 
                   {/* Meta Row: Page Count + Date */}
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <span className="bg-[#ffede8] text-[#ff542e] font-bold text-[11px] px-2.5 py-0.5 rounded-full inline-flex items-center">
+                  <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+                    <span className="bg-[#ffede8] dark:bg-orange-950/50 text-[#ff542e] dark:text-orange-400 font-bold text-[11px] px-2.5 py-0.5 rounded-full inline-flex items-center">
                       {toPersianDigits(pageCount)} برگه
                     </span>
                     <span className="font-mono text-[11px]">🕒 {toPersianDigits(journal.createdAt)}</span>
@@ -670,7 +762,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           e.stopPropagation();
                           setActiveMenuId(isMenuOpen ? null : journal.id);
                         }}
-                        className="bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg p-1.5 transition-colors cursor-pointer"
+                        className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg p-1.5 transition-colors cursor-pointer"
                         title="عملیات بیشتر"
                       >
                         <MoreHorizontal size={15} />
@@ -679,14 +771,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       {isMenuOpen && (
                         <div
                           onClick={(e) => e.stopPropagation()}
-                          className="absolute right-0 bottom-full mb-2 w-36 bg-white border border-slate-200 rounded-xl shadow-xl p-1.5 flex flex-col gap-1 z-30"
+                          className="absolute right-0 bottom-full mb-2 w-36 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-1.5 flex flex-col gap-1 z-30"
                         >
                           <button
                             onClick={() => {
                               setActiveMenuId(null);
                               onEditCover(journal.id);
                             }}
-                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100 rounded-lg w-full text-right cursor-pointer"
+                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg w-full text-right cursor-pointer"
                           >
                             <Edit3 size={13} />
                             <span>تغییر نام</span>
@@ -696,7 +788,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                               setActiveMenuId(null);
                               onDuplicate(journal.id);
                             }}
-                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100 rounded-lg w-full text-right cursor-pointer"
+                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg w-full text-right cursor-pointer"
                           >
                             <Copy size={13} />
                             <span>تکثیر ژورنال</span>
@@ -706,7 +798,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                               setActiveMenuId(null);
                               onDelete(journal.id);
                             }}
-                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg w-full text-right cursor-pointer"
+                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg w-full text-right cursor-pointer"
                           >
                             <Trash2 size={13} />
                             <span>حذف ژورنال</span>
@@ -720,7 +812,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         e.stopPropagation();
                         onEditCover(journal.id);
                       }}
-                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg py-1 px-2.5 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg py-1 px-2.5 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <Edit3 size={12} />
                       <span>ویرایش جلد</span>
@@ -776,24 +868,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl flex flex-col gap-5 border border-slate-100 animate-in zoom-in-95 duration-150"
+            className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl flex flex-col gap-5 border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-150"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <FileCheck size={18} className="text-emerald-700" />
-                <h3 className="text-base font-black text-slate-900">
+                <FileCheck size={18} className="text-emerald-700 dark:text-emerald-400" />
+                <h3 className="text-base font-black text-slate-900 dark:text-white">
                   استفاده از {selectedTemplateForAdd.title}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedTemplateForAdd(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
               این برگه ({selectedTemplateForAdd.title}) را به کدام‌یک از دفترچه‌های خود اضافه می‌کنید؟
             </p>
 
@@ -803,7 +895,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <button
                   key={j.id}
                   onClick={() => handleApplyTemplateToExistingJournal(j.id)}
-                  className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:border-emerald-600 hover:bg-emerald-50/50 transition-all text-right cursor-pointer group"
+                  className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-emerald-600 dark:hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 transition-all text-right cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -811,16 +903,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       style={{ backgroundColor: j.color }}
                     />
                     <div>
-                      <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-900 transition-colors">
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors">
                         {j.title}
                       </span>
-                      <span className="text-[10px] text-slate-400 block font-mono">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 block font-mono">
                         {toPersianDigits(Object.keys(j.pages || {}).length)} برگه
                       </span>
                     </div>
                   </div>
 
-                  <span className="text-xs font-bold text-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
                     افزودن برگه ↵
                   </span>
                 </button>
@@ -828,7 +920,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             {/* Option to create a new notebook */}
-            <div className="pt-2 border-t border-slate-100">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
               <button
                 onClick={handleCreateNewNotebookWithTemplate}
                 className="w-full bg-[#ff6438] hover:bg-[#f05427] text-white py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs cursor-pointer transition-colors"

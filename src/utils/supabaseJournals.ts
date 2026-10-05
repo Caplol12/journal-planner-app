@@ -42,7 +42,7 @@ export async function fetchCloudJournals(): Promise<{
       .order('updated_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching cloud journals:', error);
+      console.warn('Could not fetch cloud journals:', error.message || error);
       return { data: null, error: error.message };
     }
 
@@ -100,7 +100,7 @@ export async function saveCloudJournals(journals: Journal[]): Promise<{
       .upsert(rows, { onConflict: 'id,user_id' });
 
     if (error) {
-      console.error('Error syncing journals to cloud:', error);
+      console.warn('Could not sync journals to cloud:', error.message || error);
       return { success: false, error: error.message };
     }
 

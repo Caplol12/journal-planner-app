@@ -19,8 +19,12 @@ export function normalizeSupabaseUrl(rawUrl: string): string {
 }
 
 export function getSupabaseCredentials(): { url: string; anonKey: string } {
-  const envUrl = (import.meta.env.VITE_SUPABASE_URL as string) || '';
-  const envKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || '';
+  const rawEnvUrl = (import.meta.env.VITE_SUPABASE_URL as string) || '';
+  const rawEnvKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || '';
+
+  const isEnvDummy = isPlaceholderConfig(rawEnvUrl, rawEnvKey);
+  const envUrl = isEnvDummy ? '' : rawEnvUrl;
+  const envKey = isEnvDummy ? '' : rawEnvKey;
 
   const localUrl = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_URL_KEY) || '' : '';
   const localKey = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_ANON_KEY) || '' : '';
@@ -31,9 +35,26 @@ export function getSupabaseCredentials(): { url: string; anonKey: string } {
   return { url, anonKey };
 }
 
+export function isPlaceholderConfig(url: string, anonKey: string): boolean {
+  if (!url || !anonKey) return true;
+  const lowerUrl = url.toLowerCase();
+  const lowerKey = anonKey.toLowerCase();
+  return (
+    lowerUrl.includes('your-project-id') ||
+    lowerUrl.includes('example.com') ||
+    lowerUrl.includes('placeholder') ||
+    lowerKey.includes('your-anon-public-key') ||
+    lowerKey.includes('placeholder') ||
+    lowerKey.startsWith('your-') ||
+    anonKey.length < 20
+  );
+}
+
 export function isSupabaseConfigured(): boolean {
   const { url, anonKey } = getSupabaseCredentials();
-  return Boolean(url && anonKey && url.startsWith('http') && anonKey.length > 10);
+  if (!url || !anonKey) return false;
+  if (isPlaceholderConfig(url, anonKey)) return false;
+  return (url.startsWith('http://') || url.startsWith('https://')) && anonKey.length > 20;
 }
 
 export function saveCustomSupabaseConfig(url: string, anonKey: string) {
@@ -70,7 +91,7 @@ export function getSupabase(): SupabaseClient | null {
         },
       });
     } catch (err) {
-      console.error('Failed to initialize Supabase client:', err);
+      console.warn('Could not initialize Supabase client:', err);
       return null;
     }
   }

@@ -101,22 +101,22 @@ export const ChronodexDial: React.FC<ChronodexDialProps> = ({
   return (
     <div className="flex flex-col items-center relative select-none">
       {/* Dual Mode Switcher Tabs (صبح و روز / شب و استراحت / ۲۴H) */}
-      <div className="flex items-center gap-1.5 p-1 bg-black/30 backdrop-blur-md rounded-full border border-white/20 shadow-md mb-3">
+      <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 p-1 bg-black/30 backdrop-blur-md rounded-2xl sm:rounded-full border border-white/20 shadow-md mb-3 max-w-full">
         <button
           type="button"
           onClick={() => {
             sound.playTick(true);
             setDialMode('day');
           }}
-          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
             dialMode === 'day'
               ? 'bg-[#f4c430] text-slate-900 shadow-md scale-105 ring-1 ring-amber-300'
               : 'text-white/80 hover:text-white hover:bg-white/10'
           }`}
           title="حالت صبح و روز (ساعات ۶:۰۰ تا ۱۸:۰۰)"
         >
-          <Sun size={14} className={dialMode === 'day' ? 'text-amber-900' : 'text-amber-300'} />
-          <span>حالت صبح و روز</span>
+          <Sun size={13} className={dialMode === 'day' ? 'text-amber-900' : 'text-amber-300'} />
+          <span>صبح و روز</span>
         </button>
 
         <button
@@ -125,15 +125,15 @@ export const ChronodexDial: React.FC<ChronodexDialProps> = ({
             sound.playTick(true);
             setDialMode('night');
           }}
-          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
             dialMode === 'night'
               ? 'bg-[#3b4b68] text-white shadow-md scale-105 ring-1 ring-indigo-300'
               : 'text-white/80 hover:text-white hover:bg-white/10'
           }`}
           title="حالت شب و استراحت (ساعات ۱۸:۰۰ تا ۰۶:۰۰)"
         >
-          <Moon size={14} className={dialMode === 'night' ? 'text-cyan-300' : 'text-cyan-200'} />
-          <span>حالت شب و استراحت</span>
+          <Moon size={13} className={dialMode === 'night' ? 'text-cyan-300' : 'text-cyan-200'} />
+          <span>شب و استراحت</span>
         </button>
 
         <button
@@ -154,7 +154,7 @@ export const ChronodexDial: React.FC<ChronodexDialProps> = ({
       </div>
 
       {/* SVG Clock Dial Container */}
-      <div className="relative w-76 h-76 md:w-84 md:h-84 transition-all duration-300">
+      <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[340px] aspect-square mx-auto transition-all duration-300">
         <svg
           viewBox="0 0 320 320"
           className="w-full h-full overflow-visible drop-shadow-2xl transition-all duration-300"

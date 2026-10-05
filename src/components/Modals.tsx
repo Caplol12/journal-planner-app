@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Check, Copy, Download, Upload, Volume2, Image as ImageIcon, Pipette, RotateCcw } from 'lucide-react';
-import { AppSettings, Journal, JournalTheme } from '../types';
+import { X, Check, Copy, Download, Upload, Volume2, Image as ImageIcon, Pipette, RotateCcw, Sun, Moon, Monitor } from 'lucide-react';
+import { AppSettings, Journal, JournalTheme, ColorMode } from '../types';
 import { sound } from '../utils/audio';
 
 // Color palette matching the screenshot exactly
@@ -80,7 +80,7 @@ export const NotebookCoverModal: React.FC<NotebookModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-[32px] md:rounded-[38px] p-6 sm:p-7 max-w-[390px] w-full shadow-2xl flex flex-col gap-5 border border-slate-100 select-none animate-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-slate-900 rounded-[32px] md:rounded-[38px] p-6 sm:p-7 max-w-[390px] w-full shadow-2xl flex flex-col gap-5 border border-slate-100 dark:border-slate-800 select-none animate-in zoom-in-95 duration-200"
       >
         {/* Top Header Bar: Checkmark (Save), Centered Title, Close */}
         <div className="flex items-center justify-between">
@@ -88,14 +88,14 @@ export const NotebookCoverModal: React.FC<NotebookModalProps> = ({
           <button
             type="button"
             onClick={handleSave}
-            className="w-10 h-10 rounded-2xl bg-white hover:bg-emerald-50 border border-slate-200/90 shadow-2xs flex items-center justify-center text-emerald-600 transition-all active:scale-95 cursor-pointer"
+            className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border border-slate-200/90 dark:border-slate-700 shadow-2xs flex items-center justify-center text-emerald-600 dark:text-emerald-400 transition-all active:scale-95 cursor-pointer"
             title="تایید و ذخیره"
           >
             <Check size={18} strokeWidth={2.8} />
           </button>
 
           {/* Centered Modal Title */}
-          <h2 className="text-base sm:text-lg font-black text-slate-800 tracking-tight">
+          <h2 className="text-base sm:text-lg font-black text-slate-800 dark:text-slate-100 tracking-tight">
             {isEditMode ? 'ویرایش دفترچه' : 'دفترچه جدید'}
           </h2>
 
@@ -103,7 +103,7 @@ export const NotebookCoverModal: React.FC<NotebookModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-2xl bg-white hover:bg-slate-100 border border-slate-200/90 shadow-2xs flex items-center justify-center text-slate-500 transition-all active:scale-95 cursor-pointer"
+            className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200/90 dark:border-slate-700 shadow-2xs flex items-center justify-center text-slate-500 dark:text-slate-400 transition-all active:scale-95 cursor-pointer"
             title="بستن"
           >
             <X size={18} strokeWidth={2.2} />
@@ -152,17 +152,17 @@ export const NotebookCoverModal: React.FC<NotebookModalProps> = ({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold py-2.5 px-6 rounded-2xl flex items-center gap-2 shadow-2xs transition-all active:scale-95 cursor-pointer"
+            className="border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold py-2.5 px-6 rounded-2xl flex items-center gap-2 shadow-2xs transition-all active:scale-95 cursor-pointer"
           >
             <span>Import From Gallery</span>
-            <ImageIcon size={15} className="text-slate-600" />
+            <ImageIcon size={15} className="text-slate-600 dark:text-slate-400" />
           </button>
 
           {coverImage && (
             <button
               type="button"
               onClick={() => setCoverImage(undefined)}
-              className="p-2.5 text-slate-400 hover:text-rose-500 rounded-2xl border border-slate-200 hover:bg-rose-50 transition-colors cursor-pointer"
+              className="p-2.5 text-slate-400 hover:text-rose-500 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
               title="حذف تصویر و بازگشت به رنگ تک‌رنگ"
             >
               <RotateCcw size={14} />
@@ -177,14 +177,14 @@ export const NotebookCoverModal: React.FC<NotebookModalProps> = ({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="notebook 22"
-            className="w-full bg-[#f0f4f9] border border-slate-200/90 rounded-2xl px-4 py-3 text-sm font-bold text-slate-800 placeholder-slate-400 outline-none focus:border-slate-400 focus:bg-white transition-all shadow-inner/10"
+            className="w-full bg-[#f0f4f9] dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-slate-400 dark:focus:border-slate-500 focus:bg-white dark:focus:bg-slate-800 transition-all shadow-inner/10"
           />
         </div>
 
         {/* "Cover Color" Palette Selector */}
         <div className="flex flex-col gap-2">
           <div className="text-left select-none">
-            <span className="text-xs font-bold text-slate-700">Cover Color</span>
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Cover Color</span>
           </div>
 
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
@@ -305,20 +305,60 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl flex flex-col gap-6 max-h-[85vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 className="text-lg font-black text-slate-900">تنظیمات و شخصی‌سازی پلنر ⚙️</h3>
+      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl flex flex-col gap-6 max-h-[85vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">تنظیمات و شخصی‌سازی پلنر ⚙️</h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 cursor-pointer transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
+        {/* Color Mode / Theme Mode (Light / Dark / System) */}
+        <div className="flex flex-col gap-2.5">
+          <label className="text-xs font-bold text-slate-800 dark:text-slate-200">حالت ظاهر و تم برنامه:</label>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { id: 'light', name: 'حالت روشن', icon: Sun, desc: 'روشن و استاندارد' },
+              { id: 'dark', name: 'حالت تاریک', icon: Moon, desc: 'مناسب شب و نور کم' },
+              { id: 'system', name: 'هماهنگ با سیستم', icon: Monitor, desc: 'پیروی از دستگاه' },
+            ].map((mode) => {
+              const IconComp = mode.icon;
+              const isSelected = (settings.colorMode || 'light') === mode.id;
+              return (
+                <button
+                  key={mode.id}
+                  type="button"
+                  onClick={() => {
+                    sound.playTick(true);
+                    onUpdateSettings({
+                      ...settings,
+                      colorMode: mode.id as ColorMode,
+                    });
+                  }}
+                  className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-center transition-all cursor-pointer ${
+                    isSelected
+                      ? 'border-[#ff6438] bg-orange-50/70 dark:bg-orange-950/40 text-[#ff5024] shadow-xs'
+                      : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <IconComp
+                    size={20}
+                    className={isSelected ? 'text-[#ff5024]' : 'text-slate-500 dark:text-slate-400'}
+                  />
+                  <span className="text-xs font-bold">{mode.name}</span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500">{mode.desc}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Animation Styles */}
         <div className="flex flex-col gap-2.5">
-          <label className="text-xs font-bold text-slate-800">سبک انیمیشن تعویض روز و ورق زدن:</label>
+          <label className="text-xs font-bold text-slate-800 dark:text-slate-200">سبک انیمیشن تعویض روز و ورق زدن:</label>
           <div className="grid grid-cols-2 gap-2">
             {[
               { id: 'flip', name: '📖 ورق زدن سه‌بعدی کتاب', desc: 'شبیه‌سازی باز شدن برگه‌ها' },
@@ -336,22 +376,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 }
                 className={`flex flex-col gap-0.5 p-3 rounded-2xl border text-right transition-all cursor-pointer ${
                   settings.animationStyle === anim.id
-                    ? 'border-[#ff6438] bg-orange-50/50'
-                    : 'border-slate-200 hover:bg-slate-50'
+                    ? 'border-[#ff6438] bg-orange-50/50 dark:bg-orange-950/40'
+                    : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
-                <span className="text-xs font-bold text-slate-900">{anim.name}</span>
-                <span className="text-[10px] text-slate-400">{anim.desc}</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{anim.name}</span>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500">{anim.desc}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Task Rollover */}
-        <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60">
+        <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700">
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-bold text-slate-800">انتقال خودکار کارهای انجام‌نشده (Rollover)</span>
-            <span className="text-[11px] text-slate-500">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">انتقال خودکار کارهای انجام‌نشده (Rollover)</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
               کارهای تیک‌نخورده روز قبل به روز جدید منتقل شوند.
             </span>
           </div>
@@ -365,16 +405,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               }
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+            <div className="w-11 h-6 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
           </label>
         </div>
 
         {/* Sound Effects */}
-        <div className="flex flex-col gap-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60">
+        <div className="flex flex-col gap-3 p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Volume2 size={16} className="text-slate-700" />
-              <span className="text-xs font-bold text-slate-800">افکت‌های صوتی تعاملی</span>
+              <Volume2 size={16} className="text-slate-700 dark:text-slate-300" />
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">افکت‌های صوتی تعاملی</span>
             </div>
 
             <label className="relative inline-flex items-center cursor-pointer">
@@ -387,30 +427,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 }}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+              <div className="w-11 h-6 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
             </label>
           </div>
 
           {settings.soundEnabled && (
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-200/50">
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-200/50 dark:border-slate-700/60">
               <button
                 type="button"
                 onClick={() => sound.playTick(true)}
-                className="px-2.5 py-1 bg-white hover:bg-slate-100 rounded-lg text-[11px] font-semibold text-slate-700 border border-slate-200 cursor-pointer"
+                className="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-[11px] font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 cursor-pointer"
               >
                 تست صدای تیک
               </button>
               <button
                 type="button"
                 onClick={() => sound.playStar()}
-                className="px-2.5 py-1 bg-white hover:bg-slate-100 rounded-lg text-[11px] font-semibold text-slate-700 border border-slate-200 cursor-pointer"
+                className="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-[11px] font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 cursor-pointer"
               >
                 تست صدای ستاره ⭐
               </button>
               <button
                 type="button"
                 onClick={() => sound.playSwoosh()}
-                className="px-2.5 py-1 bg-white hover:bg-slate-100 rounded-lg text-[11px] font-semibold text-slate-700 border border-slate-200 cursor-pointer"
+                className="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-[11px] font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 cursor-pointer"
               >
                 تست ورق زدن کاغذ
               </button>
@@ -421,7 +461,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className="flex justify-end pt-2">
           <button
             onClick={onClose}
-            className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer"
+            className="bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-colors"
           >
             بستن و ذخیره
           </button>
@@ -469,25 +509,25 @@ export const MarkdownModal: React.FC<MarkdownModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl flex flex-col gap-5 max-h-[85vh]">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 className="text-lg font-black text-slate-900">خروجی یادداشت روزانه (Markdown .md) 📝</h3>
+      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl flex flex-col gap-5 max-h-[85vh]">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">خروجی یادداشت روزانه (Markdown .md) 📝</h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 cursor-pointer transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           این فرمت کاملاً ساختاریافته است و می‌توانید آن را مستقیماً در Obsidian، Notion، Logseq یا VS Code ایمپورت کنید.
         </p>
 
         <textarea
           readOnly
           value={markdownContent}
-          className="w-full flex-1 min-h-[260px] bg-slate-50 border border-slate-200 rounded-2xl p-4 font-mono text-xs text-slate-800 outline-none leading-relaxed resize-none"
+          className="w-full flex-1 min-h-[260px] bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 font-mono text-xs text-slate-800 dark:text-slate-200 outline-none leading-relaxed resize-none"
         />
 
         <div className="flex items-center justify-between pt-2">
@@ -501,9 +541,9 @@ export const MarkdownModal: React.FC<MarkdownModalProps> = ({
 
           <button
             onClick={handleCopy}
-            className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+            className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
           >
-            {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+            {copied ? <Check size={14} className="text-emerald-600 dark:text-emerald-400" /> : <Copy size={14} />}
             <span>{copied ? 'کپی شد!' : 'کپی در کلیپ‌بورد'}</span>
           </button>
         </div>
@@ -565,18 +605,18 @@ export const BackupModal: React.FC<BackupModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl flex flex-col gap-6">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 className="text-lg font-black text-slate-900">پشتیبان‌گیری و بازیابی اطلاعات</h3>
+      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl flex flex-col gap-6">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">پشتیبان‌گیری و بازیابی اطلاعات</h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 cursor-pointer transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
-        <p className="text-xs text-slate-600 leading-relaxed">
+        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
           تمام ژورنال‌ها و برگه‌های ثبت‌شده شما در حافظه محلی ذخیره می‌شوند. می‌توانید یک نسخه پشتیبان JSON دانلود کنید یا اطلاعات را به دستگاه دیگری منتقل کنید.
         </p>
 
@@ -589,7 +629,7 @@ export const BackupModal: React.FC<BackupModalProps> = ({
             <span>دانلود فایل پشتیبان (JSON)</span>
           </button>
 
-          <label className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 py-3 px-4 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors border border-dashed border-slate-300">
+          <label className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 py-3 px-4 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors border border-dashed border-slate-300 dark:border-slate-700">
             <Upload size={16} />
             <span>بازیابی از فایل JSON</span>
             <input
@@ -602,7 +642,7 @@ export const BackupModal: React.FC<BackupModalProps> = ({
         </div>
 
         {importError && (
-          <p className="text-xs font-bold text-rose-500 bg-rose-50 p-2.5 rounded-xl border border-rose-100">
+          <p className="text-xs font-bold text-rose-500 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-100 dark:border-rose-900/60">
             ⚠️ {importError}
           </p>
         )}

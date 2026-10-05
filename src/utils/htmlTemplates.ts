@@ -397,12 +397,44 @@ export function injectHtmlSyncScript(rawHtml: string): string {
     .replace(/<style id="__planner_no_scrollbar_style__">[\s\S]*?<\/style>/gi, '')
     .replace(/<script id="__planner_sync_script__">[\s\S]*?<\/script>/gi, '');
 
+  // 1. Ensure RTL direction and Persian language if not set
+  if (!html.includes('dir=')) {
+    html = html.replace(/<html/i, '<html dir="rtl" lang="fa"');
+  }
+
+  // 2. Ensure Persian web fonts are available if missing
+  const fontLinks = `
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Lalezar&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v3.4.0/dist/font-face.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@v5.0.1/dist/font-face.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@v4.0.5/dist/font-face.css">
+`;
+  if (!html.includes('rastikerdar') && !html.includes('Vazirmatn')) {
+    if (html.includes('</head>')) {
+      html = html.replace('</head>', `${fontLinks}\n</head>`);
+    } else if (html.includes('<head>')) {
+      html = html.replace('<head>', `<head>\n${fontLinks}`);
+    }
+  }
+
   const injectedCode = `
 <style id="__planner_no_scrollbar_style__">
-  /* Force remove any internal scrollbars and allow natural expansion */
+  :root {
+    --sheet-font-family: 'Vazirmatn', sans-serif;
+    --sheet-font-size: 14px;
+    --sheet-font-weight: 400;
+    --sheet-font-style: normal;
+    --sheet-text-decoration: none;
+    --sheet-text-align: right;
+    --sheet-text-color: #1e293b;
+  }
+
+  /* Force remove any internal scrollbars and allow natural expansion for Drawing Canvas Overlay */
   html, body {
     overflow-x: hidden !important;
-    overflow-y: hidden !important;
+    overflow-y: visible !important;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
     height: auto !important;
@@ -417,6 +449,22 @@ export function injectHtmlSyncScript(rawHtml: string): string {
     display: none !important;
     width: 0px !important;
     height: 0px !important;
+  }
+
+  /* Universal typography bridge: connects ANY incoming HTML inputs & text to font toolbar */
+  body {
+    font-family: var(--sheet-font-family, 'Vazirmatn', sans-serif);
+    color: var(--sheet-text-color, #1e293b);
+  }
+  input, textarea, select, button {
+    font-family: var(--sheet-font-family, 'Vazirmatn', sans-serif);
+  }
+  input:not([type="checkbox"]):not([type="radio"]), textarea {
+    color: var(--sheet-text-color, inherit);
+    font-size: var(--sheet-font-size, inherit);
+    font-weight: var(--sheet-font-weight, inherit);
+    font-style: var(--sheet-font-style, inherit);
+    text-decoration: var(--sheet-text-decoration, inherit);
   }
 </style>
 <script id="__planner_sync_script__">
@@ -630,6 +678,120 @@ export function injectHtmlSyncScript(rawHtml: string): string {
       syncState();
     }
   });
+
+  // -----------------------------------------------------------------
+  // Universal Smart Line Navigation Engine for ANY Imported HTML
+  // (Enter / ArrowDown / ArrowUp / Backspace on empty line)
+  // -----------------------------------------------------------------
+  function initKeyboardNavigation() {
+    function getAllNavigableInputs() {
+      return Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), textarea, [contenteditable="true"]'));
+    }
+
+    // Enter on top headings (h1, h2, h3) jumps to the first input line
+    var headings = document.querySelectorAll('h1, h2, h3');
+    headings.forEach(function(h) {
+      if (!h.hasAttribute('tabindex')) {
+        h.setAttribute('tabindex', '0');
+      }
+      h.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          var inputs = getAllNavigableInputs();
+          if (inputs.length > 0) {
+            inputs[0].focus();
+          }
+        }
+      });
+    });
+
+    document.addEventListener('keydown', function(e) {
+      var target = e.target;
+      if (!target) return;
+      var isInput = target.tagName === 'INPUT';
+      var isTextarea = target.tagName === 'TEXTAREA';
+      var isContentEditable = target.isContentEditable;
+
+      if (!isInput && !isTextarea && !isContentEditable) return;
+
+      var inputs = getAllNavigableInputs();
+      var idx = inputs.indexOf(target);
+      if (idx === -1) return;
+
+      // 1. Enter or ArrowDown: In single-line inputs, go to next line
+      if ((e.key === 'Enter' || e.key === 'ArrowDown') && isInput) {
+        e.preventDefault();
+        if (idx + 1 < inputs.length) {
+          inputs[idx + 1].focus();
+        }
+        return;
+      }
+
+      // 2. ArrowUp: In single-line inputs, return to previous line
+      if (e.key === 'ArrowUp' && isInput) {
+        e.preventDefault();
+        if (idx > 0) {
+          var prev = inputs[idx - 1];
+          prev.focus();
+          try {
+            var len = prev.value ? prev.value.length : 0;
+            prev.setSelectionRange(len, len);
+          } catch(err) {}
+        } else if (headings.length > 0) {
+          headings[0].focus();
+        }
+        return;
+      }
+
+      // 3. Backspace on empty line: return to previous line
+      if (e.key === 'Backspace') {
+        var isEmpty = (isInput || isTextarea) ? (target.value === '') : (target.textContent.trim() === '');
+        if (isEmpty) {
+          e.preventDefault();
+          if (idx > 0) {
+            var prev = inputs[idx - 1];
+            prev.focus();
+            try {
+              var len = prev.value ? prev.value.length : 0;
+              prev.setSelectionRange(len, len);
+            } catch(err) {}
+          } else if (headings.length > 0) {
+            headings[0].focus();
+          }
+        }
+      }
+    });
+  }
+
+  // Auto-inherit CSS typography variables from parent journal container
+  try {
+    if (window.parent && window.parent.document) {
+      var parentContainer = window.parent.document.querySelector('.planner-page-content');
+      if (parentContainer) {
+        var computed = window.parent.getComputedStyle(parentContainer);
+        var ff = computed.getPropertyValue('--sheet-font-family');
+        if (ff) document.documentElement.style.setProperty('--sheet-font-family', ff);
+        var fs = computed.getPropertyValue('--sheet-font-size');
+        if (fs) document.documentElement.style.setProperty('--sheet-font-size', fs);
+        var fw = computed.getPropertyValue('--sheet-font-weight');
+        if (fw) document.documentElement.style.setProperty('--sheet-font-weight', fw);
+        var fst = computed.getPropertyValue('--sheet-font-style');
+        if (fst) document.documentElement.style.setProperty('--sheet-font-style', fst);
+        var td = computed.getPropertyValue('--sheet-text-decoration');
+        if (td) document.documentElement.style.setProperty('--sheet-text-decoration', td);
+        var ta = computed.getPropertyValue('--sheet-text-align');
+        if (ta) document.documentElement.style.setProperty('--sheet-text-align', ta);
+        var tc = computed.getPropertyValue('--sheet-text-color');
+        if (tc) document.documentElement.style.setProperty('--sheet-text-color', tc);
+      }
+    }
+  } catch (err) {}
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initKeyboardNavigation);
+  } else {
+    initKeyboardNavigation();
+  }
 })();
 </script>
 `;

@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
     } catch (err) {
-      console.error('Error fetching profile:', err);
+      console.warn('Could not fetch profile:', err);
     }
   };
 
@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (u) await fetchProfile(u);
         }
       } catch (err) {
-        console.error('Init auth error:', err);
+        console.warn('Init auth notice:', err);
       } finally {
         if (mounted) setIsLoading(false);
       }

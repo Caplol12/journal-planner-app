@@ -94,7 +94,7 @@ export const AdminPanel: React.FC<{ onBackToApp: () => void }> = ({ onBackToApp 
       const data = await fetchCloudTemplates();
       setTemplates(data);
     } catch (e) {
-      console.error(e);
+      console.warn('Could not load templates:', e);
     } finally {
       setIsLoadingTemplates(false);
     }
@@ -107,7 +107,7 @@ export const AdminPanel: React.FC<{ onBackToApp: () => void }> = ({ onBackToApp 
       const data = await getAllProfiles();
       setProfiles(data);
     } catch (e) {
-      console.error(e);
+      console.warn('Could not load users:', e);
     } finally {
       setIsLoadingProfiles(false);
     }
@@ -322,21 +322,21 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
   };
 
   return (
-    <div className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50 text-slate-800">
+    <div className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-[#0b1120] text-slate-800 dark:text-slate-100 transition-colors duration-200">
       {/* Top Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 shadow-2xs">
+      <header className="bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between shrink-0 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-orange-100 text-[#ff6438] flex items-center justify-center shadow-xs">
+          <div className="w-10 h-10 rounded-2xl bg-orange-100 dark:bg-orange-950/60 text-[#ff6438] dark:text-orange-400 flex items-center justify-center shadow-xs">
             <Shield size={22} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-black text-slate-900 tracking-tight">پنل مدیریت سیستم</h1>
-              <span className="text-[10px] bg-slate-900 text-white font-bold px-2 py-0.5 rounded-full">
+              <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">پنل مدیریت سیستم</h1>
+              <span className="text-[10px] bg-slate-900 dark:bg-slate-700 text-white font-bold px-2 py-0.5 rounded-full">
                 Supabase BaaS
               </span>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               مدیریت و بارگذاری قالب‌های آنلاین، فایل‌های Storage و کنترل کاربران
             </p>
           </div>
@@ -346,22 +346,22 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
         <div className="flex items-center gap-3">
           <button
             onClick={onBackToApp}
-            className="px-3.5 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+            className="px-3.5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
           >
             ← بازگشت به برنامه
           </button>
 
           {user ? (
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 p-1.5 pr-3 rounded-2xl">
+            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-1.5 pr-3 rounded-2xl">
               <div className="text-right">
-                <span className="block text-xs font-bold text-slate-800">
+                <span className="block text-xs font-bold text-slate-800 dark:text-slate-100">
                   {profile?.display_name || user.email?.split('@')[0]}
                 </span>
                 <span
                   className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
                     isAdmin
-                      ? 'bg-orange-100 text-[#ff6438]'
-                      : 'bg-slate-200 text-slate-600'
+                      ? 'bg-orange-100 dark:bg-orange-950/60 text-[#ff6438] dark:text-orange-400'
+                      : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                   }`}
                 >
                   {isAdmin ? 'مدیر کل (Admin)' : 'کاربر عادی'}
@@ -370,7 +370,7 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
               <button
                 onClick={logout}
                 title="خروج از حساب"
-                className="w-8 h-8 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-500 border border-slate-200 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <LogOut size={15} />
               </button>
@@ -388,18 +388,18 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
       </header>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b border-slate-200 px-6 flex items-center gap-4 shrink-0">
+      <div className="bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800 px-6 flex items-center gap-4 shrink-0">
         <button
           onClick={() => setActiveTab('templates')}
           className={`flex items-center gap-2 py-3 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
             activeTab === 'templates'
-              ? 'border-[#ff6438] text-[#ff6438]'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
+              ? 'border-[#ff6438] text-[#ff6438] dark:text-orange-400'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <Layers size={16} />
           <span>مدیریت و بارگذاری قالب‌ها</span>
-          <span className="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full">
             {toPersianDigits(templates.length)}
           </span>
         </button>
@@ -408,14 +408,14 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
           onClick={() => setActiveTab('users')}
           className={`flex items-center gap-2 py-3 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
             activeTab === 'users'
-              ? 'border-[#ff6438] text-[#ff6438]'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
+              ? 'border-[#ff6438] text-[#ff6438] dark:text-orange-400'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <Users size={16} />
           <span>مدیریت کاربران و دسترسی‌ها</span>
           {profiles.length > 0 && (
-            <span className="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full">
               {toPersianDigits(profiles.length)}
             </span>
           )}
@@ -425,8 +425,8 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
           onClick={() => setActiveTab('settings')}
           className={`flex items-center gap-2 py-3 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
             activeTab === 'settings'
-              ? 'border-[#ff6438] text-[#ff6438]'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
+              ? 'border-[#ff6438] text-[#ff6438] dark:text-orange-400'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <Database size={16} />

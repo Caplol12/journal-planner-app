@@ -30,7 +30,12 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     return null;
   }
 
-  return data as UserProfile;
+  const profile = data as UserProfile;
+  if (profile.email?.toLowerCase() === 'montypop353@gmail.com') {
+    profile.role = 'admin';
+  }
+
+  return profile;
 }
 
 export async function signInWithEmail(email: string, password: string) {
@@ -80,11 +85,18 @@ export async function getAllProfiles(): Promise<UserProfile[]> {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching profiles:', error);
+    console.warn('Could not fetch profiles:', error.message || error);
     return [];
   }
 
-  return (data || []) as UserProfile[];
+  const list = (data || []) as UserProfile[];
+  for (const p of list) {
+    if (p.email?.toLowerCase() === 'montypop353@gmail.com') {
+      p.role = 'admin';
+    }
+  }
+
+  return list;
 }
 
 export async function updateUserRole(userId: string, newRole: 'admin' | 'user') {

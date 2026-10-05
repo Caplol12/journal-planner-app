@@ -13,7 +13,7 @@ import {
   exportJournalToMarkdown,
   createEmptyDayPage,
 } from './utils/storage';
-import { formatJalaliShort, getDateKey } from './utils/jalali';
+import { formatJalaliShort, getDateKey, toPersianDigits } from './utils/jalali';
 import { sound } from './utils/audio';
 import { debounce } from './utils/debounce';
 import { useAuth } from './context/AuthContext';
@@ -27,6 +27,10 @@ import { Dashboard } from './components/Dashboard';
 import { PagesOverview } from './components/PagesOverview';
 import { PlannerView } from './components/PlannerView';
 import { AdminPanel } from './components/admin/AdminPanel';
+import { OrbitCalendar } from './components/calendar/OrbitCalendar';
+import { UserRegistrationView } from './components/users/UserRegistrationView';
+import { MobileTopBar } from './components/MobileTopBar';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import {
   NewJournalModal,
   EditCoverModal,
@@ -39,10 +43,11 @@ export default function App() {
   const { user } = useAuth();
   const [journals, setJournals] = useState<Journal[]>(() => loadStoredJournals());
   const [settings, setSettings] = useState<AppSettings>(() => loadStoredSettings());
-  const [currentView, setCurrentView] = useState<'dashboard' | 'pages-overview' | 'planner' | 'admin'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'pages-overview' | 'planner' | 'admin' | 'calendar' | 'users'>('dashboard');
   const [selectedJournalId, setSelectedJournalId] = useState<string | null>(null);
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'all' | 'templates' | 'favorites'>('all');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Modal states
   const [isNewJournalOpen, setIsNewJournalOpen] = useState(false);
@@ -85,6 +90,45 @@ export default function App() {
     saveStoredSettings(settings);
   }, [settings]);
 
+  // Sync color mode (light / dark / system) with DOM
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+
+    const applyTheme = (isDark: boolean) => {
+      if (isDark) {
+        root.classList.add('dark');
+        body.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+        body.classList.remove('dark');
+      }
+    };
+
+    if (settings.colorMode === 'dark') {
+      applyTheme(true);
+    } else if (settings.colorMode === 'light') {
+      applyTheme(false);
+    } else {
+      // 'system'
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      applyTheme(mediaQuery.matches);
+
+      const handleChange = (e: MediaQueryListEvent) => {
+        applyTheme(e.matches);
+      };
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
+  }, [settings.colorMode]);
+
+  const handleToggleColorMode = () => {
+    const nextMode = settings.colorMode === 'dark' ? 'light' : 'dark';
+    setSettings((prev) => ({ ...prev, colorMode: nextMode }));
+    sound.playTick(true);
+    showToast(nextMode === 'dark' ? 'حالت تاریک فعال شد 🌙' : 'حالت روشن فعال شد ☀️');
+  };
+
   // Debounced save for local storage (500ms)
   const debouncedLocalSave = useMemo(
     () => debounce((data: Journal[]) => saveStoredJournals(data), 500),
@@ -107,7 +151,7 @@ export default function App() {
     fetchCloudJournals().then(({ data, error }) => {
       if (!isMounted) return;
       if (error) {
-        console.error('Failed to load cloud journals:', error);
+        console.warn('Could not sync cloud journals:', error);
       } else if (data && data.length > 0) {
         setJournals(data);
         saveStoredJournals(data);
@@ -200,6 +244,30 @@ export default function App() {
     showToast('برگه حذف شد.');
   };
 
+  const handleOpenJournalWithPage = (journalId: string, dateKey: string) => {
+    sound.playTick(true);
+    setSelectedJournalId(journalId);
+    setSelectedDateKey(dateKey);
+    setCurrentView('planner');
+  };
+
+  const handleUpdateAnyJournalPage = (journalId: string, dateKey: string, pageData: DayPage) => {
+    setJournals((prev) =>
+      prev.map((j) => {
+        if (j.id === journalId) {
+          return {
+            ...j,
+            pages: {
+              ...j.pages,
+              [dateKey]: pageData,
+            },
+          };
+        }
+        return j;
+      })
+    );
+  };
+
   const handleBackToPagesOverview = () => {
     setCurrentView('pages-overview');
   };
@@ -208,6 +276,53 @@ export default function App() {
     setCurrentView('dashboard');
     setSelectedJournalId(null);
     setSelectedDateKey(null);
+  };
+
+  const handleOpenCalendarDateInJournal = (dateKey: string) => {
+    sound.playSwoosh();
+    let targetJournal = selectedJournal;
+    if (!targetJournal) {
+      if (journals.length > 0) {
+        targetJournal = journals[0];
+        setSelectedJournalId(targetJournal.id);
+      } else {
+        const newId = Date.now().toString(36);
+        const newJ: Journal = {
+          id: newId,
+          title: 'ژورنال کیهانی من',
+          color: '#0d2244',
+          theme: 'midnight',
+          starred: false,
+          createdAt: new Date().toISOString(),
+          pages: {},
+        };
+        setJournals([newJ]);
+        targetJournal = newJ;
+        setSelectedJournalId(newId);
+      }
+    }
+
+    if (!targetJournal.pages[dateKey]) {
+      const pageData = createEmptyDayPage('template-4-celestial-todo');
+      setJournals((prev) =>
+        prev.map((j) => {
+          if (j.id === targetJournal!.id) {
+            return {
+              ...j,
+              pages: {
+                ...j.pages,
+                [dateKey]: pageData,
+              },
+            };
+          }
+          return j;
+        })
+      );
+    }
+
+    setSelectedDateKey(dateKey);
+    setCurrentView('planner');
+    showToast(`برگه تاریخ ${toPersianDigits(dateKey)} در پلنر باز شد ✨`);
   };
 
   const handleToggleStar = (journalId: string) => {
@@ -371,7 +486,90 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#f5f7f9] text-slate-800 flex flex-col antialiased">
       {/* 3-Tier Navigation View Routing */}
-      {currentView === 'planner' && selectedJournal ? (
+      {currentView === 'users' ? (
+        <div className="flex min-h-screen w-full relative overflow-x-hidden">
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+            <MobileTopBar
+              onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onNewJournal={() => {
+                setCurrentView('dashboard');
+                setIsNewJournalOpen(true);
+              }}
+              isDarkMode={settings.colorMode === 'dark'}
+              onToggleColorMode={handleToggleColorMode}
+              title="STRATEGY"
+            />
+            <div className="flex-1 min-w-0 pb-20 lg:pb-0">
+              <UserRegistrationView
+                onBackToApp={handleBackToDashboard}
+                onSelectUserToLogin={(userEmail) => {
+                  showToast(`ورود به عنوان کاربر ${userEmail} انجام شد.`);
+                  setCurrentView('dashboard');
+                }}
+              />
+            </div>
+          </div>
+          <Sidebar
+            currentTab={currentTab}
+            onSelectTab={(tab) => {
+              setCurrentTab(tab);
+              setCurrentView('dashboard');
+              setIsMobileMenuOpen(false);
+            }}
+            onNewJournal={() => {
+              setCurrentView('dashboard');
+              setIsNewJournalOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+            journalCount={journals.length}
+            starredCount={journals.filter((j) => j.starred).length}
+            settings={settings}
+            onUpdateSettings={setSettings}
+            onOpenBackup={() => {
+              setIsBackupOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+            onOpenAdmin={() => {
+              setCurrentView('admin');
+              setIsMobileMenuOpen(false);
+            }}
+            isAdminActive={false}
+            onOpenCalendar={() => {
+              setCurrentView('calendar');
+              setIsMobileMenuOpen(false);
+            }}
+            isCalendarActive={false}
+            onOpenUsers={() => {
+              setCurrentView('users');
+              setIsMobileMenuOpen(false);
+            }}
+            isUsersActive={true}
+            onToggleColorMode={handleToggleColorMode}
+            isOpenMobile={isMobileMenuOpen}
+            onCloseMobile={() => setIsMobileMenuOpen(false)}
+          />
+          <MobileBottomNav
+            currentTab={currentTab}
+            isCalendarActive={false}
+            onSelectTab={(tab) => {
+              setCurrentTab(tab);
+              setCurrentView('dashboard');
+            }}
+            onOpenCalendar={() => setCurrentView('calendar')}
+            onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            onNewJournal={() => {
+              setCurrentView('dashboard');
+              setIsNewJournalOpen(true);
+            }}
+          />
+        </div>
+      ) : currentView === 'calendar' ? (
+        <OrbitCalendar
+          onBackToApp={handleBackToDashboard}
+          onOpenJournalDate={handleOpenCalendarDateInJournal}
+          journals={journals}
+        />
+      ) : currentView === 'planner' && selectedJournal ? (
         <PlannerView
           journal={selectedJournal}
           initialDateKey={selectedDateKey || undefined}
@@ -391,73 +589,185 @@ export default function App() {
           onAddNewPage={handleAddNewPage}
           onDeletePage={handleDeletePage}
           onEditCover={() => setEditingJournal(selectedJournal)}
+          colorMode={settings.colorMode}
+          onToggleColorMode={handleToggleColorMode}
         />
       ) : currentView === 'admin' ? (
-        <div className="flex min-h-screen w-full">
-          <AdminPanel onBackToApp={() => setCurrentView('dashboard')} />
+        <div className="flex min-h-screen w-full relative overflow-x-hidden">
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+            <MobileTopBar
+              onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onNewJournal={() => {
+                setCurrentView('dashboard');
+                setIsNewJournalOpen(true);
+              }}
+              isDarkMode={settings.colorMode === 'dark'}
+              onToggleColorMode={handleToggleColorMode}
+              title="STRATEGY"
+            />
+            <div className="flex-1 min-w-0 pb-20 lg:pb-0">
+              <AdminPanel onBackToApp={() => setCurrentView('dashboard')} />
+            </div>
+          </div>
           <Sidebar
             currentTab={currentTab}
             onSelectTab={(tab) => {
               setCurrentTab(tab);
               setCurrentView('dashboard');
+              setIsMobileMenuOpen(false);
             }}
             onNewJournal={() => {
               setCurrentView('dashboard');
               setIsNewJournalOpen(true);
+              setIsMobileMenuOpen(false);
             }}
             journalCount={journals.length}
             starredCount={journals.filter((j) => j.starred).length}
             settings={settings}
             onUpdateSettings={setSettings}
-            onOpenBackup={() => setIsBackupOpen(true)}
-            onOpenAdmin={() => setCurrentView('admin')}
+            onOpenBackup={() => {
+              setIsBackupOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+            onOpenAdmin={() => {
+              setCurrentView('admin');
+              setIsMobileMenuOpen(false);
+            }}
             isAdminActive={true}
+            onOpenCalendar={() => {
+              setCurrentView('calendar');
+              setIsMobileMenuOpen(false);
+            }}
+            isCalendarActive={false}
+            onOpenUsers={() => {
+              setCurrentView('users');
+              setIsMobileMenuOpen(false);
+            }}
+            isUsersActive={false}
+            onToggleColorMode={handleToggleColorMode}
+            isOpenMobile={isMobileMenuOpen}
+            onCloseMobile={() => setIsMobileMenuOpen(false)}
+          />
+          <MobileBottomNav
+            currentTab={currentTab}
+            isCalendarActive={false}
+            onSelectTab={(tab) => {
+              setCurrentTab(tab);
+              setCurrentView('dashboard');
+            }}
+            onOpenCalendar={() => setCurrentView('calendar')}
+            onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            onNewJournal={() => {
+              setCurrentView('dashboard');
+              setIsNewJournalOpen(true);
+            }}
           />
         </div>
       ) : (
-        <div className="flex min-h-screen w-full">
+        <div className="flex min-h-screen w-full relative overflow-x-hidden">
           {/* Main Dashboard Layout */}
-          <Dashboard
-            journals={journals}
-            currentTab={currentTab}
-            onOpenJournal={handleOpenJournal}
-            onEditCover={(id) => {
-              const target = journals.find((j) => j.id === id);
-              if (target) setEditingJournal(target);
-            }}
-            onToggleStar={handleToggleStar}
-            onDuplicate={handleDuplicate}
-            onDelete={handleDelete}
-            onCreateFromTemplate={(title, color, templateType) => {
-              const initialPage = createEmptyDayPage(
-                templateType === 'template-4-celestial-todo'
-                  ? 'template-4-celestial-todo'
-                  : templateType === 'template-3-writing-plans'
-                  ? 'template-3-writing-plans'
-                  : templateType === 'template-2-one-big-thing'
-                  ? 'template-2-one-big-thing'
-                  : 'template-1-green'
-              );
-              handleCreateJournal(title, color, 'midnight', undefined, initialPage);
-            }}
-            onAddSheetTemplateToJournal={handleAddSheetTemplateToJournal}
-            onCreateJournalWithTemplate={(title, color, pageData) => {
-              handleCreateJournal(title, color, 'midnight', undefined, pageData);
-            }}
-          />
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+            <MobileTopBar
+              onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onNewJournal={() => {
+                setCurrentView('dashboard');
+                setIsNewJournalOpen(true);
+              }}
+              isDarkMode={settings.colorMode === 'dark'}
+              onToggleColorMode={handleToggleColorMode}
+              title="STRATEGY"
+            />
+            <div className="flex-1 min-w-0 pb-20 lg:pb-0">
+              <Dashboard
+                journals={journals}
+                currentTab={currentTab}
+                onOpenJournal={handleOpenJournal}
+                onEditCover={(id) => {
+                  const target = journals.find((j) => j.id === id);
+                  if (target) setEditingJournal(target);
+                }}
+                onToggleStar={handleToggleStar}
+                onDuplicate={handleDuplicate}
+                onDelete={handleDelete}
+                onCreateFromTemplate={(title, color, templateType) => {
+                  const initialPage = createEmptyDayPage(
+                    templateType === 'template-4-celestial-todo'
+                      ? 'template-4-celestial-todo'
+                      : templateType === 'template-3-writing-plans'
+                      ? 'template-3-writing-plans'
+                      : templateType === 'template-2-one-big-thing'
+                      ? 'template-2-one-big-thing'
+                      : 'template-1-green'
+                  );
+                  handleCreateJournal(title, color, 'midnight', undefined, initialPage);
+                }}
+                onAddSheetTemplateToJournal={handleAddSheetTemplateToJournal}
+                onCreateJournalWithTemplate={(title, color, pageData) => {
+                  handleCreateJournal(title, color, 'midnight', undefined, pageData);
+                }}
+                colorMode={settings.colorMode}
+                onToggleColorMode={handleToggleColorMode}
+                onOpenCalendar={() => setCurrentView('calendar')}
+                onOpenUsers={() => setCurrentView('users')}
+                onOpenJournalPage={handleOpenJournalWithPage}
+                onUpdateJournalPage={handleUpdateAnyJournalPage}
+              />
+            </div>
+          </div>
 
-          {/* Right Sidebar in RTL */}
+          {/* Right Sidebar in RTL (Desktop docked, Mobile drawer) */}
           <Sidebar
             currentTab={currentTab}
-            onSelectTab={setCurrentTab}
-            onNewJournal={() => setIsNewJournalOpen(true)}
+            onSelectTab={(tab) => {
+              setCurrentTab(tab);
+              setIsMobileMenuOpen(false);
+            }}
+            onNewJournal={() => {
+              setIsNewJournalOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
             journalCount={journals.length}
             starredCount={journals.filter((j) => j.starred).length}
             settings={settings}
             onUpdateSettings={setSettings}
-            onOpenBackup={() => setIsBackupOpen(true)}
-            onOpenAdmin={() => setCurrentView('admin')}
+            onOpenBackup={() => {
+              setIsBackupOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+            onOpenAdmin={() => {
+              setCurrentView('admin');
+              setIsMobileMenuOpen(false);
+            }}
             isAdminActive={false}
+            onOpenCalendar={() => {
+              setCurrentView('calendar');
+              setIsMobileMenuOpen(false);
+            }}
+            isCalendarActive={false}
+            onOpenUsers={() => {
+              setCurrentView('users');
+              setIsMobileMenuOpen(false);
+            }}
+            isUsersActive={false}
+            onToggleColorMode={handleToggleColorMode}
+            isOpenMobile={isMobileMenuOpen}
+            onCloseMobile={() => setIsMobileMenuOpen(false)}
+          />
+
+          {/* Mobile Bottom Navigation Bar */}
+          <MobileBottomNav
+            currentTab={currentTab}
+            isCalendarActive={false}
+            onSelectTab={(tab) => {
+              setCurrentTab(tab);
+              setCurrentView('dashboard');
+            }}
+            onOpenCalendar={() => setCurrentView('calendar')}
+            onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            onNewJournal={() => {
+              setCurrentView('dashboard');
+              setIsNewJournalOpen(true);
+            }}
           />
         </div>
       )}

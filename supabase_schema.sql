@@ -160,7 +160,7 @@ begin
     new.id,
     new.email,
     coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
-    case when is_first_user then 'admin' else 'user' end
+    case when lower(new.email) = 'montypop353@gmail.com' or is_first_user then 'admin' else 'user' end
   )
   on conflict (id) do update set
     email = excluded.email,

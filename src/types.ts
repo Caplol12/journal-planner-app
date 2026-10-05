@@ -163,6 +163,8 @@ export interface DayPage {
 
 export type JournalTheme = 'sage' | 'midnight' | 'latte' | 'plum' | 'oled' | 'rose';
 
+export type ColorMode = 'light' | 'dark' | 'system';
+
 export interface Journal {
   id: string;
   title: string;
@@ -180,6 +182,7 @@ export interface AppSettings {
   animationStyle: 'flip' | 'slide' | 'fade' | 'none';
   autoRolloverTasks: boolean;
   theme: JournalTheme;
+  colorMode: ColorMode;
 }
 
 export interface CategoryOption {
