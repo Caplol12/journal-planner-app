@@ -578,6 +578,58 @@ export function injectHtmlSyncScript(rawHtml: string): string {
   document.addEventListener('input', debouncedSyncState, true);
   document.addEventListener('change', syncState, true);
   window.addEventListener('blur', syncState, true);
+
+  // Secure cross-frame styling listener
+  window.addEventListener('message', function(e) {
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.type === 'APPLY_STYLE_FORMAT' && e.data.updates) {
+      var updates = e.data.updates;
+      if (document.documentElement) {
+        var root = document.documentElement;
+        if (updates.fontFamily) root.style.setProperty('--sheet-font-family', "'" + updates.fontFamily + "', sans-serif");
+        if (updates.fontSize) root.style.setProperty('--sheet-font-size', updates.fontSize + 'px');
+        if (updates.isBold !== undefined) root.style.setProperty('--sheet-font-weight', updates.isBold ? '700' : '400');
+        if (updates.isItalic !== undefined) root.style.setProperty('--sheet-font-style', updates.isItalic ? 'italic' : 'normal');
+        if (updates.isUnderline !== undefined) root.style.setProperty('--sheet-text-decoration', updates.isUnderline ? 'underline' : 'none');
+        if (updates.textAlign) root.style.setProperty('--sheet-text-align', updates.textAlign);
+        if (updates.textColor) root.style.setProperty('--sheet-text-color', updates.textColor);
+      }
+
+      var sel = window.getSelection();
+      if (sel && !sel.isCollapsed && sel.toString().trim().length > 0 && sel.rangeCount > 0) {
+        var range = sel.getRangeAt(0);
+        var span = document.createElement('span');
+        if (updates.fontSize) span.style.fontSize = updates.fontSize + 'px';
+        if (updates.textColor) span.style.color = updates.textColor;
+        if (updates.fontFamily) span.style.fontFamily = "'" + updates.fontFamily + "', sans-serif";
+        if (updates.isBold !== undefined) span.style.fontWeight = updates.isBold ? '700' : '400';
+        if (updates.isItalic !== undefined) span.style.fontStyle = updates.isItalic ? 'italic' : 'normal';
+        if (updates.isUnderline !== undefined) span.style.textDecoration = updates.isUnderline ? 'underline' : 'none';
+
+        try {
+          var extracted = range.extractContents();
+          span.appendChild(extracted);
+          range.insertNode(span);
+          sel.removeAllRanges();
+          var newRange = document.createRange();
+          newRange.selectNodeContents(span);
+          sel.addRange(newRange);
+        } catch (err) {}
+      } else {
+        var active = document.activeElement;
+        if (active && active !== document.body && active !== document.documentElement) {
+          if (updates.fontSize) active.style.fontSize = updates.fontSize + 'px';
+          if (updates.textColor) active.style.color = updates.textColor;
+          if (updates.fontFamily) active.style.fontFamily = "'" + updates.fontFamily + "', sans-serif";
+          if (updates.isBold !== undefined) active.style.fontWeight = updates.isBold ? '700' : '400';
+          if (updates.isItalic !== undefined) active.style.fontStyle = updates.isItalic ? 'italic' : 'normal';
+          if (updates.isUnderline !== undefined) active.style.textDecoration = updates.isUnderline ? 'underline' : 'none';
+          if (updates.textAlign) active.style.textAlign = updates.textAlign;
+        }
+      }
+      syncState();
+    }
+  });
 })();
 </script>
 `;

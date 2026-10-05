@@ -54,7 +54,7 @@ export const TemplateTestPlaygroundModal: React.FC<TemplateTestPlaygroundModalPr
 
   // Local isolated state for testing - DOES NOT SAVE TO ANY JOURNAL
   const [testPageData, setTestPageData] = useState<DayPage>(() =>
-    JSON.parse(JSON.stringify(template.pageData || {}))
+    structuredClone(template.pageData || {})
   );
 
   const [playgroundIframeDoc, setPlaygroundIframeDoc] = useState<string>(() => {
@@ -70,7 +70,7 @@ export const TemplateTestPlaygroundModal: React.FC<TemplateTestPlaygroundModalPr
   useEffect(() => {
     if (template && template.id !== currentTemplateIdRef.current) {
       currentTemplateIdRef.current = template.id;
-      setTestPageData(JSON.parse(JSON.stringify(template.pageData || {})));
+      setTestPageData(structuredClone(template.pageData || {}));
       const raw =
         template.customHtmlContent ||
         template.pageData?.customHtmlContent ||
@@ -90,11 +90,15 @@ export const TemplateTestPlaygroundModal: React.FC<TemplateTestPlaygroundModalPr
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string | null>(null);
 
   const [customHtmlHeight, setCustomHtmlHeight] = useState<number>(950);
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   // Listen to iframe state synchronization and auto-resizing messages without reloading the iframe
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
-      if (!e.data) return;
+      if (iframeRef.current && e.source !== iframeRef.current.contentWindow) {
+        return;
+      }
+      if (!e.data || typeof e.data !== 'object') return;
       if (e.data.type === 'CUSTOM_HTML_SYNC' && typeof e.data.html === 'string') {
         // Keep updated HTML in testPageData for "Apply to Journal" without reloading the iframe
         setTestPageData((prev) => ({
@@ -116,7 +120,7 @@ export const TemplateTestPlaygroundModal: React.FC<TemplateTestPlaygroundModalPr
 
   const handleReset = () => {
     sound.playTick(true);
-    const fresh = JSON.parse(JSON.stringify(template.pageData || {}));
+    const fresh = structuredClone(template.pageData || {});
     setTestPageData(fresh);
     const raw =
       template.customHtmlContent ||
@@ -205,6 +209,7 @@ export const TemplateTestPlaygroundModal: React.FC<TemplateTestPlaygroundModalPr
           {template.templateType === 'template-custom-html' ? (
             <div className="w-full bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-200">
               <iframe
+                ref={iframeRef}
                 key={template.id}
                 srcDoc={playgroundIframeDoc}
                 title="Custom HTML Template Playground"
@@ -216,7 +221,7 @@ export const TemplateTestPlaygroundModal: React.FC<TemplateTestPlaygroundModalPr
                   overflow: 'hidden',
                   display: 'block',
                 }}
-                sandbox="allow-scripts allow-forms allow-same-origin"
+                sandbox="allow-scripts allow-forms"
               />
             </div>
           ) : template.templateType === 'template-4-celestial-todo' ? (

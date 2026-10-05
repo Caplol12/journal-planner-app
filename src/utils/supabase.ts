@@ -4,6 +4,20 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 const STORAGE_URL_KEY = 'sp_custom_supabase_url';
 const STORAGE_ANON_KEY = 'sp_custom_supabase_anon_key';
 
+export function normalizeSupabaseUrl(rawUrl: string): string {
+  let url = rawUrl.trim();
+  if (url.endsWith('/')) {
+    url = url.slice(0, -1);
+  }
+  if (url.endsWith('/rest/v1')) {
+    url = url.slice(0, -'/rest/v1'.length);
+  }
+  if (url.endsWith('/')) {
+    url = url.slice(0, -1);
+  }
+  return url;
+}
+
 export function getSupabaseCredentials(): { url: string; anonKey: string } {
   const envUrl = (import.meta.env.VITE_SUPABASE_URL as string) || '';
   const envKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || '';
@@ -11,7 +25,7 @@ export function getSupabaseCredentials(): { url: string; anonKey: string } {
   const localUrl = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_URL_KEY) || '' : '';
   const localKey = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_ANON_KEY) || '' : '';
 
-  const url = (localUrl || envUrl).trim();
+  const url = normalizeSupabaseUrl(localUrl || envUrl);
   const anonKey = (localKey || envKey).trim();
 
   return { url, anonKey };

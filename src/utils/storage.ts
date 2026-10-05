@@ -436,26 +436,49 @@ export const INITIAL_JOURNALS: Journal[] = [
   },
 ];
 
+export function isValidJournal(item: any): item is Journal {
+  return (
+    item &&
+    typeof item === 'object' &&
+    typeof item.id === 'string' &&
+    typeof item.title === 'string' &&
+    typeof item.pages === 'object' &&
+    item.pages !== null
+  );
+}
+
 export function loadStoredJournals(): Journal[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_JOURNALS);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        const validJournals = parsed.filter(isValidJournal);
+        if (validJournals.length > 0) {
+          return validJournals;
+        }
       }
     }
-  } catch {
-    // fallback
+  } catch (err) {
+    console.error('Failed to parse stored journals:', err);
   }
   return INITIAL_JOURNALS;
 }
 
-export function saveStoredJournals(journals: Journal[]) {
+export function saveStoredJournals(journals: Journal[]): boolean {
   try {
     localStorage.setItem(STORAGE_KEY_JOURNALS, JSON.stringify(journals));
+    return true;
   } catch (err) {
     console.error('Failed to save journals to localStorage', err);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('planner_storage_error', {
+          detail: { message: 'حافظه مرورگر پر شده است یا امکان ذخیره محلی وجود ندارد!' },
+        })
+      );
+    }
+    return false;
   }
 }
 

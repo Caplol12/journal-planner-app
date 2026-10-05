@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Journal, DayPage, AppSettings, JournalTheme, TemplateType } from './types';
 import {
   loadStoredJournals,
@@ -15,6 +15,13 @@ import {
 } from './utils/storage';
 import { formatJalaliShort, getDateKey } from './utils/jalali';
 import { sound } from './utils/audio';
+import { debounce } from './utils/debounce';
+import { useAuth } from './context/AuthContext';
+import {
+  fetchCloudJournals,
+  saveCloudJournals,
+  deleteCloudJournal,
+} from './utils/supabaseJournals';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { PagesOverview } from './components/PagesOverview';
@@ -29,6 +36,7 @@ import {
 } from './components/Modals';
 
 export default function App() {
+  const { user } = useAuth();
   const [journals, setJournals] = useState<Journal[]>(() => loadStoredJournals());
   const [settings, setSettings] = useState<AppSettings>(() => loadStoredSettings());
   const [currentView, setCurrentView] = useState<'dashboard' | 'pages-overview' | 'planner' | 'admin'>('dashboard');
@@ -61,6 +69,15 @@ export default function App() {
     }, 2400);
   };
 
+  // Listen for storage quota or save errors
+  useEffect(() => {
+    const handleStorageError = (e: any) => {
+      showToast(e.detail?.message || 'خطا در ذخیره‌سازی داده‌ها!');
+    };
+    window.addEventListener('planner_storage_error', handleStorageError);
+    return () => window.removeEventListener('planner_storage_error', handleStorageError);
+  }, []);
+
   // Sync settings with audio engine
   useEffect(() => {
     sound.enabled = settings.soundEnabled;
@@ -68,10 +85,47 @@ export default function App() {
     saveStoredSettings(settings);
   }, [settings]);
 
+  // Debounced save for local storage (500ms)
+  const debouncedLocalSave = useMemo(
+    () => debounce((data: Journal[]) => saveStoredJournals(data), 500),
+    []
+  );
+
+  // Debounced save for cloud storage (1000ms)
+  const debouncedCloudSave = useMemo(
+    () =>
+      debounce((data: Journal[]) => {
+        saveCloudJournals(data);
+      }, 1000),
+    []
+  );
+
+  // Load cloud journals when user logs in
+  useEffect(() => {
+    if (!user) return;
+    let isMounted = true;
+    fetchCloudJournals().then(({ data, error }) => {
+      if (!isMounted) return;
+      if (error) {
+        console.error('Failed to load cloud journals:', error);
+      } else if (data && data.length > 0) {
+        setJournals(data);
+        saveStoredJournals(data);
+        showToast('ژورنال‌های شما از سرور ابری همگام‌سازی شد ✨');
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
   // Save journals when state changes
   useEffect(() => {
-    saveStoredJournals(journals);
-  }, [journals]);
+    debouncedLocalSave(journals);
+    if (user) {
+      debouncedCloudSave(journals);
+    }
+  }, [journals, user, debouncedLocalSave, debouncedCloudSave]);
 
   const selectedJournal = journals.find((j) => j.id === selectedJournalId) || null;
 
@@ -111,7 +165,7 @@ export default function App() {
               pages: {
                 ...j.pages,
                 [dateKey]: initialData
-                  ? JSON.parse(JSON.stringify(initialData))
+                  ? structuredClone(initialData)
                   : createEmptyDayPage(tType),
               },
             };
@@ -176,7 +230,7 @@ export default function App() {
 
     sound.playAdd();
     const cloned: Journal = {
-      ...JSON.parse(JSON.stringify(src)),
+      ...structuredClone(src),
       id: `journal_${Date.now()}`,
       title: `${src.title} (کپی)`,
       createdAt: formatJalaliShort(new Date()),
@@ -195,6 +249,9 @@ export default function App() {
     if (window.confirm('آیا از حذف این ژورنال و تمام برگه‌های داخل آن اطمینان دارید؟')) {
       sound.playTick(false);
       setJournals((prev) => prev.filter((j) => j.id !== journalId));
+      if (user) {
+        deleteCloudJournal(journalId);
+      }
       if (selectedJournalId === journalId) {
         handleBackToDashboard();
       }
@@ -220,7 +277,7 @@ export default function App() {
       starred: false,
       createdAt: formatJalaliShort(new Date()),
       pages: {
-        [todayKey]: initialPage ? JSON.parse(JSON.stringify(initialPage)) : createEmptyDayPage(),
+        [todayKey]: initialPage ? structuredClone(initialPage) : createEmptyDayPage(),
       },
     };
 
@@ -267,7 +324,7 @@ export default function App() {
             ...j,
             pages: {
               ...j.pages,
-              [chosenKey]: JSON.parse(JSON.stringify(sheetData)),
+              [chosenKey]: structuredClone(sheetData),
             },
           };
         }

@@ -180,7 +180,11 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   // Listen to iframe state changes, auto-resizing, and format inspections
   useEffect(() => {
     const handleCustomHtmlMessage = (e: MessageEvent) => {
-      if (!e.data) return;
+      // Validate that message originates from our specific custom iframe
+      if (iframeRef.current && e.source !== iframeRef.current.contentWindow) {
+        return;
+      }
+      if (!e.data || typeof e.data !== 'object') return;
       if (e.data.type === 'CUSTOM_HTML_SYNC' && typeof e.data.html === 'string') {
         // Save the updated HTML without triggering an iframe reload
         onUpdateJournalPage(dateKeyRef.current, {
@@ -211,32 +215,17 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   const handleIframeLoad = () => {
     try {
       const iframe = iframeRef.current;
-      if (iframe && iframe.contentDocument) {
-        const doc = iframe.contentDocument;
-        const win = iframe.contentWindow;
-        const h = Math.max(
-          doc.body ? doc.body.scrollHeight : 0,
-          doc.documentElement ? doc.documentElement.scrollHeight : 0,
-          doc.body ? doc.body.offsetHeight : 0
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage(
+          {
+            type: 'APPLY_STYLE_FORMAT',
+            updates: textFormat,
+          },
+          '*'
         );
-        if (h > 200) {
-          setCustomHtmlHeight(h);
-        }
-
-        // Attach listeners for Word-style formatting inside iframe
-        doc.addEventListener('focusin', (e) => {
-          if (e.target) inspectAndSyncToolbar(e.target as HTMLElement);
-        });
-        doc.addEventListener('mouseup', () => {
-          const sel = win?.getSelection();
-          if (sel && sel.anchorNode) {
-            const node = sel.anchorNode.nodeType === 1 ? (sel.anchorNode as HTMLElement) : sel.anchorNode.parentElement;
-            if (node) inspectAndSyncToolbar(node);
-          }
-        });
       }
     } catch (e) {
-      // Fallback handled via postMessage
+      // Handled via postMessage
     }
   };
 
@@ -420,23 +409,18 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
 
     // 1. Format inside Custom HTML Template (iframe)
     const iframe = iframeRef.current;
-    if (pageData.templateType === 'template-custom-html' && iframe && iframe.contentDocument && iframe.contentWindow) {
-      const doc = iframe.contentDocument;
-      const win = iframe.contentWindow;
-      const sel = win.getSelection();
-
-      if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
-        applyFormatToSelection(doc, win, sel, updates);
+    if (pageData.templateType === 'template-custom-html' && iframe && iframe.contentWindow) {
+      try {
+        iframe.contentWindow.postMessage(
+          {
+            type: 'APPLY_STYLE_FORMAT',
+            updates,
+          },
+          '*'
+        );
         formatted = true;
-      } else {
-        const active = doc.activeElement as HTMLElement | null;
-        if (active && active !== doc.body && active !== doc.documentElement) {
-          applyFormatToElement(active, updates);
-          if (typeof (win as any).__planner_sync_state__ === 'function') {
-            (win as any).__planner_sync_state__();
-          }
-          formatted = true;
-        }
+      } catch (err) {
+        console.error('Error posting format message to iframe:', err);
       }
     }
 
@@ -541,9 +525,15 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
     }));
   };
 
-  // Dynamic CSS variables for sheet typography (fallback font family)
+  // Dynamic CSS variables for sheet typography (fallback font family and font styling)
   const sheetTypographyStyles: React.CSSProperties = {
     ['--sheet-font-family' as any]: `'${textFormat.fontFamily}', sans-serif`,
+    ['--sheet-font-size' as any]: `${textFormat.fontSize}px`,
+    ['--sheet-font-weight' as any]: textFormat.isBold ? '700' : '400',
+    ['--sheet-font-style' as any]: textFormat.isItalic ? 'italic' : 'normal',
+    ['--sheet-text-decoration' as any]: textFormat.isUnderline ? 'underline' : 'none',
+    ['--sheet-text-align' as any]: textFormat.textAlign,
+    ['--sheet-text-color' as any]: textFormat.textColor,
   };
 
 
@@ -803,7 +793,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
                 overflow: 'hidden',
                 display: 'block',
               }}
-              sandbox="allow-scripts allow-forms allow-same-origin"
+              sandbox="allow-scripts allow-forms"
             />
           </div>
         ) : pageData.templateType === 'template-4-celestial-todo' ? (

@@ -18,46 +18,7 @@ interface MiniPlannerSheetProps {
 
 const HOURS_ORDER = [24, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 
-function polarToCartesian(cx: number, cy: number, radius: number, angleInDegrees: number) {
-  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-  return {
-    x: cx + radius * Math.cos(angleInRadians),
-    y: cy + radius * Math.sin(angleInRadians),
-  };
-}
-
-function describeArc(cx: number, cy: number, rIn: number, rOut: number, startAngle: number, endAngle: number) {
-  const p1 = polarToCartesian(cx, cy, rOut, startAngle);
-  const p2 = polarToCartesian(cx, cy, rOut, endAngle);
-  const p3 = polarToCartesian(cx, cy, rIn, endAngle);
-  const p4 = polarToCartesian(cx, cy, rIn, startAngle);
-  const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
-  return [
-    'M',
-    p1.x.toFixed(1),
-    p1.y.toFixed(1),
-    'A',
-    rOut,
-    rOut,
-    0,
-    largeArc,
-    1,
-    p2.x.toFixed(1),
-    p2.y.toFixed(1),
-    'L',
-    p3.x.toFixed(1),
-    p3.y.toFixed(1),
-    'A',
-    rIn,
-    rIn,
-    0,
-    largeArc,
-    0,
-    p4.x.toFixed(1),
-    p4.y.toFixed(1),
-    'Z',
-  ].join(' ');
-}
+import { polarToCartesian, describeArc } from '../utils/geometry';
 
 export const MiniPlannerSheet: React.FC<MiniPlannerSheetProps> = ({
   dateKey = '2026-10-03',

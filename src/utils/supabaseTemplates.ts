@@ -27,7 +27,7 @@ export async function fetchCloudTemplates(): Promise<CloudTemplate[]> {
 
   if (error) {
     console.error('Error fetching cloud templates:', error);
-    return [];
+    throw new Error(`خطا در بارگذاری قالب‌های ابری: ${error.message}`);
   }
 
   return (data || []) as CloudTemplate[];
