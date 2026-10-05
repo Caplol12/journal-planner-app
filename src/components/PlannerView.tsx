@@ -12,7 +12,7 @@ import { Template2PlannerSheet } from './Template2PlannerSheet';
 import { Template3WritingSheet } from './Template3WritingSheet';
 import { Template4CelestialSheet } from './Template4CelestialSheet';
 import { createEmptyDayPage, DEFAULT_CATEGORIES } from '../utils/storage';
-import { WordStyleToolbar } from './WordStyleToolbar';
+import { WordStyleToolbar, PERSIAN_FONTS } from './WordStyleToolbar';
 import { DrawingCanvasOverlay } from './DrawingCanvasOverlay';
 import { injectHtmlSyncScript } from '../utils/htmlTemplates';
 
@@ -61,6 +61,93 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   const [customHtmlHeight, setCustomHtmlHeight] = useState<number>(950);
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
+  // Active element reference for Word-style formatting
+  const lastActiveElementRef = React.useRef<HTMLElement | null>(null);
+
+  // Text formatting state
+  const [textFormat, setTextFormat] = useState<PageTextFormat>(() => pageData.textFormat || {
+    fontFamily: 'Vazirmatn',
+    fontSize: 14,
+    isBold: false,
+    isItalic: false,
+    isUnderline: false,
+    textAlign: 'right',
+    textColor: '#1e293b',
+  });
+
+  useEffect(() => {
+    if (pageData.textFormat) {
+      setTextFormat(pageData.textFormat);
+    }
+  }, [dateKey]);
+
+  // Color conversion helper
+  const rgbToHex = (rgbStr: string): string => {
+    if (!rgbStr || rgbStr.startsWith('#')) return rgbStr || '#1e293b';
+    const match = rgbStr.match(/\d+/g);
+    if (!match || match.length < 3) return rgbStr;
+    const r = parseInt(match[0], 10).toString(16).padStart(2, '0');
+    const g = parseInt(match[1], 10).toString(16).padStart(2, '0');
+    const b = parseInt(match[2], 10).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`;
+  };
+
+  // Inspect element styles and update toolbar view to match active selection or focused element
+  const inspectAndSyncToolbar = useCallback((el: HTMLElement) => {
+    try {
+      const computed = window.getComputedStyle(el);
+      const fs = parseInt(el.style.fontSize || computed.fontSize, 10);
+      const col = el.style.color || computed.color;
+      const fw = el.style.fontWeight || computed.fontWeight;
+      const fontFam = el.style.fontFamily || computed.fontFamily;
+      const isItalic = (el.style.fontStyle || computed.fontStyle) === 'italic';
+      const textDec = el.style.textDecoration || computed.textDecoration || '';
+      const isUnderline = textDec.includes('underline');
+
+      let matchedFont: string | undefined;
+      for (const f of PERSIAN_FONTS) {
+        if (fontFam.toLowerCase().includes(f.id.toLowerCase())) {
+          matchedFont = f.id;
+          break;
+        }
+      }
+
+      setTextFormat((prev) => ({
+        fontFamily: matchedFont || prev.fontFamily,
+        fontSize: fs || prev.fontSize,
+        textColor: col ? rgbToHex(col) : prev.textColor,
+        isBold: fw === 'bold' || fw === '700' || fw === '800' || fw === '900' || parseInt(fw, 10) >= 600,
+        isItalic,
+        isUnderline,
+        textAlign: (el.style.textAlign || (computed.textAlign as any)) || prev.textAlign,
+      }));
+    } catch (err) {}
+  }, []);
+
+  // Listen to focus and mouse events in main window for Word-style formatting
+  useEffect(() => {
+    const handleMainFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        lastActiveElementRef.current = target;
+        inspectAndSyncToolbar(target);
+      }
+    };
+    const handleMainMouseUp = () => {
+      const active = document.activeElement as HTMLElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) {
+        lastActiveElementRef.current = active;
+        inspectAndSyncToolbar(active);
+      }
+    };
+    document.addEventListener('focusin', handleMainFocusIn);
+    document.addEventListener('mouseup', handleMainMouseUp);
+    return () => {
+      document.removeEventListener('focusin', handleMainFocusIn);
+      document.removeEventListener('mouseup', handleMainMouseUp);
+    };
+  }, [inspectAndSyncToolbar]);
+
   // Isolate iframeSrcDoc from typing updates so the iframe never reloads on keystrokes
   const [iframeSrcDoc, setIframeSrcDoc] = useState<string>(() => {
     return injectHtmlSyncScript(
@@ -90,7 +177,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
     }
   }, [dateKey, pageData.templateType, journal.pages]);
 
-  // Listen to iframe state changes and auto-resizing without tearing down listeners
+  // Listen to iframe state changes, auto-resizing, and format inspections
   useEffect(() => {
     const handleCustomHtmlMessage = (e: MessageEvent) => {
       if (!e.data) return;
@@ -104,6 +191,18 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
       if (e.data.type === 'CUSTOM_HTML_RESIZE' && typeof e.data.height === 'number') {
         setCustomHtmlHeight(Math.max(e.data.height, 500));
       }
+      if (e.data.type === 'CUSTOM_HTML_FORMAT_INSPECT') {
+        setTextFormat((prev) => ({
+          ...prev,
+          fontSize: typeof e.data.fontSize === 'number' ? e.data.fontSize : prev.fontSize,
+          textColor: e.data.textColor ? rgbToHex(e.data.textColor) : prev.textColor,
+          isBold: typeof e.data.isBold === 'boolean' ? e.data.isBold : prev.isBold,
+          isItalic: typeof e.data.isItalic === 'boolean' ? e.data.isItalic : prev.isItalic,
+          isUnderline: typeof e.data.isUnderline === 'boolean' ? e.data.isUnderline : prev.isUnderline,
+          textAlign: e.data.textAlign || prev.textAlign,
+          fontFamily: e.data.fontFamily || prev.fontFamily,
+        }));
+      }
     };
     window.addEventListener('message', handleCustomHtmlMessage);
     return () => window.removeEventListener('message', handleCustomHtmlMessage);
@@ -114,6 +213,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
       const iframe = iframeRef.current;
       if (iframe && iframe.contentDocument) {
         const doc = iframe.contentDocument;
+        const win = iframe.contentWindow;
         const h = Math.max(
           doc.body ? doc.body.scrollHeight : 0,
           doc.documentElement ? doc.documentElement.scrollHeight : 0,
@@ -122,11 +222,24 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
         if (h > 200) {
           setCustomHtmlHeight(h);
         }
+
+        // Attach listeners for Word-style formatting inside iframe
+        doc.addEventListener('focusin', (e) => {
+          if (e.target) inspectAndSyncToolbar(e.target as HTMLElement);
+        });
+        doc.addEventListener('mouseup', () => {
+          const sel = win?.getSelection();
+          if (sel && sel.anchorNode) {
+            const node = sel.anchorNode.nodeType === 1 ? (sel.anchorNode as HTMLElement) : sel.anchorNode.parentElement;
+            if (node) inspectAndSyncToolbar(node);
+          }
+        });
       }
     } catch (e) {
       // Fallback handled via postMessage
     }
   };
+
 
   // Task Rollover: Check if previous day had unfinished todos/priorities
   useEffect(() => {
@@ -251,23 +364,142 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   const [undoStack, setUndoStack] = useState<DrawingStroke[][]>([]);
   const [redoStack, setRedoStack] = useState<DrawingStroke[][]>([]);
 
-  // Text formatting
-  const textFormat: PageTextFormat = pageData.textFormat || {
-    fontFamily: 'Vazirmatn',
-    fontSize: 14,
-    isBold: false,
-    isItalic: false,
-    isUnderline: false,
-    textAlign: 'right',
-    textColor: '#1e293b',
+  // Word-style formatting engine: applies styles strictly to selected or active elements
+  const applyFormatToElement = (el: HTMLElement, updates: Partial<PageTextFormat>) => {
+    if (updates.fontSize) el.style.fontSize = `${updates.fontSize}px`;
+    if (updates.textColor) el.style.color = updates.textColor;
+    if (updates.fontFamily) el.style.fontFamily = `'${updates.fontFamily}', sans-serif`;
+    if (updates.isBold !== undefined) el.style.fontWeight = updates.isBold ? '700' : '400';
+    if (updates.isItalic !== undefined) el.style.fontStyle = updates.isItalic ? 'italic' : 'normal';
+    if (updates.isUnderline !== undefined) el.style.textDecoration = updates.isUnderline ? 'underline' : 'none';
+    if (updates.textAlign) el.style.textAlign = updates.textAlign;
+  };
+
+  const applyFormatToSelection = (
+    doc: Document,
+    win: Window,
+    sel: Selection,
+    updates: Partial<PageTextFormat>
+  ) => {
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+    const range = sel.getRangeAt(0);
+
+    const span = doc.createElement('span');
+    if (updates.fontSize) span.style.fontSize = `${updates.fontSize}px`;
+    if (updates.textColor) span.style.color = updates.textColor;
+    if (updates.fontFamily) span.style.fontFamily = `'${updates.fontFamily}', sans-serif`;
+    if (updates.isBold !== undefined) span.style.fontWeight = updates.isBold ? '700' : '400';
+    if (updates.isItalic !== undefined) span.style.fontStyle = updates.isItalic ? 'italic' : 'normal';
+    if (updates.isUnderline !== undefined) span.style.textDecoration = updates.isUnderline ? 'underline' : 'none';
+
+    try {
+      const extracted = range.extractContents();
+      span.appendChild(extracted);
+      range.insertNode(span);
+
+      sel.removeAllRanges();
+      const newRange = doc.createRange();
+      newRange.selectNodeContents(span);
+      sel.addRange(newRange);
+    } catch (e) {
+      if (updates.textColor) doc.execCommand('foreColor', false, updates.textColor);
+      if (updates.isBold !== undefined) doc.execCommand('bold', false);
+      if (updates.isItalic !== undefined) doc.execCommand('italic', false);
+      if (updates.isUnderline !== undefined) doc.execCommand('underline', false);
+    }
+
+    if (typeof (win as any).__planner_sync_state__ === 'function') {
+      (win as any).__planner_sync_state__();
+    }
+  };
+
+  const handleApplyFormat = (updates: Partial<PageTextFormat>) => {
+    setTextFormat((prev) => ({ ...prev, ...updates }));
+
+    let formatted = false;
+
+    // 1. Format inside Custom HTML Template (iframe)
+    const iframe = iframeRef.current;
+    if (pageData.templateType === 'template-custom-html' && iframe && iframe.contentDocument && iframe.contentWindow) {
+      const doc = iframe.contentDocument;
+      const win = iframe.contentWindow;
+      const sel = win.getSelection();
+
+      if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
+        applyFormatToSelection(doc, win, sel, updates);
+        formatted = true;
+      } else {
+        const active = doc.activeElement as HTMLElement | null;
+        if (active && active !== doc.body && active !== doc.documentElement) {
+          applyFormatToElement(active, updates);
+          if (typeof (win as any).__planner_sync_state__ === 'function') {
+            (win as any).__planner_sync_state__();
+          }
+          formatted = true;
+        }
+      }
+    }
+
+    // 2. Format inside Native Planner Sheet (Template 1, 2, 3, 4)
+    if (!formatted) {
+      const activeNative = (lastActiveElementRef.current || document.activeElement) as HTMLElement | null;
+      if (
+        activeNative &&
+        (activeNative.tagName === 'INPUT' ||
+          activeNative.tagName === 'TEXTAREA' ||
+          activeNative.isContentEditable)
+      ) {
+        applyFormatToElement(activeNative, updates);
+
+        let textId = activeNative.getAttribute('data-text-id');
+        if (!textId) {
+          textId =
+            activeNative.id ||
+            activeNative.getAttribute('placeholder') ||
+            `elem_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+          activeNative.setAttribute('data-text-id', textId);
+        }
+
+        handleUpdate((prev) => ({
+          ...prev,
+          elementStyles: {
+            ...(prev.elementStyles || {}),
+            [textId!]: {
+              ...((prev.elementStyles || {})[textId!] || {}),
+              ...updates,
+            },
+          },
+        }));
+        formatted = true;
+      }
+    }
+
+    // 3. Fallback: Save as default active format for future typing without modifying existing elements
+    handleUpdate((prev) => ({
+      ...prev,
+      textFormat: {
+        ...(prev.textFormat || textFormat),
+        ...updates,
+      },
+    }));
   };
 
   const handleUpdateTextFormat = (updater: (prev: PageTextFormat) => PageTextFormat) => {
-    handleUpdate((prev) => ({
-      ...prev,
-      textFormat: updater(prev.textFormat || textFormat),
-    }));
+    const updated = updater(textFormat);
+    handleApplyFormat(updated);
   };
+
+  // Re-apply saved elementStyles on active day inputs
+  useEffect(() => {
+    if (pageData.elementStyles) {
+      Object.entries(pageData.elementStyles).forEach(([id, styles]) => {
+        const el = document.querySelector(`[data-text-id="${id}"]`) as HTMLElement | null;
+        if (el) {
+          applyFormatToElement(el, styles);
+        }
+      });
+    }
+  }, [dateKey, pageData.elementStyles]);
 
   const handleUpdateStrokes = (newStrokes: DrawingStroke[]) => {
     setUndoStack((prev) => [...prev, pageData.drawingStrokes || []]);
@@ -309,16 +541,11 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
     }));
   };
 
-  // Dynamic CSS variables for sheet typography
+  // Dynamic CSS variables for sheet typography (fallback font family)
   const sheetTypographyStyles: React.CSSProperties = {
     ['--sheet-font-family' as any]: `'${textFormat.fontFamily}', sans-serif`,
-    ['--sheet-font-size' as any]: `${textFormat.fontSize}px`,
-    ['--sheet-font-weight' as any]: textFormat.isBold ? '700' : '400',
-    ['--sheet-font-style' as any]: textFormat.isItalic ? 'italic' : 'normal',
-    ['--sheet-text-decoration' as any]: textFormat.isUnderline ? 'underline' : 'none',
-    ['--sheet-text-align' as any]: textFormat.textAlign,
-    ['--sheet-text-color' as any]: textFormat.textColor,
   };
+
 
   return (
     <div
@@ -539,6 +766,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
           totalStrokes={(pageData.drawingStrokes || []).length}
           textFormat={textFormat}
           onUpdateTextFormat={handleUpdateTextFormat}
+          onApplyFormat={handleApplyFormat}
         />
       )}
 

@@ -91,6 +91,7 @@ interface WordStyleToolbarProps {
   // Text formatting properties
   textFormat: PageTextFormat;
   onUpdateTextFormat: (updater: (prev: PageTextFormat) => PageTextFormat) => void;
+  onApplyFormat?: (updates: Partial<PageTextFormat>) => void;
 }
 
 export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
@@ -111,29 +112,37 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
   totalStrokes,
   textFormat,
   onUpdateTextFormat,
+  onApplyFormat,
 }) => {
   const [activeTab, setActiveTab] = useState<'draw' | 'text'>('draw');
   const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
   const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState(false);
 
-  const handleIncreaseFontSize = () => {
+  const applyChange = (updates: Partial<PageTextFormat>) => {
     sound.playTick();
-    const currentIndex = FONT_SIZES.indexOf(textFormat.fontSize);
-    if (currentIndex < FONT_SIZES.length - 1 && currentIndex !== -1) {
-      onUpdateTextFormat((prev) => ({ ...prev, fontSize: FONT_SIZES[currentIndex + 1] }));
+    if (onApplyFormat) {
+      onApplyFormat(updates);
     } else {
-      onUpdateTextFormat((prev) => ({ ...prev, fontSize: Math.min(40, prev.fontSize + 2) }));
+      onUpdateTextFormat((prev) => ({ ...prev, ...updates }));
     }
   };
 
-  const handleDecreaseFontSize = () => {
-    sound.playTick();
+  const handleIncreaseFontSize = () => {
     const currentIndex = FONT_SIZES.indexOf(textFormat.fontSize);
-    if (currentIndex > 0) {
-      onUpdateTextFormat((prev) => ({ ...prev, fontSize: FONT_SIZES[currentIndex - 1] }));
-    } else {
-      onUpdateTextFormat((prev) => ({ ...prev, fontSize: Math.max(10, prev.fontSize - 2) }));
-    }
+    const newSize =
+      currentIndex < FONT_SIZES.length - 1 && currentIndex !== -1
+        ? FONT_SIZES[currentIndex + 1]
+        : Math.min(40, textFormat.fontSize + 2);
+    applyChange({ fontSize: newSize });
+  };
+
+  const handleDecreaseFontSize = () => {
+    const currentIndex = FONT_SIZES.indexOf(textFormat.fontSize);
+    const newSize =
+      currentIndex > 0
+        ? FONT_SIZES[currentIndex - 1]
+        : Math.max(10, textFormat.fontSize - 2);
+    applyChange({ fontSize: newSize });
   };
 
   const currentFontObj = PERSIAN_FONTS.find((f) => f.id === textFormat.fontFamily) || PERSIAN_FONTS[0];
@@ -409,6 +418,7 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
               <div className="relative">
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
                     setIsFontDropdownOpen(!isFontDropdownOpen);
                     setIsSizeDropdownOpen(false);
@@ -430,9 +440,9 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
                       <button
                         key={font.id}
                         type="button"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
-                          sound.playTick();
-                          onUpdateTextFormat((prev) => ({ ...prev, fontFamily: font.id }));
+                          applyChange({ fontFamily: font.id });
                           setIsFontDropdownOpen(false);
                         }}
                         className={`w-full text-right px-2.5 py-1.5 rounded-lg flex items-center justify-between text-xs transition-colors cursor-pointer mb-0.5 ${
@@ -455,6 +465,7 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
               <div className="flex items-center gap-1 bg-black/20 p-1 rounded-xl border border-white/15">
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={handleDecreaseFontSize}
                   className="w-6 h-6 rounded-lg hover:bg-white/20 flex items-center justify-center font-bold text-xs cursor-pointer transition-colors"
                   title="کاهش اندازه قلم (A-)"
@@ -464,6 +475,7 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
                 <div className="relative">
                   <button
                     type="button"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       setIsSizeDropdownOpen(!isSizeDropdownOpen);
                       setIsFontDropdownOpen(false);
@@ -478,9 +490,9 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
                         <button
                           key={size}
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => {
-                            sound.playTick();
-                            onUpdateTextFormat((prev) => ({ ...prev, fontSize: size }));
+                            applyChange({ fontSize: size });
                             setIsSizeDropdownOpen(false);
                           }}
                           className={`w-full text-center py-1 rounded text-xs font-mono cursor-pointer ${
@@ -497,6 +509,7 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
                 </div>
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={handleIncreaseFontSize}
                   className="w-6 h-6 rounded-lg hover:bg-white/20 flex items-center justify-center font-bold text-xs cursor-pointer transition-colors"
                   title="افزایش اندازه قلم (A+)"
@@ -509,9 +522,9 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
               <div className="flex items-center gap-1 bg-black/20 p-1 rounded-xl border border-white/15">
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
-                    sound.playTick();
-                    onUpdateTextFormat((prev) => ({ ...prev, isBold: !prev.isBold }));
+                    applyChange({ isBold: !textFormat.isBold });
                   }}
                   className={`w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors ${
                     textFormat.isBold
@@ -525,9 +538,9 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
 
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
-                    sound.playTick();
-                    onUpdateTextFormat((prev) => ({ ...prev, isItalic: !prev.isItalic }));
+                    applyChange({ isItalic: !textFormat.isItalic });
                   }}
                   className={`w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors ${
                     textFormat.isItalic
@@ -541,9 +554,9 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
 
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
-                    sound.playTick();
-                    onUpdateTextFormat((prev) => ({ ...prev, isUnderline: !prev.isUnderline }));
+                    applyChange({ isUnderline: !textFormat.isUnderline });
                   }}
                   className={`w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors ${
                     textFormat.isUnderline
@@ -560,9 +573,9 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
               <div className="flex items-center gap-1 bg-black/20 p-1 rounded-xl border border-white/15">
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
-                    sound.playTick();
-                    onUpdateTextFormat((prev) => ({ ...prev, textAlign: 'right' }));
+                    applyChange({ textAlign: 'right' });
                   }}
                   className={`w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors ${
                     textFormat.textAlign === 'right'
@@ -576,9 +589,9 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
 
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
-                    sound.playTick();
-                    onUpdateTextFormat((prev) => ({ ...prev, textAlign: 'center' }));
+                    applyChange({ textAlign: 'center' });
                   }}
                   className={`w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors ${
                     textFormat.textAlign === 'center'
@@ -592,9 +605,9 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
 
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
-                    sound.playTick();
-                    onUpdateTextFormat((prev) => ({ ...prev, textAlign: 'left' }));
+                    applyChange({ textAlign: 'left' });
                   }}
                   className={`w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer transition-colors ${
                     textFormat.textAlign === 'left'
@@ -615,9 +628,9 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
                     <button
                       key={item.color}
                       type="button"
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
-                        sound.playTick();
-                        onUpdateTextFormat((prev) => ({ ...prev, textColor: item.color }));
+                        applyChange({ textColor: item.color });
                       }}
                       className={`w-5 h-5 rounded-full border-2 transition-transform cursor-pointer relative ${
                         textFormat.textColor === item.color
@@ -628,12 +641,15 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
                       title={item.label}
                     />
                   ))}
-                  <label className="w-5 h-5 rounded-full border border-white/40 overflow-hidden cursor-pointer flex items-center justify-center relative hover:scale-115 transition-transform">
+                  <label
+                    onMouseDown={(e) => e.stopPropagation()}
+                    className="w-5 h-5 rounded-full border border-white/40 overflow-hidden cursor-pointer flex items-center justify-center relative hover:scale-115 transition-transform"
+                  >
                     <input
                       type="color"
                       value={textFormat.textColor}
                       onChange={(e) => {
-                        onUpdateTextFormat((prev) => ({ ...prev, textColor: e.target.value }));
+                        applyChange({ textColor: e.target.value });
                       }}
                       className="opacity-0 absolute inset-0 cursor-pointer w-full h-full"
                     />
@@ -646,9 +662,9 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
             {/* Reset to Default */}
             <button
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
-                sound.playTick();
-                onUpdateTextFormat(() => ({
+                applyChange({
                   fontFamily: 'Vazirmatn',
                   fontSize: 14,
                   isBold: false,
@@ -656,7 +672,7 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
                   isUnderline: false,
                   textAlign: 'right',
                   textColor: '#1e293b',
-                }));
+                });
               }}
               className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors flex items-center gap-1 text-[11px] cursor-pointer"
               title="بازنشانی قلم به حالت اولیه"
@@ -665,6 +681,7 @@ export const WordStyleToolbar: React.FC<WordStyleToolbarProps> = ({
               <span>پیش‌فرض</span>
             </button>
           </div>
+
         )}
       </div>
     </div>

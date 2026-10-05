@@ -526,6 +526,48 @@ export function injectHtmlSyncScript(rawHtml: string): string {
   setTimeout(sendHeight, 50);
   setTimeout(sendHeight, 200);
 
+  window.__planner_sync_state__ = syncState;
+
+  // Real-time typography and text selection inspection for Word-style formatting
+  function notifyActiveFormat(target) {
+    try {
+      if (!target || target === document.body || target === document.documentElement) return;
+      var style = window.getComputedStyle(target);
+      var fs = parseInt(target.style.fontSize || style.fontSize, 10);
+      var color = target.style.color || style.color;
+      var fw = target.style.fontWeight || style.fontWeight;
+      var isItalic = (target.style.fontStyle || style.fontStyle) === 'italic';
+      var textDec = target.style.textDecoration || style.textDecoration;
+      var isUnderline = textDec ? textDec.indexOf('underline') !== -1 : false;
+      var fontFam = target.style.fontFamily || style.fontFamily;
+      var textAlign = target.style.textAlign || style.textAlign;
+
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: 'CUSTOM_HTML_FORMAT_INSPECT',
+          fontSize: fs || 14,
+          textColor: color,
+          fontFamily: fontFam,
+          isBold: fw === 'bold' || fw === '700' || fw === '800' || fw === '900' || parseInt(fw, 10) >= 600,
+          isItalic: isItalic,
+          isUnderline: isUnderline,
+          textAlign: textAlign
+        }, '*');
+      }
+    } catch (e) {}
+  }
+
+  document.addEventListener('focusin', function(e) { notifyActiveFormat(e.target); }, true);
+  document.addEventListener('mouseup', function(e) {
+    var sel = window.getSelection();
+    if (sel && sel.anchorNode) {
+      var n = sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement;
+      notifyActiveFormat(n || e.target);
+    } else {
+      notifyActiveFormat(e.target);
+    }
+  }, true);
+
   // Debounced input listeners for smooth typing without event flooding
   var syncDebounceTimer = null;
   function debouncedSyncState() {

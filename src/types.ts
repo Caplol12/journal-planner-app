@@ -134,6 +134,7 @@ export interface DayPage {
 
   // Text formatting
   textFormat?: PageTextFormat;
+  elementStyles?: Record<string, Partial<PageTextFormat>>;
 
   // Template 1 (برگه سبز رنگ)
   timeSlots: Record<number, TimeSlot>;

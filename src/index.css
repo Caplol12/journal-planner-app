@@ -16,19 +16,15 @@
 .font-marhey { font-family: 'Marhey', cursive; }
 .font-scheherazade { font-family: 'Scheherazade New', serif; }
 
-/* Dynamic Typography Styling for Planner Page Elements */
+/* Dynamic Typography Styling for Planner Page Elements (Microsoft Word style - individual formatting support) */
 .planner-page-content input:not([type="checkbox"]):not([type="color"]):not([type="range"]),
 .planner-page-content textarea,
 .planner-page-content [contenteditable="true"],
 .planner-page-content .custom-text-node {
-  font-family: var(--sheet-font-family, inherit) !important;
-  font-size: var(--sheet-font-size, inherit) !important;
-  font-weight: var(--sheet-font-weight, inherit) !important;
-  font-style: var(--sheet-font-style, inherit) !important;
-  text-decoration: var(--sheet-text-decoration, inherit) !important;
-  text-align: var(--sheet-text-align, inherit) !important;
-  color: var(--sheet-text-color, inherit);
+  font-family: var(--sheet-font-family, inherit);
+  /* Individual elements maintain their own font size, color, and weights without destructive global !important overrides */
 }
+
 
 /* 3D Book Page Flip Animations */
 @keyframes bookFlipNextExit {
