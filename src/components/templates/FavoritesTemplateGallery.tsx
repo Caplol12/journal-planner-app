@@ -368,7 +368,7 @@ export const FavoritesTemplateGallery: React.FC<FavoritesTemplateGalleryProps> =
                     srcDoc={injectHtmlSyncScript(activePageItem.pageData.customHtmlContent || '')}
                     title="Custom HTML Template"
                     className="w-full min-h-[600px] border-none"
-                    sandbox="allow-scripts allow-forms"
+                    sandbox="allow-scripts allow-same-origin allow-forms"
                   />
                 </div>
               ) : (

@@ -43,7 +43,21 @@ export default function App() {
   const { user } = useAuth();
   const [journals, setJournals] = useState<Journal[]>(() => loadStoredJournals());
   const [settings, setSettings] = useState<AppSettings>(() => loadStoredSettings());
-  const [currentView, setCurrentView] = useState<'dashboard' | 'pages-overview' | 'planner' | 'admin' | 'calendar' | 'users'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'pages-overview' | 'planner' | 'admin' | 'calendar' | 'users'>(() => {
+    try {
+      const saved = localStorage.getItem('planner_current_view');
+      if (saved && ['dashboard', 'pages-overview', 'planner', 'admin', 'calendar', 'users'].includes(saved)) {
+        return saved as any;
+      }
+    } catch {}
+    return 'dashboard';
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('planner_current_view', currentView);
+    } catch {}
+  }, [currentView]);
   const [selectedJournalId, setSelectedJournalId] = useState<string | null>(null);
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'all' | 'templates' | 'favorites'>('all');
@@ -580,6 +594,7 @@ export default function App() {
           onOpenMarkdownModal={handleOpenMarkdownModal}
           settings={settings}
           onUpdateSettings={setSettings}
+          onOpenCalendar={() => setCurrentView('calendar')}
         />
       ) : currentView === 'pages-overview' && selectedJournal ? (
         <PagesOverview
@@ -675,6 +690,7 @@ export default function App() {
               }}
               isDarkMode={settings.colorMode === 'dark'}
               onToggleColorMode={handleToggleColorMode}
+              onOpenCalendar={() => setCurrentView('calendar')}
               title="STRATEGY"
             />
             <div className="flex-1 min-w-0 pb-20 lg:pb-0">

@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { CustomHtmlTemplate } from '../types';
 import { sound } from '../utils/audio';
-import { injectHtmlSyncScript } from '../utils/htmlTemplates';
-import { Upload, X, Check, FileCode, Trash2 } from 'lucide-react';
+import { injectHtmlSyncScript, HTML_TEMPLATE_PRESETS } from '../utils/htmlTemplates';
+import { Upload, X, Check, FileCode, Trash2, Eye, Maximize2, Sparkles } from 'lucide-react';
+import { HtmlTemplateThumbnail } from './templates/HtmlTemplateThumbnail';
 
 interface AddHtmlTemplateModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export const AddHtmlTemplateModal: React.FC<AddHtmlTemplateModalProps> = ({
   const [htmlContent, setHtmlContent] = useState('');
   const [fileName, setFileName] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [showFullPreview, setShowFullPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -128,7 +130,8 @@ export const AddHtmlTemplateModal: React.FC<AddHtmlTemplateModalProps> = ({
           />
 
           {!htmlContent ? (
-            /* Upload Drop Area */
+            <>
+            {/* Upload Drop Area */}
             <div
               onClick={() => fileInputRef.current?.click()}
               onDragOver={(e) => {
@@ -155,6 +158,35 @@ export const AddHtmlTemplateModal: React.FC<AddHtmlTemplateModalProps> = ({
                 </span>
               </div>
             </div>
+
+            {/* Quick Presets Selection */}
+            <div className="flex flex-col gap-2 pt-1 border-t border-slate-100">
+              <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                <Sparkles size={13} className="text-amber-500" />
+                <span>یا یکی از الگوهای استاندارد آماده را انتخاب کنید:</span>
+              </span>
+
+              <div className="flex flex-wrap gap-1.5">
+                {HTML_TEMPLATE_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => {
+                      sound.playAdd();
+                      setHtmlContent(preset.html);
+                      setTitle(preset.name);
+                      setDesc(preset.desc);
+                      setFileName(`${preset.id}.html`);
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-[11px] font-semibold text-slate-700 hover:text-slate-900 transition-colors flex items-center gap-1 cursor-pointer active:scale-95"
+                  >
+                    <span>{preset.icon}</span>
+                    <span>{preset.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            </>
           ) : (
             /* Uploaded File Selected State */
             <div className="flex flex-col gap-3">
@@ -210,15 +242,30 @@ export const AddHtmlTemplateModal: React.FC<AddHtmlTemplateModalProps> = ({
                 />
               </div>
 
-              {/* Minimal preview thumbnail */}
-              <div className="border border-slate-100 rounded-xl h-44 overflow-hidden relative shadow-2xs bg-white">
-                <iframe
-                  srcDoc={injectHtmlSyncScript(htmlContent)}
-                  title="Uploaded Preview"
-                  scrolling="no"
-                  className="w-full h-full border-none pointer-events-none scale-90 origin-top"
-                  sandbox=""
-                />
+              {/* Complete scaled preview thumbnail */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-semibold text-slate-600">
+                    پیش‌نمایش کامل قالب:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowFullPreview(true)}
+                    className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer transition-colors"
+                  >
+                    <Maximize2 size={12} />
+                    <span>مشاهده تمام‌صفحه پیش‌نمایش</span>
+                  </button>
+                </div>
+
+                <div className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50 relative p-2 shadow-inner">
+                  <HtmlTemplateThumbnail
+                    htmlContent={htmlContent}
+                    title="پیش‌نمایش قالب ورودی"
+                    virtualWidth={900}
+                    virtualHeight={1200}
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -236,7 +283,7 @@ export const AddHtmlTemplateModal: React.FC<AddHtmlTemplateModalProps> = ({
             {htmlContent && (
               <button
                 type="submit"
-                className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-95"
               >
                 <Check size={14} />
                 <span>ذخیره و ثبت قالب</span>
@@ -245,6 +292,39 @@ export const AddHtmlTemplateModal: React.FC<AddHtmlTemplateModalProps> = ({
           </div>
         </form>
       </div>
+
+      {/* Fullscreen Live Preview Modal */}
+      {showFullPreview && (
+        <div className="fixed inset-0 z-60 bg-slate-950/80 backdrop-blur-md flex flex-col p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-5xl mx-auto bg-white rounded-2xl p-4 flex items-center justify-between mb-3 shadow-lg border border-slate-200">
+            <div className="flex items-center gap-2">
+              <Eye size={18} className="text-blue-600" />
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">پیش‌نمایش کامل قالب ورودی</h4>
+                <p className="text-[11px] text-slate-500">مشاهده دقیق چیدمان و تمام بخش‌های قالب قبل از ذخیره</p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowFullPreview(false)}
+              className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+            >
+              <X size={15} />
+              <span>بستن پیش‌نمایش</span>
+            </button>
+          </div>
+
+          <div className="flex-1 w-full max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-y-auto p-4 sm:p-6 border border-slate-200">
+            <iframe
+              srcDoc={injectHtmlSyncScript(htmlContent)}
+              title="Full Uploaded Preview"
+              className="w-full min-h-[850px] border-none"
+              sandbox="allow-scripts allow-same-origin allow-forms"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

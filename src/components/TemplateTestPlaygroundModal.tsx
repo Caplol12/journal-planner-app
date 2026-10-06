@@ -90,6 +90,7 @@ export const TemplateTestPlaygroundModal: React.FC<TemplateTestPlaygroundModalPr
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string | null>(null);
 
   const [customHtmlHeight, setCustomHtmlHeight] = useState<number>(950);
+  const [zoomScale, setZoomScale] = useState<number>(1);
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   // Listen to iframe state synchronization and auto-resizing messages without reloading the iframe
@@ -179,6 +180,36 @@ export const TemplateTestPlaygroundModal: React.FC<TemplateTestPlaygroundModalPr
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Zoom controls for template view */}
+          {template.templateType === 'template-custom-html' && (
+            <div className="hidden sm:flex items-center bg-slate-100 rounded-xl p-0.5 text-xs text-slate-600 font-mono">
+              <button
+                type="button"
+                onClick={() => setZoomScale(0.75)}
+                className={`px-2 py-1 rounded-lg transition-colors cursor-pointer ${zoomScale === 0.75 ? 'bg-white font-bold text-slate-900 shadow-2xs' : 'hover:text-slate-900'}`}
+                title="بزرگنمایی ۷۵٪"
+              >
+                75%
+              </button>
+              <button
+                type="button"
+                onClick={() => setZoomScale(0.9)}
+                className={`px-2 py-1 rounded-lg transition-colors cursor-pointer ${zoomScale === 0.9 ? 'bg-white font-bold text-slate-900 shadow-2xs' : 'hover:text-slate-900'}`}
+                title="بزرگنمایی ۹۰٪"
+              >
+                90%
+              </button>
+              <button
+                type="button"
+                onClick={() => setZoomScale(1)}
+                className={`px-2 py-1 rounded-lg transition-colors cursor-pointer ${zoomScale === 1 ? 'bg-white font-bold text-slate-900 shadow-2xs' : 'hover:text-slate-900'}`}
+                title="اندازه طبیعی ۱۰۰٪"
+              >
+                100%
+              </button>
+            </div>
+          )}
+
           <button
             type="button"
             onClick={handleReset}
@@ -195,7 +226,7 @@ export const TemplateTestPlaygroundModal: React.FC<TemplateTestPlaygroundModalPr
               sound.playAdd();
               setShowApplyModal(true);
             }}
-            className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+            className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-95"
           >
             <Plus size={14} />
             <span>استفاده در دفترچه</span>
@@ -207,22 +238,31 @@ export const TemplateTestPlaygroundModal: React.FC<TemplateTestPlaygroundModalPr
       <div className="flex-1 w-full max-w-5xl mx-auto overflow-y-auto rounded-3xl flex justify-center items-start">
         <div className="w-full relative">
           {template.templateType === 'template-custom-html' ? (
-            <div className="w-full bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-200">
-              <iframe
-                ref={iframeRef}
-                key={template.id}
-                srcDoc={playgroundIframeDoc}
-                title="Custom HTML Template Playground"
-                scrolling="no"
+            <div className="w-full bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-200 overflow-x-auto">
+              <div
                 style={{
-                  width: '100%',
-                  height: `${customHtmlHeight}px`,
-                  border: 'none',
-                  overflow: 'hidden',
-                  display: 'block',
+                  transform: zoomScale !== 1 ? `scale(${zoomScale})` : undefined,
+                  transformOrigin: 'top center',
+                  transition: 'transform 0.2s ease',
+                  width: zoomScale !== 1 ? `${Math.round(100 / zoomScale)}%` : '100%',
                 }}
-                sandbox="allow-scripts allow-forms"
-              />
+              >
+                <iframe
+                  ref={iframeRef}
+                  key={template.id}
+                  srcDoc={playgroundIframeDoc}
+                  title="Custom HTML Template Playground"
+                  scrolling="no"
+                  style={{
+                    width: '100%',
+                    minHeight: '750px',
+                    height: `${Math.max(customHtmlHeight, 750)}px`,
+                    border: 'none',
+                    display: 'block',
+                  }}
+                  sandbox="allow-scripts allow-same-origin allow-forms"
+                />
+              </div>
             </div>
           ) : template.templateType === 'template-4-celestial-todo' ? (
             <Template4CelestialSheet

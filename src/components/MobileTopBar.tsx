@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Sun, Moon, Plus } from 'lucide-react';
+import { Menu, Sun, Moon, Plus, Orbit } from 'lucide-react';
 import { StrategyLogoSvg } from './StrategyLogoSvg';
 import { sound } from '../utils/audio';
 
@@ -8,6 +8,7 @@ interface MobileTopBarProps {
   onNewJournal: () => void;
   isDarkMode: boolean;
   onToggleColorMode?: () => void;
+  onOpenCalendar?: () => void;
   title?: string;
 }
 
@@ -16,6 +17,7 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({
   onNewJournal,
   isDarkMode,
   onToggleColorMode,
+  onOpenCalendar,
   title = 'STRATEGY',
 }) => {
   return (
@@ -38,8 +40,21 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({
         </div>
       </div>
 
-      {/* Right Controls: Theme Toggle & Hamburger */}
+      {/* Right Controls: Calendar, Theme Toggle & Hamburger */}
       <div className="flex items-center gap-1.5">
+        {onOpenCalendar && (
+          <button
+            onClick={() => {
+              sound.playTick(true);
+              onOpenCalendar();
+            }}
+            className="p-2 rounded-xl text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 transition-colors cursor-pointer"
+            title="تقویم هوشمند مدار"
+          >
+            <Orbit size={18} />
+          </button>
+        )}
+
         {onToggleColorMode && (
           <button
             onClick={onToggleColorMode}

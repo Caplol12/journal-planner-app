@@ -801,12 +801,13 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
               scrolling="no"
               style={{
                 width: '100%',
-                height: `${customHtmlHeight}px`,
+                minHeight: '650px',
+                height: `${Math.max(customHtmlHeight, 650)}px`,
                 border: 'none',
                 overflow: 'hidden',
                 display: 'block',
               }}
-              sandbox="allow-scripts allow-forms"
+              sandbox="allow-scripts allow-same-origin allow-forms"
             />
           </div>
         ) : pageData.templateType === 'template-4-celestial-todo' ? (

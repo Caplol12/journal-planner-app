@@ -371,10 +371,14 @@ export function getAllDatesWithNotes(): Set<number> {
   }
 }
 
-/** Formats a JDN into standard Jalali DateKey (e.g. "1405-01-16") */
+/** Formats a JDN into standard journal DateKey (e.g. "2026-10-06") compatible with parseDateKey */
 export function jdnToJalaliDateKey(jdn: number): string {
-  const { y, m, d } = d2j(jdn);
+  const { y, m, d } = d2g(jdn);
   const mm = String(m).padStart(2, '0');
   const dd = String(d).padStart(2, '0');
   return `${y}-${mm}-${dd}`;
+}
+
+export function jdnToStandardDateKey(jdn: number): string {
+  return jdnToJalaliDateKey(jdn);
 }

@@ -39,6 +39,7 @@ import { TemplateTestPlaygroundModal, TestTemplateItem } from './TemplateTestPla
 import { CloudTemplate, fetchCloudTemplates } from '../utils/supabaseTemplates';
 import { isSupabaseConfigured } from '../utils/supabase';
 import { FavoritesTemplateGallery } from './templates/FavoritesTemplateGallery';
+import { HtmlTemplateThumbnail } from './templates/HtmlTemplateThumbnail';
 
 interface DashboardProps {
   journals: Journal[];
@@ -412,11 +413,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <button
               type="button"
               onClick={onOpenCalendar}
-              title="مشاهده تقویم دوگانه کیهانی مدار (شمسی و میلادی با نمای سالانه و ماهانه)"
+              title="تقویم هوشمند مدار (شمسی و میلادی · ماهانه و هفتگی)"
               className="flex items-center gap-1.5 px-3 py-2.5 bg-cyan-50 dark:bg-cyan-950/40 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 border border-cyan-200 dark:border-cyan-800/80 rounded-xl text-cyan-700 dark:text-cyan-300 font-bold text-xs shadow-xs transition-all shrink-0 cursor-pointer group active:scale-95"
             >
               <Orbit size={16} className="text-cyan-600 dark:text-cyan-400 group-hover:rotate-90 transition-transform duration-300" />
-              <span className="hidden sm:inline">تقویم کیهانی</span>
+              <span className="hidden sm:inline">تقویم هوشمند</span>
             </button>
           )}
 
@@ -505,7 +506,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         setTestPlaygroundTemplate(tpl);
                       }}
                       className="w-full bg-slate-900 border-2 border-slate-700 hover:border-blue-400 rounded-2xl p-3 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden select-none"
-                      style={{ minHeight: '440px' }}
                     >
                       <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
                         <span className="text-xs font-mono font-bold text-blue-400 flex items-center gap-1.5">
@@ -517,20 +517,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         </span>
                       </div>
 
-                      <div className="flex-1 w-full my-1 bg-white rounded-xl overflow-hidden border border-slate-700 pointer-events-none relative">
-                        <iframe
-                          srcDoc={injectHtmlSyncScript(tpl.customHtmlContent || '')}
+                      <div className="w-full my-1 rounded-xl overflow-hidden border border-slate-700 relative bg-white">
+                        <HtmlTemplateThumbnail
+                          htmlContent={tpl.customHtmlContent || ''}
                           title={tpl.title}
-                          scrolling="no"
-                          className="w-full h-full min-h-[340px] border-none pointer-events-none"
-                          sandbox=""
+                          virtualWidth={900}
+                          virtualHeight={1250}
                         />
                       </div>
 
-                      <div className="pt-2 text-center border-t border-slate-800">
+                      <div className="pt-2 text-center border-t border-slate-800 mt-2">
                         <span className="text-xs font-bold text-slate-300 group-hover:text-blue-300 transition-colors flex items-center justify-center gap-1.5">
                           <Eye size={13} />
-                          <span>کلیک برای تست و آزمایش زنده</span>
+                          <span>کلیک برای پیش‌نمایش و آزمایش کامل</span>
                         </span>
                       </div>
                     </div>

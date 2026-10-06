@@ -385,9 +385,10 @@ export const HTML_TEMPLATE_PRESETS: HtmlTemplatePreset[] = [
 
 /**
  * Injects a two-way synchronization script and scrollbar removal styles into custom HTML:
- * 1. Completely removes internal iframe scrollbars (*, html, body)
- * 2. Automatically measures full document height and posts CUSTOM_HTML_RESIZE
- * 3. Captures form inputs/checkboxes in real-time and posts CUSTOM_HTML_SYNC
+ * 1. Ensures proper HTML5 document structure, viewport, and Persian fonts
+ * 2. Completely removes internal iframe scrollbars (*, html, body)
+ * 3. Automatically measures full document height including asynchronous images and posts CUSTOM_HTML_RESIZE
+ * 4. Captures form inputs/checkboxes in real-time and posts CUSTOM_HTML_SYNC
  */
 export function injectHtmlSyncScript(rawHtml: string): string {
   if (!rawHtml) return '';
@@ -397,12 +398,6 @@ export function injectHtmlSyncScript(rawHtml: string): string {
     .replace(/<style id="__planner_no_scrollbar_style__">[\s\S]*?<\/style>/gi, '')
     .replace(/<script id="__planner_sync_script__">[\s\S]*?<\/script>/gi, '');
 
-  // 1. Ensure RTL direction and Persian language if not set
-  if (!html.includes('dir=')) {
-    html = html.replace(/<html/i, '<html dir="rtl" lang="fa"');
-  }
-
-  // 2. Ensure Persian web fonts are available if missing
   const fontLinks = `
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -411,11 +406,42 @@ export function injectHtmlSyncScript(rawHtml: string): string {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@v5.0.1/dist/font-face.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@v4.0.5/dist/font-face.css">
 `;
-  if (!html.includes('rastikerdar') && !html.includes('Vazirmatn')) {
-    if (html.includes('</head>')) {
-      html = html.replace('</head>', `${fontLinks}\n</head>`);
-    } else if (html.includes('<head>')) {
-      html = html.replace('<head>', `<head>\n${fontLinks}`);
+
+  // If input is an HTML snippet without <html> or <body>, wrap it in a complete HTML5 document
+  if (!html.includes('<html') && !html.includes('<body')) {
+    html = `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ${fontLinks}
+</head>
+<body>
+  ${html}
+</body>
+</html>`;
+  } else {
+    // 1. Ensure RTL direction and Persian language if not set
+    if (!html.includes('dir=')) {
+      html = html.replace(/<html/i, '<html dir="rtl" lang="fa"');
+    }
+
+    // Ensure viewport meta tag exists for responsive scaling
+    if (!html.includes('name="viewport"')) {
+      if (html.includes('<head>')) {
+        html = html.replace('<head>', '<head>\n<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+      } else if (html.includes('</head>')) {
+        html = html.replace('</head>', '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n</head>');
+      }
+    }
+
+    // 2. Ensure Persian web fonts are available if missing
+    if (!html.includes('rastikerdar') && !html.includes('Vazirmatn')) {
+      if (html.includes('</head>')) {
+        html = html.replace('</head>', `${fontLinks}\n</head>`);
+      } else if (html.includes('<head>')) {
+        html = html.replace('<head>', `<head>\n${fontLinks}`);
+      }
     }
   }
 
@@ -449,6 +475,12 @@ export function injectHtmlSyncScript(rawHtml: string): string {
     display: none !important;
     width: 0px !important;
     height: 0px !important;
+  }
+
+  /* Ensure images fit nicely and don't clip */
+  img {
+    max-width: 100%;
+    height: auto;
   }
 
   /* Universal typography bridge: connects ANY incoming HTML inputs & text to font toolbar */
@@ -506,6 +538,25 @@ export function injectHtmlSyncScript(rawHtml: string): string {
     } catch (e) {}
   }
 
+  // Hook image load events to recalculate height as graphics/photos stream in
+  function attachImageListeners() {
+    try {
+      var imgs = document.querySelectorAll('img');
+      imgs.forEach(function(img) {
+        if (!img.__planner_loaded_hook) {
+          img.__planner_loaded_hook = true;
+          if (!img.complete) {
+            img.addEventListener('load', function() {
+              sendHeight();
+              setTimeout(sendHeight, 100);
+            });
+            img.addEventListener('error', sendHeight);
+          }
+        }
+      });
+    } catch(e) {}
+  }
+
   function syncState() {
     try {
       document.querySelectorAll('input').forEach(function(el) {
@@ -550,6 +601,7 @@ export function injectHtmlSyncScript(rawHtml: string): string {
 
   // Listeners for height changes
   window.addEventListener('load', function() {
+    attachImageListeners();
     sendHeight();
     setTimeout(sendHeight, 100);
     setTimeout(sendHeight, 350);
@@ -557,7 +609,10 @@ export function injectHtmlSyncScript(rawHtml: string): string {
     setTimeout(sendHeight, 1500);
   });
   window.addEventListener('resize', sendHeight);
-  document.addEventListener('DOMContentLoaded', sendHeight);
+  document.addEventListener('DOMContentLoaded', function() {
+    attachImageListeners();
+    sendHeight();
+  });
 
   if (window.ResizeObserver) {
     try {
@@ -571,8 +626,10 @@ export function injectHtmlSyncScript(rawHtml: string): string {
 
   // Immediate height triggers
   sendHeight();
+  attachImageListeners();
   setTimeout(sendHeight, 50);
   setTimeout(sendHeight, 200);
+  setTimeout(attachImageListeners, 250);
 
   window.__planner_sync_state__ = syncState;
 
