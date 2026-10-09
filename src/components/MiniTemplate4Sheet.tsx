@@ -54,16 +54,16 @@ export const MiniTemplate4Sheet: React.FC<MiniTemplate4SheetProps> = ({
     ],
   };
 
-  const allBasics = [
-    ...data.dailyBasics.morning,
-    ...data.dailyBasics.home,
-    ...data.dailyBasics.meals,
-    ...data.dailyBasics.night,
-  ];
+  const morning = data.dailyBasics?.morning || [];
+  const home = data.dailyBasics?.home || [];
+  const meals = data.dailyBasics?.meals || [];
+  const night = data.dailyBasics?.night || [];
+  const allBasics = [...morning, ...home, ...meals, ...night];
 
-  const totalTasks = allBasics.length + data.todayTasks.length;
+  const todayTasks = data.todayTasks || [];
+  const totalTasks = allBasics.length + todayTasks.length;
   const doneTasks =
-    allBasics.filter((t) => t.done).length + data.todayTasks.filter((t) => t.done).length;
+    allBasics.filter((t) => t.done).length + todayTasks.filter((t) => t.done).length;
 
   return (
     <div
@@ -85,7 +85,7 @@ export const MiniTemplate4Sheet: React.FC<MiniTemplate4SheetProps> = ({
             e.stopPropagation();
             onDelete();
           }}
-          className="absolute top-2.5 right-2.5 z-30 w-7 h-7 rounded-full bg-white/95 hover:bg-rose-50 text-neutral-400 hover:text-rose-600 border border-neutral-200 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-xs"
+          className="absolute top-2.5 right-2.5 z-30 w-7 h-7 rounded-full bg-white/95 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-500 hover:text-rose-700 dark:text-stone-400 dark:hover:text-rose-300 border border-stone-200 dark:border-stone-700 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-xs"
           title="حذف این برگه"
         >
           <Trash2 size={13} />

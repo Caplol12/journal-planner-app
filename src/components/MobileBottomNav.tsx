@@ -1,12 +1,17 @@
 import React from 'react';
-import { BookOpen, Bookmark, Star, Orbit, Menu, Plus } from 'lucide-react';
+import { BookOpen, Bookmark, Star, Orbit, Plus, Settings as SettingsIcon } from 'lucide-react';
 import { sound } from '../utils/audio';
+import { Language } from '../types';
+import { getTranslations } from '../utils/i18n';
 
 interface MobileBottomNavProps {
   currentTab: 'all' | 'templates' | 'favorites';
   isCalendarActive: boolean;
+  isSettingsActive?: boolean;
+  language?: Language;
   onSelectTab: (tab: 'all' | 'templates' | 'favorites') => void;
   onOpenCalendar: () => void;
+  onOpenSettings?: () => void;
   onToggleMobileMenu: () => void;
   onNewJournal: () => void;
 }
@@ -14,16 +19,28 @@ interface MobileBottomNavProps {
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   currentTab,
   isCalendarActive,
+  isSettingsActive,
+  language = 'fa',
   onSelectTab,
   onOpenCalendar,
-  onToggleMobileMenu,
+  onOpenSettings,
   onNewJournal,
 }) => {
+  const t = getTranslations(language);
+  const isRtl = language === 'fa';
+
+  const getTabClass = (isActive: boolean) =>
+    `flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl transition-all cursor-pointer ${
+      isActive
+        ? 'text-stone-900 dark:text-stone-100 font-bold'
+        : 'text-stone-400 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
+    }`;
+
   return (
     <nav
-      dir="rtl"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 lg:hidden px-2 py-1.5 flex items-center justify-around shadow-2xl pb-[max(0.5rem,env(safe-area-inset-bottom))]"
-      aria-label="ناوبری همراه"
+      dir={isRtl ? 'rtl' : 'ltr'}
+      className="fixed bottom-0 left-0 right-0 z-40 bg-[#fbfaf8]/92 dark:bg-[#181817]/92 backdrop-blur-md border-t border-stone-200/70 dark:border-stone-800/70 lg:hidden px-2 py-1 flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+      aria-label="Mobile Navigation"
     >
       {/* 1. All Journals Tab */}
       <button
@@ -31,14 +48,10 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           sound.playTick(true);
           onSelectTab('all');
         }}
-        className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all cursor-pointer ${
-          currentTab === 'all' && !isCalendarActive
-            ? 'text-[#ff5024] font-bold scale-105'
-            : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-        }`}
+        className={getTabClass(currentTab === 'all' && !isCalendarActive && !isSettingsActive)}
       >
-        <BookOpen size={20} />
-        <span className="text-[10px] mt-1 tracking-tight">ژورنال‌ها</span>
+        <BookOpen size={18} strokeWidth={1.8} />
+        <span className="text-[10px] mt-0.5 tracking-tight">{t.allJournals}</span>
       </button>
 
       {/* 2. Templates Tab */}
@@ -47,14 +60,10 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           sound.playTick(true);
           onSelectTab('templates');
         }}
-        className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all cursor-pointer ${
-          currentTab === 'templates' && !isCalendarActive
-            ? 'text-[#ff5024] font-bold scale-105'
-            : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-        }`}
+        className={getTabClass(currentTab === 'templates' && !isCalendarActive && !isSettingsActive)}
       >
-        <Bookmark size={20} />
-        <span className="text-[10px] mt-1 tracking-tight">قالب‌ها</span>
+        <Bookmark size={18} strokeWidth={1.8} />
+        <span className="text-[10px] mt-0.5 tracking-tight">{t.templates}</span>
       </button>
 
       {/* 3. Center: Quick New Journal Action Button */}
@@ -63,55 +72,37 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           sound.playAdd();
           onNewJournal();
         }}
-        className="w-11 h-11 -mt-4 rounded-full bg-gradient-to-r from-[#ff5722] via-[#ff6438] to-[#f59e0b] text-white flex items-center justify-center shadow-lg shadow-orange-500/35 border-2 border-white dark:border-slate-900 active:scale-95 transition-transform cursor-pointer"
-        title="ژورنال جدید"
+        className="w-10 h-10 -mt-3 rounded-full bg-stone-900 dark:bg-stone-100 text-stone-50 dark:text-stone-900 flex items-center justify-center shadow-xs border border-stone-200/40 dark:border-stone-700 active:scale-95 transition-transform cursor-pointer"
+        title={t.newJournal}
       >
-        <Plus size={22} strokeWidth={2.5} />
+        <Plus size={19} strokeWidth={2.4} />
       </button>
 
-      {/* 4. Favorites Gallery Tab */}
-      <button
-        onClick={() => {
-          sound.playTick(true);
-          onSelectTab('favorites');
-        }}
-        className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all cursor-pointer ${
-          currentTab === 'favorites' && !isCalendarActive
-            ? 'text-[#ff5024] font-bold scale-105'
-            : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-        }`}
-      >
-        <Star size={20} className={currentTab === 'favorites' && !isCalendarActive ? 'fill-[#ff5024]' : ''} />
-        <span className="text-[10px] mt-1 tracking-tight">برگزیده‌ها</span>
-      </button>
-
-      {/* 5. Calendar Tab */}
+      {/* 4. Calendar Tab */}
       <button
         onClick={() => {
           sound.playTick(true);
           onOpenCalendar();
         }}
-        className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all cursor-pointer ${
-          isCalendarActive
-            ? 'text-cyan-500 font-bold scale-105'
-            : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-        }`}
+        className={getTabClass(Boolean(isCalendarActive))}
       >
-        <Orbit size={20} className={isCalendarActive ? 'rotate-45 transition-transform' : ''} />
-        <span className="text-[10px] mt-1 tracking-tight">تقویم مدار</span>
+        <Orbit size={18} strokeWidth={1.8} />
+        <span className="text-[10px] mt-0.5 tracking-tight">{t.orbitCalendar}</span>
       </button>
 
-      {/* 6. More Menu (Drawer trigger) */}
-      <button
-        onClick={() => {
-          sound.playTick();
-          onToggleMobileMenu();
-        }}
-        className="flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all cursor-pointer"
-      >
-        <Menu size={20} />
-        <span className="text-[10px] mt-1 tracking-tight">منو</span>
-      </button>
+      {/* 5. Settings Tab */}
+      {onOpenSettings && (
+        <button
+          onClick={() => {
+            sound.playTick(true);
+            onOpenSettings();
+          }}
+          className={getTabClass(Boolean(isSettingsActive))}
+        >
+          <SettingsIcon size={18} strokeWidth={1.8} />
+          <span className="text-[10px] mt-0.5 tracking-tight">{t.settings}</span>
+        </button>
+      )}
     </nav>
   );
 };

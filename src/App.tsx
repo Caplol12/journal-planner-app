@@ -31,6 +31,7 @@ import { OrbitCalendar } from './components/calendar/OrbitCalendar';
 import { UserRegistrationView } from './components/users/UserRegistrationView';
 import { MobileTopBar } from './components/MobileTopBar';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { SettingsView } from './components/SettingsView';
 import {
   NewJournalModal,
   EditCoverModal,
@@ -43,10 +44,10 @@ export default function App() {
   const { user } = useAuth();
   const [journals, setJournals] = useState<Journal[]>(() => loadStoredJournals());
   const [settings, setSettings] = useState<AppSettings>(() => loadStoredSettings());
-  const [currentView, setCurrentView] = useState<'dashboard' | 'pages-overview' | 'planner' | 'admin' | 'calendar' | 'users'>(() => {
+  const [currentView, setCurrentView] = useState<'dashboard' | 'pages-overview' | 'planner' | 'admin' | 'calendar' | 'users' | 'settings'>(() => {
     try {
       const saved = localStorage.getItem('planner_current_view');
-      if (saved && ['dashboard', 'pages-overview', 'planner', 'admin', 'calendar', 'users'].includes(saved)) {
+      if (saved && ['dashboard', 'pages-overview', 'planner', 'admin', 'calendar', 'users', 'settings'].includes(saved)) {
         return saved as any;
       }
     } catch {}
@@ -103,6 +104,13 @@ export default function App() {
     sound.volume = settings.soundVolume;
     saveStoredSettings(settings);
   }, [settings]);
+
+  // Sync language and layout direction (fa -> rtl, en -> ltr) with HTML document
+  useEffect(() => {
+    const lang = settings.language || 'fa';
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+  }, [settings.language]);
 
   // Sync color mode (light / dark / system) with DOM
   useEffect(() => {
@@ -543,6 +551,11 @@ export default function App() {
               setIsBackupOpen(true);
               setIsMobileMenuOpen(false);
             }}
+            onOpenSettings={() => {
+              setCurrentView('settings');
+              setIsMobileMenuOpen(false);
+            }}
+            isSettingsActive={false}
             onOpenAdmin={() => {
               setCurrentView('admin');
               setIsMobileMenuOpen(false);
@@ -565,11 +578,14 @@ export default function App() {
           <MobileBottomNav
             currentTab={currentTab}
             isCalendarActive={false}
+            isSettingsActive={false}
+            language={settings.language}
             onSelectTab={(tab) => {
               setCurrentTab(tab);
               setCurrentView('dashboard');
             }}
             onOpenCalendar={() => setCurrentView('calendar')}
+            onOpenSettings={() => setCurrentView('settings')}
             onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             onNewJournal={() => {
               setCurrentView('dashboard');
@@ -644,6 +660,11 @@ export default function App() {
               setIsBackupOpen(true);
               setIsMobileMenuOpen(false);
             }}
+            onOpenSettings={() => {
+              setCurrentView('settings');
+              setIsMobileMenuOpen(false);
+            }}
+            isSettingsActive={false}
             onOpenAdmin={() => {
               setCurrentView('admin');
               setIsMobileMenuOpen(false);
@@ -666,11 +687,100 @@ export default function App() {
           <MobileBottomNav
             currentTab={currentTab}
             isCalendarActive={false}
+            isSettingsActive={false}
+            language={settings.language}
             onSelectTab={(tab) => {
               setCurrentTab(tab);
               setCurrentView('dashboard');
             }}
             onOpenCalendar={() => setCurrentView('calendar')}
+            onOpenSettings={() => setCurrentView('settings')}
+            onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            onNewJournal={() => {
+              setCurrentView('dashboard');
+              setIsNewJournalOpen(true);
+            }}
+          />
+        </div>
+      ) : currentView === 'settings' ? (
+        <div className="flex min-h-screen w-full relative overflow-x-hidden">
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+            <MobileTopBar
+              onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onNewJournal={() => {
+                setCurrentView('dashboard');
+                setIsNewJournalOpen(true);
+              }}
+              isDarkMode={settings.colorMode === 'dark'}
+              onToggleColorMode={handleToggleColorMode}
+              title="STRATEGY"
+            />
+            <div className="flex-1 min-w-0 pb-20 lg:pb-0">
+              <SettingsView
+                settings={settings}
+                onUpdateSettings={setSettings}
+                journals={journals}
+                onUpdateJournals={setJournals}
+                onBackToDashboard={() => setCurrentView('dashboard')}
+                onToggleColorMode={handleToggleColorMode}
+              />
+            </div>
+          </div>
+          <Sidebar
+            currentTab={currentTab}
+            onSelectTab={(tab) => {
+              setCurrentTab(tab);
+              setCurrentView('dashboard');
+              setIsMobileMenuOpen(false);
+            }}
+            onNewJournal={() => {
+              setCurrentView('dashboard');
+              setIsNewJournalOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+            journalCount={journals.length}
+            starredCount={journals.filter((j) => j.starred).length}
+            settings={settings}
+            onUpdateSettings={setSettings}
+            onOpenBackup={() => {
+              setIsBackupOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+            onOpenSettings={() => {
+              setCurrentView('settings');
+              setIsMobileMenuOpen(false);
+            }}
+            isSettingsActive={true}
+            onOpenAdmin={() => {
+              setCurrentView('admin');
+              setIsMobileMenuOpen(false);
+            }}
+            isAdminActive={false}
+            onOpenCalendar={() => {
+              setCurrentView('calendar');
+              setIsMobileMenuOpen(false);
+            }}
+            isCalendarActive={false}
+            onOpenUsers={() => {
+              setCurrentView('users');
+              setIsMobileMenuOpen(false);
+            }}
+            isUsersActive={false}
+            onToggleColorMode={handleToggleColorMode}
+            isOpenMobile={isMobileMenuOpen}
+            onCloseMobile={() => setIsMobileMenuOpen(false)}
+          />
+          <MobileBottomNav
+            currentTab={currentTab}
+            isCalendarActive={false}
+            isSettingsActive={true}
+            language={settings.language}
+            onSelectTab={(tab) => {
+              setCurrentTab(tab);
+              setCurrentView('dashboard');
+            }}
+            onOpenCalendar={() => setCurrentView('calendar')}
+            onOpenSettings={() => setCurrentView('settings')}
             onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             onNewJournal={() => {
               setCurrentView('dashboard');
@@ -697,6 +807,7 @@ export default function App() {
               <Dashboard
                 journals={journals}
                 currentTab={currentTab}
+                language={settings.language}
                 onOpenJournal={handleOpenJournal}
                 onEditCover={(id) => {
                   const target = journals.find((j) => j.id === id);
@@ -736,6 +847,7 @@ export default function App() {
             currentTab={currentTab}
             onSelectTab={(tab) => {
               setCurrentTab(tab);
+              setCurrentView('dashboard');
               setIsMobileMenuOpen(false);
             }}
             onNewJournal={() => {
@@ -750,6 +862,11 @@ export default function App() {
               setIsBackupOpen(true);
               setIsMobileMenuOpen(false);
             }}
+            onOpenSettings={() => {
+              setCurrentView('settings');
+              setIsMobileMenuOpen(false);
+            }}
+            isSettingsActive={false}
             onOpenAdmin={() => {
               setCurrentView('admin');
               setIsMobileMenuOpen(false);
@@ -774,11 +891,14 @@ export default function App() {
           <MobileBottomNav
             currentTab={currentTab}
             isCalendarActive={false}
+            isSettingsActive={false}
+            language={settings.language}
             onSelectTab={(tab) => {
               setCurrentTab(tab);
               setCurrentView('dashboard');
             }}
             onOpenCalendar={() => setCurrentView('calendar')}
+            onOpenSettings={() => setCurrentView('settings')}
             onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             onNewJournal={() => {
               setCurrentView('dashboard');

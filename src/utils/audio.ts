@@ -156,6 +156,10 @@ class SoundEngine {
       // ignore
     }
   }
+
+  public playTurnPage() {
+    this.playSwoosh();
+  }
 }
 
 export const sound = new SoundEngine();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Sun, Moon, Plus, Orbit } from 'lucide-react';
+import { Menu, Sun, Moon, Orbit } from 'lucide-react';
 import { StrategyLogoSvg } from './StrategyLogoSvg';
 import { sound } from '../utils/audio';
 
@@ -14,54 +14,53 @@ interface MobileTopBarProps {
 
 export const MobileTopBar: React.FC<MobileTopBarProps> = ({
   onToggleMobileMenu,
-  onNewJournal,
   isDarkMode,
   onToggleColorMode,
   onOpenCalendar,
-  title = 'STRATEGY',
+  title = 'استراتژی',
 }) => {
   return (
     <header
       dir="rtl"
-      className="sticky top-0 z-30 w-full bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between lg:hidden shadow-xs"
+      className="sticky top-0 z-30 w-full bg-[#fbfaf8]/90 dark:bg-[#181817]/90 backdrop-blur-md border-b border-stone-200/70 dark:border-stone-800/70 px-4 py-2.5 flex items-center justify-between lg:hidden"
     >
       {/* Brand & Logo */}
       <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-800 dark:via-slate-700 dark:to-slate-900 border border-slate-300 dark:border-slate-600 flex items-center justify-center shadow-xs p-1">
-          <StrategyLogoSvg size={20} color="url(#silverGrad)" />
+        <div className="w-7 h-7 rounded-lg bg-stone-200/80 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-200 border border-stone-300/40 dark:border-stone-700/50 p-1">
+          <StrategyLogoSvg size={16} color="currentColor" />
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-base font-black tracking-wider text-slate-900 dark:text-white font-sans">
+          <span className="text-sm font-bold text-stone-900 dark:text-stone-100">
             {title}
           </span>
-          <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 font-mono">
-            OS
+          <span className="text-[10px] text-stone-400 font-mono">
+            v2
           </span>
         </div>
       </div>
 
-      {/* Right Controls: Calendar, Theme Toggle & Hamburger */}
-      <div className="flex items-center gap-1.5">
+      {/* Right Controls */}
+      <div className="flex items-center gap-1">
         {onOpenCalendar && (
           <button
             onClick={() => {
               sound.playTick(true);
               onOpenCalendar();
             }}
-            className="p-2 rounded-xl text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 transition-colors cursor-pointer"
-            title="تقویم هوشمند مدار"
+            className="p-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200/60 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+            title="تقویم مدار"
           >
-            <Orbit size={18} />
+            <Orbit size={17} />
           </button>
         )}
 
         {onToggleColorMode && (
           <button
             onClick={onToggleColorMode}
-            className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            title={isDarkMode ? 'تغییر به تم روشن' : 'تغییر به تم تاریک'}
+            className="p-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200/60 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+            title={isDarkMode ? 'تم روشن' : 'تم تاریک'}
           >
-            {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} />}
+            {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
           </button>
         )}
 
@@ -70,10 +69,10 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({
             sound.playTick();
             onToggleMobileMenu();
           }}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-          title="منوی برنامه‌ریزی"
+          className="p-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200/60 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+          title="منوی اصلی"
         >
-          <Menu size={20} />
+          <Menu size={18} />
         </button>
       </div>
     </header>

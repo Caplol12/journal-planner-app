@@ -101,21 +101,21 @@ export const ChronodexDial: React.FC<ChronodexDialProps> = ({
   return (
     <div className="flex flex-col items-center relative select-none">
       {/* Dual Mode Switcher Tabs (صبح و روز / شب و استراحت / ۲۴H) */}
-      <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 p-1 bg-black/30 backdrop-blur-md rounded-2xl sm:rounded-full border border-white/20 shadow-md mb-3 max-w-full">
+      <div className="flex items-center justify-center gap-1 p-0.5 bg-stone-100 dark:bg-stone-850 rounded-xl border border-stone-200/80 dark:border-stone-800 shadow-2xs mb-3">
         <button
           type="button"
           onClick={() => {
             sound.playTick(true);
             setDialMode('day');
           }}
-          className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
             dialMode === 'day'
-              ? 'bg-[#f4c430] text-slate-900 shadow-md scale-105 ring-1 ring-amber-300'
-              : 'text-white/80 hover:text-white hover:bg-white/10'
+              ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-stone-100 shadow-2xs'
+              : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
           }`}
           title="حالت صبح و روز (ساعات ۶:۰۰ تا ۱۸:۰۰)"
         >
-          <Sun size={13} className={dialMode === 'day' ? 'text-amber-900' : 'text-amber-300'} />
+          <Sun size={13} className={dialMode === 'day' ? 'text-amber-600 dark:text-amber-400' : 'text-stone-400'} />
           <span>صبح و روز</span>
         </button>
 
@@ -125,14 +125,14 @@ export const ChronodexDial: React.FC<ChronodexDialProps> = ({
             sound.playTick(true);
             setDialMode('night');
           }}
-          className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
             dialMode === 'night'
-              ? 'bg-[#3b4b68] text-white shadow-md scale-105 ring-1 ring-indigo-300'
-              : 'text-white/80 hover:text-white hover:bg-white/10'
+              ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-stone-100 shadow-2xs'
+              : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
           }`}
           title="حالت شب و استراحت (ساعات ۱۸:۰۰ تا ۰۶:۰۰)"
         >
-          <Moon size={13} className={dialMode === 'night' ? 'text-cyan-300' : 'text-cyan-200'} />
+          <Moon size={13} className={dialMode === 'night' ? 'text-indigo-600 dark:text-indigo-400' : 'text-stone-400'} />
           <span>شب و استراحت</span>
         </button>
 
@@ -142,14 +142,14 @@ export const ChronodexDial: React.FC<ChronodexDialProps> = ({
             sound.playTick(true);
             setDialMode('24h');
           }}
-          className={`px-2.5 py-1.5 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
             dialMode === '24h'
-              ? 'bg-white text-slate-900 shadow-md scale-105'
-              : 'text-white/70 hover:text-white hover:bg-white/10'
+              ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-stone-100 shadow-2xs'
+              : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
           }`}
           title="نمایش ۲۴ ساعته کامل"
         >
-          <span>۲۴H</span>
+          <span>۲۴ ساعته</span>
         </button>
       </div>
 
@@ -483,30 +483,30 @@ export const ChronodexDial: React.FC<ChronodexDialProps> = ({
           onClick={() => setPopoverState(null)}
         >
           <div
-            className="bg-white rounded-2xl p-4 shadow-2xl border border-slate-200 w-72 flex flex-col gap-2.5 animate-in fade-in zoom-in-95 duration-150"
+            className="bg-white dark:bg-[#1a1a18] rounded-2xl p-4 shadow-xl border border-stone-200 dark:border-stone-800 w-72 flex flex-col gap-2.5 animate-in fade-in zoom-in-95 duration-150 text-stone-800 dark:text-stone-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <span className="text-xs font-extrabold text-slate-800">
-                تخصیص دسته‌بندی ساعت {toPersianDigits(popoverState.hour)}:۰۰
+            <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2">
+              <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
+                دسته‌بندی ساعت {toPersianDigits(popoverState.hour)}:۰۰
               </span>
               <button
                 onClick={() => setPopoverState(null)}
-                className="text-slate-400 hover:text-slate-600 text-xs font-bold"
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-bold"
               >
                 ✕
               </button>
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1">
               <button
                 onClick={() => {
                   onUpdateHourColor(popoverState.hour, '');
                   setPopoverState(null);
                 }}
-                className="flex items-center gap-2.5 p-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 text-right cursor-pointer"
+                className="flex items-center gap-2.5 p-2 rounded-lg text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 text-right cursor-pointer transition-colors"
               >
-                <span className="w-4 h-4 rounded-full bg-slate-300 border border-slate-200" />
+                <span className="w-3.5 h-3.5 rounded-full bg-stone-200 dark:bg-stone-700 border border-stone-300 dark:border-stone-600" />
                 <span>پاک کردن رنگ (خالی)</span>
               </button>
 
@@ -517,13 +517,13 @@ export const ChronodexDial: React.FC<ChronodexDialProps> = ({
                     onUpdateHourColor(popoverState.hour, cat.color, cat.id);
                     setPopoverState(null);
                   }}
-                  className="flex items-center justify-between p-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-slate-100 text-right cursor-pointer transition-colors"
+                  className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 text-right cursor-pointer transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="w-4 h-4 rounded-full shadow-2xs" style={{ backgroundColor: cat.color }} />
+                    <span className="w-3.5 h-3.5 rounded-full shadow-2xs" style={{ backgroundColor: cat.color }} />
                     <span>{cat.name}</span>
                   </div>
-                  <span className="text-base">{cat.icon}</span>
+                  <span className="text-sm">{cat.icon}</span>
                 </button>
               ))}
             </div>

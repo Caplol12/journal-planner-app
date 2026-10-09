@@ -12,6 +12,7 @@ interface MiniPlannerSheetProps {
   titleOverride?: string;
   badgeOverride?: string;
   hideDelete?: boolean;
+  hideHeader?: boolean;
   onOpen?: () => void;
   onDelete?: () => void;
 }
@@ -28,6 +29,7 @@ export const MiniPlannerSheet: React.FC<MiniPlannerSheetProps> = ({
   titleOverride,
   badgeOverride,
   hideDelete = false,
+  hideHeader = false,
   onOpen,
   onDelete,
 }) => {
@@ -51,37 +53,39 @@ export const MiniPlannerSheet: React.FC<MiniPlannerSheetProps> = ({
       className="flex flex-col gap-2 group cursor-pointer select-none"
     >
       {/* Sheet Top Label */}
-      <div className="flex items-center justify-between px-2">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#ff6438] animate-pulse" />
-          <span className="text-sm font-black text-slate-800 tracking-tight truncate max-w-[180px]">
-            {titleOverride || `برگه روز ${dayName}`}
-          </span>
-          {!titleOverride && (
-            <span className="text-xs font-bold text-slate-500 font-mono">
-              ({toPersianDigits(formattedDate.split(' ')[1])} {formattedDate.split(' ')[2]})
+      {!hideHeader && (
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#ff6438] animate-pulse" />
+            <span className="text-sm font-black text-slate-800 tracking-tight truncate max-w-[180px]">
+              {titleOverride || `برگه روز ${dayName}`}
             </span>
-          )}
-        </div>
+            {!titleOverride && (
+              <span className="text-xs font-bold text-slate-500 font-mono">
+                ({toPersianDigits(formattedDate.split(' ')[1])} {formattedDate.split(' ')[2]})
+              </span>
+            )}
+          </div>
 
-        <div className="flex items-center gap-1 shrink-0">
-          <span className="text-[11px] font-bold text-slate-400 font-mono bg-white px-2 py-0.5 rounded-md border border-slate-200/80 shadow-2xs">
-            {badgeOverride || `برگه ${toPersianDigits(pageIndex + 1)}`}
-          </span>
-          {!hideDelete && onDelete && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-              className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 p-1 rounded-md hover:bg-rose-50 transition-all cursor-pointer"
-              title="حذف این برگه"
-            >
-              <Trash2 size={13} />
-            </button>
-          )}
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="text-[11px] font-bold text-slate-400 font-mono bg-white px-2 py-0.5 rounded-md border border-slate-200/80 shadow-2xs">
+              {badgeOverride || `برگه ${toPersianDigits(pageIndex + 1)}`}
+            </span>
+            {!hideDelete && onDelete && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+                className="opacity-0 group-hover:opacity-100 text-stone-500 hover:text-rose-700 p-1 rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+                title="حذف این برگه"
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ========================================================
           RENDER SHEET MINIATURE BASED ON TEMPLATE TYPE

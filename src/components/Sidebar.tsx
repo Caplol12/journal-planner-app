@@ -12,16 +12,14 @@ import {
   Sun,
   Moon,
   Orbit,
-  CalendarDays,
   Users,
-  UserPlus,
-  Compass,
   X,
+  Settings as SettingsIcon,
 } from 'lucide-react';
 import { sound } from '../utils/audio';
-import { toPersianDigits } from '../utils/jalali';
-import { AppSettings, ColorMode } from '../types';
+import { AppSettings } from '../types';
 import { StrategyLogoSvg } from './StrategyLogoSvg';
+import { getTranslations, formatNumberByLang } from '../utils/i18n';
 
 interface SidebarProps {
   currentTab: 'all' | 'templates' | 'favorites';
@@ -29,11 +27,14 @@ interface SidebarProps {
   onNewJournal: () => void;
   journalCount: number;
   starredCount: number;
+  templatesCount?: number;
   settings: AppSettings;
   onUpdateSettings: (settings: AppSettings) => void;
   onOpenBackup: () => void;
   onOpenAdmin: () => void;
   isAdminActive?: boolean;
+  onOpenSettings?: () => void;
+  isSettingsActive?: boolean;
   onOpenCalendar?: () => void;
   isCalendarActive?: boolean;
   onOpenUsers?: () => void;
@@ -49,11 +50,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNewJournal,
   journalCount,
   starredCount,
+  templatesCount = 4,
   settings,
   onUpdateSettings,
   onOpenBackup,
   onOpenAdmin,
   isAdminActive,
+  onOpenSettings,
+  isSettingsActive,
   onOpenCalendar,
   isCalendarActive,
   onOpenUsers,
@@ -62,6 +66,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile,
   onCloseMobile,
 }) => {
+  const lang = settings.language || 'fa';
+  const t = getTranslations(lang);
+  const isRtl = lang === 'fa';
   const toggleSound = () => {
     const updated = !settings.soundEnabled;
     sound.enabled = updated;
@@ -76,61 +83,71 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (onCloseMobile) onCloseMobile();
   };
 
+  const navItemClass = (isActive: boolean) =>
+    `w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all duration-150 cursor-pointer ${
+      isActive
+        ? 'bg-stone-200/70 dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-semibold shadow-2xs'
+        : 'text-stone-600 dark:text-stone-400 hover:bg-stone-150/70 dark:hover:bg-stone-800/50 hover:text-stone-900 dark:hover:text-stone-200'
+    }`;
+
   return (
     <>
       {/* Mobile Backdrop Overlay */}
       <div
         onClick={onCloseMobile}
-        className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 transition-opacity duration-300 lg:hidden ${
+        className={`fixed inset-0 bg-stone-950/40 backdrop-blur-xs z-40 transition-opacity duration-300 lg:hidden ${
           isOpenMobile ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         aria-hidden="true"
       />
 
-      {/* Main Sidebar (Drawer on mobile/tablet, docked on desktop) */}
+      {/* Main Minimalist Sidebar */}
       <aside
-        className={`fixed top-0 bottom-0 right-0 z-50 w-72 max-w-[85vw] bg-white dark:bg-[#111827] border-l border-slate-200 dark:border-slate-800 p-5 sm:p-6 flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-in-out lg:static lg:w-64 lg:translate-x-0 lg:shadow-sm lg:z-20 overflow-y-auto ${
-          isOpenMobile ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+        className={`fixed top-0 bottom-0 ${
+          isRtl ? 'right-0 border-l' : 'left-0 border-r'
+        } z-50 w-72 max-w-[85vw] bg-[#fbfaf8] dark:bg-[#181817] border-stone-200/70 dark:border-stone-800/70 p-5 sm:p-6 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:static lg:w-64 lg:translate-x-0 lg:z-20 overflow-y-auto ${
+          isOpenMobile
+            ? 'translate-x-0 shadow-2xl'
+            : isRtl
+            ? 'translate-x-full lg:translate-x-0'
+            : '-translate-x-full lg:translate-x-0'
         }`}
       >
         <div className="flex flex-col gap-6">
           {/* Brand Header */}
           <div className="flex items-center justify-between px-1 select-none">
-            <div className="flex items-center gap-2.5 group cursor-pointer">
-              <div className="relative w-9 h-9 rounded-2xl bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-800 dark:via-slate-700 dark:to-slate-900 text-slate-800 dark:text-slate-100 border border-slate-300/90 dark:border-slate-600 flex items-center justify-center shadow-md shadow-slate-300/30 dark:shadow-black/40 shrink-0 group-hover:scale-105 transition-transform duration-300 p-1.5">
+            <div className="flex items-center gap-3 group cursor-pointer">
+              <div className="w-8 h-8 rounded-xl bg-stone-200/80 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-200 border border-stone-300/40 dark:border-stone-700/50 p-1.5 transition-transform duration-200 group-hover:scale-105">
                 <StrategyLogoSvg
-                  size={24}
-                  color="url(#silverGrad)"
-                  className="transition-transform group-hover:scale-110 duration-300 drop-shadow-xs"
+                  size={20}
+                  color="currentColor"
+                  className="transition-transform group-hover:rotate-12 duration-300"
                 />
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-slate-400 dark:bg-slate-300 ring-2 ring-white dark:ring-slate-900 shadow-2xs" />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
-                  <h1 className="text-xl font-black tracking-wider font-sans text-slate-900 dark:text-white flex items-center leading-none">
-                    <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent font-black tracking-widest text-[20px]">
-                      STRATEGY
-                    </span>
+                  <h1 className="text-base font-bold tracking-tight text-stone-900 dark:text-stone-100 leading-none">
+                    {t.brandTitle}
                   </h1>
-                  <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 font-mono tracking-widest shadow-2xs">
-                    OS
+                  <span className="text-[10px] font-medium text-stone-500 dark:text-stone-400 font-mono tracking-wider">
+                    v2
                   </span>
                 </div>
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-widest uppercase font-mono mt-0.5">
-                  Planner & Orbit
+                <span className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                  {t.brandSubtitle}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
-              {/* Quick theme toggle button */}
+            <div className="flex items-center gap-0.5">
+              {/* Quick theme toggle */}
               {onToggleColorMode && (
                 <button
                   onClick={onToggleColorMode}
-                  title={isDarkMode ? 'تغییر به تم روشن' : 'تغییر به تم تاریک'}
-                  className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  title={isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                  className="p-1.5 rounded-lg text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200/60 dark:hover:bg-stone-800 transition-colors cursor-pointer"
                 >
-                  {isDarkMode ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} />}
+                  {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
                 </button>
               )}
 
@@ -138,10 +155,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {onCloseMobile && (
                 <button
                   onClick={onCloseMobile}
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden cursor-pointer"
-                  title="بستن منو"
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/60 dark:hover:bg-stone-800 lg:hidden cursor-pointer"
+                  title={t.closeMenu}
                 >
-                  <X size={18} />
+                  <X size={17} />
                 </button>
               )}
             </div>
@@ -155,14 +172,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onNewJournal();
               })
             }
-            className="w-full bg-gradient-to-r from-slate-200 via-slate-100 to-slate-300 hover:from-white hover:via-slate-100 hover:to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-800 dark:hover:from-slate-600 dark:hover:via-slate-500 dark:hover:to-slate-700 text-slate-900 dark:text-white border border-slate-300/90 dark:border-slate-500 rounded-2xl py-3 px-4 text-sm font-black flex items-center justify-center gap-2 shadow-md shadow-slate-400/20 dark:shadow-black/40 hover:shadow-lg hover:shadow-slate-400/30 transition-all duration-200 active:scale-[0.98] cursor-pointer"
+            className="w-full bg-stone-900 dark:bg-stone-100 text-stone-50 dark:text-stone-900 hover:bg-stone-800 dark:hover:bg-white rounded-xl py-2.5 px-3.5 text-sm font-medium flex items-center justify-center gap-2 shadow-2xs hover:shadow-xs transition-all duration-150 active:scale-[0.98] cursor-pointer"
           >
-            <Plus size={18} strokeWidth={2.5} className="text-slate-800 dark:text-slate-200" />
-            <span>ژورنال جدید</span>
+            <Plus size={16} strokeWidth={2.2} />
+            <span>{t.newJournal}</span>
           </button>
 
           {/* Navigation Menu */}
-          <nav className="flex flex-col gap-1.5" aria-label="ناوبری اصلی">
+          <nav className="flex flex-col gap-1" aria-label="Main Navigation">
             <button
               onClick={() =>
                 handleAction(() => {
@@ -170,18 +187,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onSelectTab('all');
                 })
               }
-              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
-                currentTab === 'all' && !isAdminActive && !isCalendarActive && !isUsersActive
-                  ? 'bg-[#ffece5] dark:bg-orange-950/40 text-[#ff5024] dark:text-orange-400 font-bold'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white'
-              }`}
+              className={navItemClass(
+                currentTab === 'all' && !isAdminActive && !isCalendarActive && !isUsersActive && !isSettingsActive
+              )}
             >
-              <div className="flex items-center gap-3">
-                <BookOpen size={18} />
-                <span>همه ژورنال‌ها</span>
+              <div className="flex items-center gap-2.5">
+                <BookOpen size={17} strokeWidth={1.8} />
+                <span>{t.allJournals}</span>
               </div>
-              <span className="text-xs font-mono font-bold bg-white/70 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded-md shadow-2xs">
-                {toPersianDigits(journalCount)}
+              <span className="text-xs font-mono text-stone-400 dark:text-stone-500">
+                {formatNumberByLang(journalCount, lang)}
               </span>
             </button>
 
@@ -192,18 +207,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onSelectTab('templates');
                 })
               }
-              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
-                currentTab === 'templates' && !isAdminActive && !isCalendarActive && !isUsersActive
-                  ? 'bg-[#ffece5] dark:bg-orange-950/40 text-[#ff5024] dark:text-orange-400 font-bold'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white'
-              }`}
+              className={navItemClass(
+                currentTab === 'templates' && !isAdminActive && !isCalendarActive && !isUsersActive && !isSettingsActive
+              )}
             >
-              <div className="flex items-center gap-3">
-                <Bookmark size={18} />
-                <span>قالب‌ها</span>
+              <div className="flex items-center gap-2.5">
+                <Bookmark size={17} strokeWidth={1.8} />
+                <span>{t.templates}</span>
               </div>
-              <span className="text-xs font-mono font-bold bg-white/70 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded-md shadow-2xs">
-                {toPersianDigits(4)}
+              <span className="text-xs font-mono text-stone-400 dark:text-stone-500">
+                {formatNumberByLang(templatesCount, lang)}
               </span>
             </button>
 
@@ -214,29 +227,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onSelectTab('favorites');
                 })
               }
-              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
-                currentTab === 'favorites' && !isAdminActive && !isCalendarActive && !isUsersActive
-                  ? 'bg-[#ffece5] dark:bg-orange-950/40 text-[#ff5024] dark:text-orange-400 font-bold'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white'
-              }`}
+              className={navItemClass(
+                currentTab === 'favorites' && !isAdminActive && !isCalendarActive && !isUsersActive && !isSettingsActive
+              )}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 <Star
-                  size={18}
+                  size={17}
+                  strokeWidth={1.8}
                   className={
-                    currentTab === 'favorites' && !isAdminActive && !isCalendarActive && !isUsersActive
-                      ? 'fill-[#ff5024]'
+                    currentTab === 'favorites' && !isAdminActive && !isCalendarActive && !isUsersActive && !isSettingsActive
+                      ? 'fill-stone-900 dark:fill-stone-100'
                       : ''
                   }
                 />
-                <span>علاقه‌مندی‌ها</span>
+                <span>{t.favorites}</span>
               </div>
-              <span className="text-xs font-mono font-bold bg-white/70 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded-md shadow-2xs">
-                {toPersianDigits(starredCount)}
+              <span className="text-xs font-mono text-stone-400 dark:text-stone-500">
+                {formatNumberByLang(starredCount, lang)}
               </span>
             </button>
 
-            {/* Orbit Dual Celestial Calendar Button */}
+            <div className="my-2 border-t border-stone-200/50 dark:border-stone-800/50" />
+
+            {/* Orbit Dual Calendar Button */}
             {onOpenCalendar && (
               <button
                 onClick={() =>
@@ -245,23 +259,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onOpenCalendar();
                   })
                 }
-                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer mt-2 ${
-                  isCalendarActive
-                    ? 'bg-cyan-500/15 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 font-bold border border-cyan-500/30 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                className={navItemClass(Boolean(isCalendarActive))}
               >
-                <div className="flex items-center gap-3">
-                  <Orbit
-                    size={18}
-                    className={`transition-transform duration-500 ${
-                      isCalendarActive ? 'text-cyan-500 rotate-90' : 'text-slate-500 dark:text-slate-400'
-                    }`}
-                  />
-                  <span>تقویم دوگانه مدار</span>
+                <div className="flex items-center gap-2.5">
+                  <Orbit size={17} strokeWidth={1.8} />
+                  <span>{t.orbitCalendar}</span>
                 </div>
-                <span className="text-[10px] font-bold bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-300 px-2 py-0.5 rounded-md border border-cyan-300/30">
-                  شمسی / میلادی
+                <span className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">
+                  {t.solar}
                 </span>
               </button>
             )}
@@ -275,25 +280,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onOpenUsers();
                   })
                 }
-                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer mt-0.5 ${
-                  isUsersActive
-                    ? 'bg-blue-500/15 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-bold border border-blue-500/30 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                className={navItemClass(Boolean(isUsersActive))}
               >
-                <div className="flex items-center gap-3">
-                  <Users
-                    size={18}
-                    className={isUsersActive ? 'text-blue-500' : 'text-slate-500 dark:text-slate-400'}
-                  />
-                  <span>ثبت‌نام و کاربران</span>
+                <div className="flex items-center gap-2.5">
+                  <Users size={17} strokeWidth={1.8} />
+                  <span>{t.usersAndMembers}</span>
                 </div>
-                <span className="text-[10px] font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded-md border border-blue-300/30">
-                  دیتابیس
+              </button>
+            )}
+
+            {/* Dedicated App Settings Button (First-Class Main Menu Item) */}
+            {onOpenSettings && (
+              <button
+                onClick={() =>
+                  handleAction(() => {
+                    sound.playTick(true);
+                    onOpenSettings();
+                  })
+                }
+                className={navItemClass(Boolean(isSettingsActive))}
+              >
+                <div className="flex items-center gap-2.5">
+                  <SettingsIcon size={17} strokeWidth={1.8} />
+                  <span>{t.settings}</span>
+                </div>
+                <span className="text-[10px] text-stone-500 dark:text-stone-400 font-mono uppercase">
+                  {lang}
                 </span>
               </button>
             )}
 
+            {/* Admin Panel Button */}
             <button
               onClick={() =>
                 handleAction(() => {
@@ -301,49 +318,48 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onOpenAdmin();
                 })
               }
-              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer mt-0.5 ${
-                isAdminActive
-                  ? 'bg-[#ffece5] dark:bg-orange-950/40 text-[#ff5024] dark:text-orange-400 font-bold'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white'
-              }`}
+              className={navItemClass(Boolean(isAdminActive))}
             >
-              <div className="flex items-center gap-3">
-                <Shield size={18} className={isAdminActive ? 'text-[#ff5024]' : 'text-slate-400'} />
-                <span>پنل مدیریت</span>
+              <div className="flex items-center gap-2.5">
+                <Shield size={17} strokeWidth={1.8} />
+                <span>{t.serverAndCloud}</span>
               </div>
-              <span className="text-[10px] font-bold bg-orange-100 dark:bg-orange-950/60 text-[#ff6438] dark:text-orange-400 px-2 py-0.5 rounded-md">
-                Supabase
+              <span className="text-[10px] text-stone-500 dark:text-stone-400 font-mono">
+                {t.cloud}
               </span>
             </button>
           </nav>
         </div>
 
         {/* Footer Controls */}
-        <div className="border-t border-slate-100 dark:border-slate-800/80 pt-4 flex flex-col gap-2">
-          <div className="flex items-center justify-between px-2">
-            <button
-              onClick={toggleSound}
-              title={settings.soundEnabled ? 'قطع صدا' : 'فعال‌سازی صدا'}
-              className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors cursor-pointer"
-            >
+        <div className="border-t border-stone-200/60 dark:border-stone-800/60 pt-4 flex flex-col gap-1.5">
+          <button
+            onClick={toggleSound}
+            title={settings.soundEnabled ? t.disabled : t.enabled}
+            className="flex items-center justify-between px-2.5 py-1.5 text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 rounded-lg transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
               {settings.soundEnabled ? (
-                <Volume2 size={16} className="text-emerald-600 dark:text-emerald-400" />
+                <Volume2 size={15} className="text-stone-700 dark:text-stone-300" />
               ) : (
-                <VolumeX size={16} />
+                <VolumeX size={15} />
               )}
-              <span>{settings.soundEnabled ? 'افکت‌های صوتی فعال' : 'بی‌صدا'}</span>
-            </button>
-          </div>
+              <span>{t.soundFeedback}</span>
+            </div>
+            <span className="text-[10px] text-stone-400">
+              {settings.soundEnabled ? t.enabled : t.disabled}
+            </span>
+          </button>
 
           <button
             onClick={() => handleAction(onOpenBackup)}
-            className="flex items-center justify-between px-2 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center justify-between px-2.5 py-1.5 text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 rounded-lg transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <Download size={15} />
-              <span>پشتیبان‌گیری و بازیابی</span>
+              <Download size={15} strokeWidth={1.8} />
+              <span>{t.backupAndRestore}</span>
             </div>
-            <Upload size={13} className="text-slate-400 dark:text-slate-500" />
+            <Upload size={13} className="text-stone-400 dark:text-stone-500" />
           </button>
         </div>
       </aside>

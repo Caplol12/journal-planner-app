@@ -382,7 +382,7 @@ export const UserRegistrationView: React.FC<UserRegistrationViewProps> = ({
                         type="button"
                         onClick={() => handleDelete(u)}
                         title="حذف کاربر از دیتابیس"
-                        className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       >
                         <Trash2 size={16} />
                       </button>

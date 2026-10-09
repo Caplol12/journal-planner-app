@@ -42,7 +42,7 @@ export const MiniTemplate2Sheet: React.FC<MiniTemplate2SheetProps> = ({
             e.stopPropagation();
             onDelete();
           }}
-          className="absolute top-2.5 right-2.5 z-20 w-7 h-7 rounded-full bg-white/90 hover:bg-rose-50 text-neutral-400 hover:text-rose-600 border border-neutral-200 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-xs"
+          className="absolute top-2.5 right-2.5 z-20 w-7 h-7 rounded-full bg-white/90 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-500 hover:text-rose-700 dark:text-stone-400 dark:hover:text-rose-300 border border-stone-200 dark:border-stone-700 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-xs"
           title="حذف این برگه"
         >
           <Trash2 size={13} />

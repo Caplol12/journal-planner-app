@@ -42,6 +42,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   autoRolloverTasks: true,
   theme: 'sage',
   colorMode: 'light',
+  language: 'fa',
 };
 
 export function createEmptyTemplate2Page(): DayPage {

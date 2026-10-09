@@ -26,6 +26,7 @@ interface PlannerViewProps {
   onOpenMarkdownModal: (date: Date, pageData: DayPage) => void;
   settings: AppSettings;
   onUpdateSettings: (settings: AppSettings) => void;
+  onOpenCalendar?: () => void;
 }
 
 export const PlannerView: React.FC<PlannerViewProps> = ({
@@ -38,6 +39,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   onOpenMarkdownModal,
   settings,
   onUpdateSettings,
+  onOpenCalendar,
 }) => {
   const [currentDate, setCurrentDate] = useState<Date>(() =>
     initialDateKey ? parseDateKey(initialDateKey) : new Date()
@@ -539,10 +541,10 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
 
   return (
     <div
-      className={`min-h-screen w-full bg-linear-to-br ${activeTheme.bg} p-3 sm:p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden pb-24 sm:pb-12`}
+      className="min-h-screen w-full bg-[#f6f5f1] dark:bg-[#121211] p-3 sm:p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden pb-24 sm:pb-12 text-stone-900 dark:text-stone-100"
     >
       {/* Top Navigation Toolbar Inside Journal */}
-      <header className="w-full max-w-5xl bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 md:px-6 md:py-3.5 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-white shadow-xl z-20 mb-4 sm:mb-6">
+      <header className="w-full max-w-5xl bg-white/80 dark:bg-[#181816]/80 backdrop-blur-md border border-stone-200/80 dark:border-stone-800/80 rounded-2xl p-2 sm:p-2.5 md:px-4 md:py-2.5 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-stone-800 dark:text-stone-200 shadow-2xs z-20 mb-4 sm:mb-6">
         {/* Left: Back button to Pages Overview + Library + Active Journal Title */}
         <div className="flex items-center gap-2">
           <button
@@ -550,7 +552,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
               sound.playSwoosh();
               onBackToPagesOverview();
             }}
-            className="bg-white/20 hover:bg-white/30 text-white rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all hover:-translate-x-0.5 active:scale-95 shadow-2xs"
+            className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 rounded-lg px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
             title="بازگشت به نمای کلی برگه‌های این دفترچه"
           >
             <ArrowRight size={14} />
@@ -562,15 +564,15 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
               sound.playSwoosh();
               onBackToDashboard();
             }}
-            className="bg-white/10 hover:bg-white/25 text-white/80 hover:text-white rounded-full px-2.5 py-1.5 text-xs font-medium cursor-pointer transition-colors"
+            className="text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg px-2.5 py-1.5 text-xs font-medium cursor-pointer transition-colors"
             title="بازگشت به کتابخانه ژورنال‌ها"
           >
             کتابخانه
           </button>
 
-          <div className="flex items-center gap-2 bg-black/25 border border-white/20 px-3 py-1.5 rounded-full text-xs font-bold mr-1">
+          <div className="flex items-center gap-2 bg-stone-100/70 dark:bg-stone-850 px-2.5 py-1 rounded-lg text-xs font-medium text-stone-700 dark:text-stone-300">
             <span
-              className="w-2.5 h-2.5 rounded-full shadow-2xs"
+              className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: journal.color }}
             />
             <span className="truncate max-w-[130px] md:max-w-[200px]">{journal.title}</span>
@@ -578,23 +580,23 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
         </div>
 
         {/* Center: Date Navigation Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onClick={() => navigateDate('prev')}
-            className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer transition-transform hover:scale-105 active:scale-95 border border-white/25"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer transition-colors"
             title="روز قبل (کلید چپ کیبورد)"
           >
             <ChevronRight size={16} />
           </button>
 
-          <div className="flex items-center gap-2 bg-black/25 border border-white/20 px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-bold">
-            <Calendar size={15} className="text-emerald-300" />
+          <div className="flex items-center gap-2 bg-stone-100 dark:bg-stone-800 px-3 py-1 sm:py-1.5 rounded-lg text-xs md:text-sm font-semibold text-stone-800 dark:text-stone-200">
+            <Calendar size={14} className="text-stone-500 dark:text-stone-400" />
             <span>{formatJalaliDate(currentDate)}</span>
           </div>
 
           <button
             onClick={() => navigateDate('next')}
-            className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer transition-transform hover:scale-105 active:scale-95 border border-white/25"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer transition-colors"
             title="روز بعد (کلید راست کیبورد)"
           >
             <ChevronLeft size={16} />
@@ -605,15 +607,15 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
               sound.playSwoosh();
               setCurrentDate(new Date());
             }}
-            className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer border border-white/20"
+            className="text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer border border-stone-200/80 dark:border-stone-800"
           >
             امروز
           </button>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2">
-          {/* Template Switcher Badge Button for 4 Templates */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Template Switcher */}
           <button
             onClick={() => {
               sound.playAdd();
@@ -650,10 +652,10 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
                 };
               });
             }}
-            className="bg-white/20 hover:bg-white/30 text-white rounded-full px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors border border-white/20 shadow-xs"
+            className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
             title="تغییر قالب برگه بین قالب‌های ۱، ۲، ۳ و ۴"
           >
-            <span>
+            <span className="opacity-70">
               {pageData.templateType === 'template-4-celestial-todo'
                 ? '☾'
                 : pageData.templateType === 'template-3-writing-plans'
@@ -664,40 +666,41 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
             </span>
             <span>
               {pageData.templateType === 'template-4-celestial-todo'
-                ? 'قالب شماره ۴ (Celestial To-Do)'
+                ? 'قالب شماره ۴'
                 : pageData.templateType === 'template-3-writing-plans'
-                ? 'قالب شماره ۳ (نویسندگی)'
+                ? 'قالب شماره ۳'
                 : pageData.templateType === 'template-2-one-big-thing'
-                ? 'قالب شماره ۲ (One Big Thing)'
-                : 'قالب شماره ۱ (برگه سبز)'}
+                ? 'قالب شماره ۲'
+                : 'قالب شماره ۱'}
             </span>
           </button>
 
           <button
             onClick={() => onOpenMarkdownModal(currentDate, pageData)}
-            className="bg-emerald-700/80 hover:bg-emerald-600 text-white border border-emerald-400/40 rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer transition-colors"
+            className="text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200/80 dark:border-stone-800 rounded-lg px-2.5 py-1.5 text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
+            title="خروجی مارک‌داون .md"
           >
             <FileText size={14} />
-            <span>خروجی .md</span>
+            <span className="hidden sm:inline">خروجی .md</span>
           </button>
 
-          {/* Minimal Glassmorphic Pen & Typography Toolbar Trigger */}
+          {/* Minimal Pen & Typography Toolbar Trigger */}
           <button
             onClick={() => {
               sound.playTick();
               setShowWordToolbar((prev) => !prev);
             }}
-            className={`rounded-full px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all border shadow-sm ${
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors ${
               showWordToolbar
-                ? 'bg-white/35 text-white border-white/50 ring-2 ring-white/30 shadow-white/10'
-                : 'bg-white/15 hover:bg-white/25 text-white/90 hover:text-white border-white/20'
+                ? 'bg-stone-900 text-stone-100 dark:bg-stone-100 dark:text-stone-900'
+                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200/80 dark:border-stone-800'
             }`}
-            title="نمایش نوار شیشه‌ای ابزار قلم و فونت"
+            title="نوار ابزار قلم و فونت"
           >
-            <PenTool size={13} className={isDrawingActive ? 'text-amber-300' : ''} />
-            <span>قلم و فونت</span>
+            <PenTool size={13} className={isDrawingActive ? 'text-amber-500' : ''} />
+            <span className="hidden sm:inline">قلم و فونت</span>
             {isDrawingActive && (
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             )}
           </button>
 
@@ -708,15 +711,15 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
               onUpdateSettings({ ...settings, colorMode: nextMode });
               sound.playTick(true);
             }}
-            className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer transition-colors border border-white/20"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer transition-colors"
             title={settings.colorMode === 'dark' ? 'تغییر به تم روشن' : 'تغییر به تم تاریک'}
           >
-            {settings.colorMode === 'dark' ? <Sun size={15} className="text-amber-300" /> : <Moon size={15} />}
+            {settings.colorMode === 'dark' ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} />}
           </button>
 
           <button
             onClick={onOpenSettings}
-            className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer transition-colors border border-white/20"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer transition-colors"
             title="تنظیمات پلنر"
           >
             <Settings size={15} />
@@ -729,7 +732,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
               onUpdateSettings({ ...settings, soundEnabled: updated });
               if (updated) sound.playTick(true);
             }}
-            className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer transition-colors border border-white/20"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer transition-colors"
             title={settings.soundEnabled ? 'قطع صدا' : 'فعال‌سازی صدا'}
           >
             {settings.soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
@@ -833,7 +836,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
           </div>
         ) : (
           <main
-            className={`w-full ${activeTheme.sheetBg} backdrop-blur-md rounded-2xl sm:rounded-3xl md:rounded-[36px] p-4 sm:p-6 md:p-8 shadow-2xl border grid grid-cols-1 lg:grid-cols-[1.12fr_1fr] gap-6 md:gap-10 ${pageFlipClass}`}
+            className={`w-full bg-[#fcfbf9] dark:bg-[#181816] rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xs border border-stone-200/80 dark:border-stone-800/80 grid grid-cols-1 lg:grid-cols-[1.12fr_1fr] gap-6 md:gap-10 ${pageFlipClass}`}
           >
             {/* LEFT COLUMN: 24h Chronodex & Linear Time Blocking */}
             <div className="flex flex-col gap-8">

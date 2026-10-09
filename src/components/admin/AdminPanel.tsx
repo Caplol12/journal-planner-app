@@ -370,7 +370,7 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
               <button
                 onClick={logout}
                 title="خروج از حساب"
-                className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-rose-600 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <LogOut size={15} />
               </button>
@@ -571,7 +571,7 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
 
                       <button
                         onClick={() => handleDeleteTemplate(tpl)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                        className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                         title="حذف قالب"
                       >
                         <Trash2 size={16} />

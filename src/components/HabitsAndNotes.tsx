@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Trash2, Plus, Check } from 'lucide-react';
+import { PenLine, Trash2, Plus, Check } from 'lucide-react';
 import { HabitItem } from '../types';
 import { sound } from '../utils/audio';
 import { toPersianDigits } from '../utils/jalali';
@@ -37,47 +37,37 @@ export const HabitsAndNotes: React.FC<HabitsAndNotesProps> = ({
   };
 
   return (
-    <section className="flex flex-col gap-2">
-      <div className="flex justify-end">
-        <div className="bg-white/95 text-emerald-950 px-4 py-1 rounded-full text-xs font-black shadow-xs mb-1">
-          عادات و برنامه‌های روزانه
-        </div>
-      </div>
-
-      <div className="bg-white rounded-3xl p-5 md:p-6 shadow-xl text-slate-800 flex flex-col gap-4 border border-emerald-900/10">
-        {/* Habits Subtitle & Progress */}
-        <div className="flex items-center justify-between border-b border-emerald-50 pb-2.5">
-          <div className="flex items-center gap-2 text-xs font-black text-emerald-900">
-            <Sparkles size={15} className="text-emerald-600" />
-            <span>چک‌لیست روتین‌های روزانه</span>
-          </div>
+    <section className="flex flex-col gap-4">
+      {/* Habits & Routines Card */}
+      <div className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-xs rounded-2xl p-4 sm:p-5 text-stone-900 dark:text-stone-100 flex flex-col gap-4 border border-stone-200/70 dark:border-stone-800/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        {/* Habits Header & Progress */}
+        <div className="flex items-center justify-between border-b border-stone-200/50 dark:border-stone-800 pb-2.5">
+          <h3 className="text-xs sm:text-sm font-semibold text-stone-800 dark:text-stone-200 tracking-tight">
+            عادات و روتین‌های روزانه
+          </h3>
 
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-400">
+            <span className="text-[11px] text-stone-400 font-mono">
               {toPersianDigits(completedCount)} از {toPersianDigits(habits.length)}
             </span>
-            <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div className="w-16 h-1.5 bg-stone-150 dark:bg-stone-800 rounded-full overflow-hidden">
               <div
-                className="h-full bg-emerald-600 rounded-full transition-all duration-300"
+                className="h-full bg-stone-700 dark:bg-stone-300 rounded-full transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <span className="text-[10px] font-mono font-bold text-emerald-700">
+            <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
               %{toPersianDigits(progressPercent)}
             </span>
           </div>
         </div>
 
         {/* Habits List */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           {habits.map((habit) => (
             <div
               key={habit.id}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-150 border ${
-                habit.done
-                  ? 'bg-emerald-50/60 border-emerald-200/60 text-slate-400'
-                  : 'bg-[#f7faf8] border-emerald-100 hover:border-emerald-300 text-slate-800'
-              } group`}
+              className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl border border-stone-150/70 dark:border-stone-800/70 bg-stone-50/50 dark:bg-stone-800/30 hover:border-stone-300 dark:hover:border-stone-700 transition-all duration-150 group"
             >
               <button
                 type="button"
@@ -85,21 +75,23 @@ export const HabitsAndNotes: React.FC<HabitsAndNotesProps> = ({
                   sound.playTick(!habit.done);
                   onUpdateHabit(habit.id, !habit.done);
                 }}
-                className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer shrink-0 ${
+                className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                   habit.done
-                    ? 'bg-emerald-700 border-emerald-700 text-white'
-                    : 'bg-white border-emerald-600/60 hover:border-emerald-700'
+                    ? 'bg-stone-800 dark:bg-stone-200 border-stone-800 dark:border-stone-200 text-white dark:text-stone-900'
+                    : 'border-stone-300 dark:border-stone-600 hover:border-stone-500 bg-transparent text-transparent'
                 }`}
               >
-                {habit.done && <Check size={12} strokeWidth={3} />}
+                {habit.done && <Check size={10} strokeWidth={2.8} />}
               </button>
 
               <input
                 type="text"
                 value={habit.text}
                 onChange={(e) => onUpdateHabitText(habit.id, e.target.value)}
-                className={`flex-1 bg-transparent text-xs font-semibold outline-none transition-colors ${
-                  habit.done ? 'line-through text-slate-400' : 'text-slate-800'
+                className={`flex-1 bg-transparent text-xs sm:text-sm font-normal outline-none transition-colors ${
+                  habit.done
+                    ? 'line-through text-stone-400 dark:text-stone-500'
+                    : 'text-stone-800 dark:text-stone-200'
                 }`}
               />
 
@@ -109,7 +101,7 @@ export const HabitsAndNotes: React.FC<HabitsAndNotesProps> = ({
                   sound.playTick(false);
                   onDeleteHabit(habit.id);
                 }}
-                className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-500 p-1 transition-opacity cursor-pointer"
+                className="opacity-0 group-hover:opacity-100 text-stone-400 hover:text-rose-500 p-0.5 transition-opacity cursor-pointer"
                 title="حذف عادت"
               >
                 <Trash2 size={13} />
@@ -125,12 +117,12 @@ export const HabitsAndNotes: React.FC<HabitsAndNotesProps> = ({
               onChange={(e) => setNewHabitText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
               placeholder="عادت یا روتین جدید..."
-              className="flex-1 border border-dashed border-emerald-300 rounded-xl px-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-emerald-600 bg-[#fbfdfc]"
+              className="flex-1 border border-stone-200/80 dark:border-stone-800 rounded-xl px-3 py-1.5 text-xs text-stone-800 dark:text-stone-200 placeholder-stone-400 outline-none focus:border-stone-400 dark:focus:border-stone-600 bg-transparent transition-colors"
             />
             <button
               type="button"
               onClick={handleAdd}
-              className="bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+              className="bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 rounded-xl px-3 py-1.5 text-xs font-medium flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
             >
               <Plus size={13} />
               <span>افزودن</span>
@@ -139,18 +131,18 @@ export const HabitsAndNotes: React.FC<HabitsAndNotesProps> = ({
         </div>
 
         {/* Notes & Daily Reflection Section */}
-        <div className="mt-2 pt-3 border-t-2 border-dashed border-emerald-100">
-          <div className="flex items-center gap-2 text-xs font-black text-emerald-900 mb-2">
-            <span>✍️</span>
-            <span>یادداشت‌ها و بازتاب روز (Daily Reflection)</span>
+        <div className="mt-2 pt-3 border-t border-stone-200/50 dark:border-stone-800">
+          <div className="flex items-center gap-2 text-xs font-semibold text-stone-800 dark:text-stone-200 mb-2">
+            <PenLine size={14} className="text-stone-500" />
+            <span>یادداشت‌ها و بازتاب روز</span>
           </div>
 
           <textarea
             value={dailyNotes}
             onChange={(e) => onUpdateNotes(e.target.value)}
             placeholder="افکار مهم، دستاوردهای روز، شکرگزاری و ایده‌های آزاد امروز را در این بخش بنویسید..."
-            rows={4}
-            className="w-full bg-transparent border-none outline-none text-xs text-slate-700 leading-7 notebook-lines resize-none font-medium"
+            rows={5}
+            className="w-full bg-transparent border-none outline-none text-xs sm:text-sm text-stone-800 dark:text-stone-200 leading-[1.85] notebook-lines resize-none font-normal placeholder-stone-400"
           />
         </div>
       </div>

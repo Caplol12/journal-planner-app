@@ -176,6 +176,8 @@ export interface Journal {
   pages: Record<string, DayPage>;
 }
 
+export type Language = 'fa' | 'en';
+
 export interface AppSettings {
   soundEnabled: boolean;
   soundVolume: number;
@@ -183,6 +185,7 @@ export interface AppSettings {
   autoRolloverTasks: boolean;
   theme: JournalTheme;
   colorMode: ColorMode;
+  language: Language;
 }
 
 export interface CategoryOption {

@@ -9,6 +9,7 @@ import {
   Plus,
   Sparkles,
   BookOpen,
+  Bookmark,
   Check,
   Eye,
   CalendarDays,
@@ -20,9 +21,10 @@ import {
   Orbit,
   Users,
 } from 'lucide-react';
-import { Journal, DayPage, TemplateType, CustomHtmlTemplate, ColorMode } from '../types';
+import { Journal, DayPage, TemplateType, CustomHtmlTemplate, ColorMode, Language } from '../types';
 import { toPersianDigits, getDateKey } from '../utils/jalali';
 import { sound } from '../utils/audio';
+import { getTranslations, formatNumberByLang } from '../utils/i18n';
 import { MiniPlannerSheet } from './MiniPlannerSheet';
 import { MiniTemplate2Sheet } from './MiniTemplate2Sheet';
 import { MiniTemplate3Sheet } from './MiniTemplate3Sheet';
@@ -44,6 +46,7 @@ import { HtmlTemplateThumbnail } from './templates/HtmlTemplateThumbnail';
 interface DashboardProps {
   journals: Journal[];
   currentTab: 'all' | 'templates' | 'favorites';
+  language?: Language;
   onOpenJournal: (journalId: string) => void;
   onEditCover: (journalId: string) => void;
   onToggleStar: (journalId: string) => void;
@@ -197,6 +200,7 @@ export const PLANNER_TEMPLATES: TestTemplateItem[] = [
 export const Dashboard: React.FC<DashboardProps> = ({
   journals,
   currentTab,
+  language = 'fa',
   onOpenJournal,
   onEditCover,
   onToggleStar,
@@ -212,6 +216,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onOpenJournalPage,
   onUpdateJournalPage,
 }) => {
+  const t = getTranslations(language);
+  const isRtl = language === 'fa';
   const [searchQuery, setSearchQuery] = useState('');
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
@@ -367,45 +373,53 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const allDisplayTemplates: TestTemplateItem[] = [...cloudItems, ...customItems, ...PLANNER_TEMPLATES];
 
   return (
-    <main className="flex-1 p-4 sm:p-6 md:p-10 flex flex-col gap-6 sm:gap-8 overflow-y-auto min-h-screen bg-[#f5f7f9] dark:bg-[#0b1120] text-slate-800 dark:text-slate-100 transition-colors duration-200">
+    <main className="flex-1 p-4 sm:p-6 md:p-8 flex flex-col gap-6 sm:gap-8 overflow-y-auto min-h-screen bg-[#faf9f6] dark:bg-[#141413] text-stone-900 dark:text-stone-100 transition-colors duration-200">
       {/* Top Header & Search */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2.5 sm:gap-3">
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-800 dark:via-slate-700 dark:to-slate-900 border border-slate-300/80 dark:border-slate-600 text-slate-700 dark:text-slate-200 shadow-xs shadow-slate-300/30 text-lg shrink-0">
-              {currentTab === 'templates' ? '📑' : currentTab === 'favorites' ? '⭐' : '📚'}
+          <h2 className="text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2.5">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-stone-200/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-300/40 dark:border-stone-700/50 shrink-0">
+              {currentTab === 'templates' ? (
+                <Bookmark size={17} strokeWidth={2} />
+              ) : currentTab === 'favorites' ? (
+                <Star size={17} strokeWidth={2} />
+              ) : (
+                <BookOpen size={17} strokeWidth={2} />
+              )}
             </span>
             <span>
               {currentTab === 'all'
-                ? 'ژورنال‌های من'
+                ? t.myJournals
                 : currentTab === 'templates'
-                ? 'قالب‌های برگه پلنر روزانه'
-                : 'گالری قالب‌های برگزیده (ورق‌زدن تمام برگه‌ها)'}
+                ? t.templatesTabTitle
+                : t.favoritesGalleryTitle}
             </span>
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
             {currentTab === 'templates'
-              ? 'الگوهای استاندارد برگه پلنر با ساختار یکپارچه کرونودکس ۲۴ ساعته، زمان‌بندی خطی و عادات (مشابه برگه سبز رنگ)'
+              ? t.templatesTabSubtitle
               : currentTab === 'favorites'
-              ? 'تصاویر قالب‌ها را انتخاب کنید تا تمام برگه‌های مرتبط در تمام دفترچه‌ها و تاریخ‌ها پشت سر هم برای ورق‌زدن قرار گیرند.'
-              : `شامل ${toPersianDigits(filteredJournals.length)} ژورنال شخصی آماده یادداشت`}
+              ? t.favoritesSubtitle
+              : t.myJournalsSubtitle(filteredJournals.length)}
           </p>
         </div>
 
-        {/* Live Search & Theme Toggle */}
+        {/* Live Search & Controls */}
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <div className="relative flex-1 sm:w-64 md:w-72">
-            <Search size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+            <Search size={15} className={`absolute ${isRtl ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 text-stone-400 dark:text-stone-500`} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={
                 currentTab === 'templates'
-                  ? 'جستجوی عنوان قالب برگه...'
-                  : 'جستجوی عنوان ژورنال...'
+                  ? t.searchTemplatePlaceholder
+                  : t.searchJournalPlaceholder
               }
-              className="w-full bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 focus:border-[#ff6438] dark:focus:border-[#ff6438] rounded-xl pr-10 pl-4 py-2.5 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all shadow-xs"
+              className={`w-full bg-stone-100/70 dark:bg-stone-800/60 border border-transparent focus:border-stone-300 dark:focus:border-stone-600 focus:bg-white dark:focus:bg-stone-800 rounded-xl ${
+                isRtl ? 'pr-9 pl-3.5' : 'pl-9 pr-3.5'
+              } py-2 text-xs text-stone-800 dark:text-stone-100 placeholder-stone-400 outline-none transition-all shadow-2xs`}
             />
           </div>
 
@@ -413,11 +427,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <button
               type="button"
               onClick={onOpenCalendar}
-              title="تقویم هوشمند مدار (شمسی و میلادی · ماهانه و هفتگی)"
-              className="flex items-center gap-1.5 px-3 py-2.5 bg-cyan-50 dark:bg-cyan-950/40 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 border border-cyan-200 dark:border-cyan-800/80 rounded-xl text-cyan-700 dark:text-cyan-300 font-bold text-xs shadow-xs transition-all shrink-0 cursor-pointer group active:scale-95"
+              title="تقویم هوشمند مدار (شمسی و میلادی)"
+              className="flex items-center gap-1.5 px-3 py-2 bg-stone-100 dark:bg-stone-800/80 hover:bg-stone-200/80 dark:hover:bg-stone-700/80 border border-stone-200/60 dark:border-stone-700/60 rounded-xl text-stone-700 dark:text-stone-300 text-xs font-medium transition-all shrink-0 cursor-pointer active:scale-95"
             >
-              <Orbit size={16} className="text-cyan-600 dark:text-cyan-400 group-hover:rotate-90 transition-transform duration-300" />
-              <span className="hidden sm:inline">تقویم هوشمند</span>
+              <Orbit size={15} strokeWidth={1.8} />
+              <span className="hidden sm:inline">تقویم مدار</span>
             </button>
           )}
 
@@ -425,21 +439,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <button
               type="button"
               onClick={onOpenUsers}
-              title="صفحه ثبت‌نام و فهرست کاربران پایگاه‌داده"
-              className="flex items-center gap-1.5 px-3 py-2.5 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800/80 rounded-xl text-blue-700 dark:text-blue-300 font-bold text-xs shadow-xs transition-all shrink-0 cursor-pointer active:scale-95"
+              title="فهرست کاربران"
+              className="flex items-center gap-1.5 px-3 py-2 bg-stone-100 dark:bg-stone-800/80 hover:bg-stone-200/80 dark:hover:bg-stone-700/80 border border-stone-200/60 dark:border-stone-700/60 rounded-xl text-stone-700 dark:text-stone-300 text-xs font-medium transition-all shrink-0 cursor-pointer active:scale-95"
             >
-              <Users size={16} className="text-blue-600 dark:text-blue-400" />
-              <span className="hidden sm:inline">کاربران دیتابیس</span>
+              <Users size={15} strokeWidth={1.8} />
+              <span className="hidden sm:inline">کاربران</span>
             </button>
           )}
 
           {onToggleColorMode && (
             <button
               onClick={onToggleColorMode}
-              title={colorMode === 'dark' ? 'تغییر به تم روشن' : 'تغییر به تم تاریک'}
-              className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-xs transition-colors shrink-0 cursor-pointer"
+              title={colorMode === 'dark' ? 'تم روشن' : 'تم تاریک'}
+              className="p-2 bg-stone-100 dark:bg-stone-800/80 border border-stone-200/60 dark:border-stone-700/60 rounded-xl text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors shrink-0 cursor-pointer"
             >
-              {colorMode === 'dark' ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
+              {colorMode === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>
           )}
         </div>
@@ -450,35 +464,37 @@ export const Dashboard: React.FC<DashboardProps> = ({
          ======================================================== */}
       {currentTab === 'templates' ? (
         <div className="flex flex-col gap-6">
-          <div className="flex items-center justify-between border-b border-slate-200/80 pb-3 flex-wrap gap-3">
-            <div className="flex items-center gap-2">
-              <FileCheck size={18} className="text-emerald-700" />
+          <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-stone-800/80 pb-3 flex-wrap gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700/60">
+                <FileCheck size={18} strokeWidth={2} />
+              </span>
               <div>
-                <span className="text-sm font-extrabold text-slate-800 block">
-                  مجموعه قالب‌های برگه پلنر روزانه (مستقل و متمایز)
+                <span className="text-sm font-bold text-stone-900 dark:text-stone-100 block">
+                  {t.templatesTabTitle}
                 </span>
-                <span className="text-[11px] text-slate-400">
-                  برای تست و مشاهده زنده بر روی هر قالب کلیک کنید (بدون نیاز به ذخیره‌سازی در دفترچه)
+                <span className="text-xs text-stone-500 dark:text-stone-400">
+                  {t.templatesTabSubtitle}
                 </span>
               </div>
             </div>
 
             {/* Actions: Add HTML Template Button + Counter */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <button
                 type="button"
                 onClick={() => {
                   sound.playAdd();
                   setIsAddHtmlModalOpen(true);
                 }}
-                className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-95"
+                className="bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs active:scale-95"
               >
                 <Upload size={14} />
-                <span>بارگذاری قالب (.html)</span>
+                <span>{t.uploadHtmlTemplate}</span>
               </button>
 
-              <span className="text-xs text-slate-400 font-medium bg-slate-100 px-3 py-1.5 rounded-xl">
-                {toPersianDigits(allDisplayTemplates.length)} قالب
+              <span className="text-xs text-stone-500 dark:text-stone-400 font-medium bg-stone-100 dark:bg-stone-800 px-3 py-1.5 rounded-xl border border-stone-200/50 dark:border-stone-700/50">
+                {t.templateCountLabel(allDisplayTemplates.length)}
               </span>
             </div>
           </div>
@@ -495,9 +511,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
               .map((tpl) => (
               <div
                 key={tpl.id}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-[32px] p-5 flex flex-col justify-between gap-4 shadow-xs hover:shadow-xl transition-all duration-300 group hover:-translate-y-1"
+                className="bg-white dark:bg-[#191918] border border-stone-200/80 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-2xs hover:shadow-md transition-all duration-200 group"
               >
-                {/* 1. Miniature Sheet Preview (Exact layout for each template) */}
+                {/* 1. Miniature Sheet Preview */}
                 <div className="w-full">
                   {tpl.templateType === 'template-custom-html' ? (
                     <div
@@ -505,19 +521,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         sound.playSwoosh();
                         setTestPlaygroundTemplate(tpl);
                       }}
-                      className="w-full bg-slate-900 border-2 border-slate-700 hover:border-blue-400 rounded-2xl p-3 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden select-none"
+                      className="w-full bg-stone-900 border border-stone-700 hover:border-stone-500 rounded-2xl p-3 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between relative overflow-hidden select-none"
                     >
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                        <span className="text-xs font-mono font-bold text-blue-400 flex items-center gap-1.5">
+                      <div className="flex items-center justify-between border-b border-stone-800 pb-2 mb-2">
+                        <span className="text-xs font-mono font-bold text-stone-300 flex items-center gap-1.5">
                           <FileCode size={14} />
-                          <span>قالب HTML اختصاصی</span>
+                          <span>HTML Template</span>
                         </span>
-                        <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-400/30">
+                        <span className="text-[10px] bg-stone-800 text-stone-300 px-2 py-0.5 rounded-full border border-stone-700">
                           HTML
                         </span>
                       </div>
 
-                      <div className="w-full my-1 rounded-xl overflow-hidden border border-slate-700 relative bg-white">
+                      <div className="w-full my-1 rounded-xl overflow-hidden border border-stone-700 relative bg-white">
                         <HtmlTemplateThumbnail
                           htmlContent={tpl.customHtmlContent || ''}
                           title={tpl.title}
@@ -526,10 +542,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         />
                       </div>
 
-                      <div className="pt-2 text-center border-t border-slate-800 mt-2">
-                        <span className="text-xs font-bold text-slate-300 group-hover:text-blue-300 transition-colors flex items-center justify-center gap-1.5">
+                      <div className="pt-2 text-center border-t border-stone-800 mt-2">
+                        <span className="text-xs font-semibold text-stone-400 group-hover:text-stone-200 transition-colors flex items-center justify-center gap-1.5">
                           <Eye size={13} />
-                          <span>کلیک برای پیش‌نمایش و آزمایش کامل</span>
+                          <span>{t.liveTest}</span>
                         </span>
                       </div>
                     </div>
@@ -568,6 +584,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       titleOverride={tpl.title}
                       badgeOverride={tpl.badge}
                       hideDelete={true}
+                      hideHeader={true}
                       onOpen={() => {
                         sound.playSwoosh();
                         setTestPlaygroundTemplate(tpl);
@@ -577,21 +594,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
 
                 {/* 2. Template Info & Badges */}
-                <div className="flex flex-col gap-2 pt-2 border-t border-slate-100">
+                <div className="flex flex-col gap-2 pt-2 border-t border-stone-100 dark:border-stone-800/80">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     {tpl.templateType === 'template-custom-html' ? (
                       <>
-                        <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
+                        <span className="bg-stone-800 text-stone-100 dark:bg-stone-200 dark:text-stone-900 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
                           HTML TEMPLATE
                         </span>
-                        <span className="bg-blue-50 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
-                          قالب کاربری
+                        <span className="bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-stone-200 dark:border-stone-700">
+                          {tpl.badge || 'HTML'}
                         </span>
                       </>
                     ) : tpl.templateType === 'template-4-celestial-todo' ? (
                       <>
                         <span className="bg-[#0b1b36] text-white text-[10px] font-bold px-2 py-0.5 rounded-full font-serif border border-[#1e3c6d]">
-                          قالب شماره ۴
+                          {isRtl ? 'قالب شماره ۴' : 'Template 4'}
                         </span>
                         <span className="bg-[#102a54] text-[#93c5fd] text-[10px] font-bold px-2 py-0.5 rounded-full font-serif">
                           Celestial To-Do ☾
@@ -600,7 +617,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     ) : tpl.templateType === 'template-3-writing-plans' ? (
                       <>
                         <span className="bg-[#3e5f44] text-white text-[10px] font-bold px-2 py-0.5 rounded-full font-serif">
-                          قالب شماره ۳
+                          {isRtl ? 'قالب شماره ۳' : 'Template 3'}
                         </span>
                         <span className="bg-[#ede4d3] text-[#4a392b] text-[10px] font-bold px-2 py-0.5 rounded-full font-serif">
                           Writing Plans ♡
@@ -608,46 +625,46 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       </>
                     ) : tpl.templateType === 'template-2-one-big-thing' ? (
                       <>
-                        <span className="bg-black text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full font-mono">
-                          قالب شماره ۲
+                        <span className="bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
+                          {isRtl ? 'قالب شماره ۲' : 'Template 2'}
                         </span>
-                        <span className="bg-neutral-100 text-neutral-800 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
+                        <span className="bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono">
                           Eisenhower & Time-Blocking
                         </span>
                       </>
                     ) : (
                       <>
-                        <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
-                          قالب شماره ۱
+                        <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          {isRtl ? 'قالب شماره ۱' : 'Template 1'}
                         </span>
-                        <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <span className="bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
                           ۲۴H Chronodex
                         </span>
                       </>
                     )}
                   </div>
 
-                  <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 group-hover:text-stone-700 dark:group-hover:text-stone-300 transition-colors">
                     {tpl.title}
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+                  <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed line-clamp-2">
                     {tpl.desc}
                   </p>
                 </div>
 
                 {/* 3. Actions: Minimal Test Mode Button + Add Button + Subtle Delete if Custom */}
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2 pt-2 border-t border-stone-100 dark:border-stone-800/80">
                   <button
                     type="button"
                     onClick={() => {
                       sound.playSwoosh();
                       setTestPlaygroundTemplate(tpl);
                     }}
-                    className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
-                    title="تست و کار با برگه بدون ذخیره در دفترچه‌ها"
+                    className="flex-1 bg-stone-100 dark:bg-stone-800/90 hover:bg-stone-200/80 dark:hover:bg-stone-700/80 text-stone-800 dark:text-stone-200 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 border border-stone-200/60 dark:border-stone-700/60"
+                    title={t.liveTest}
                   >
                     <Eye size={14} />
-                    <span>تست زنده</span>
+                    <span>{t.liveTest}</span>
                   </button>
 
                   <button
@@ -660,19 +677,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         pageData: tpl.pageData,
                       });
                     }}
-                    className="flex-1 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
-                    title="افزودن این برگه به دفترچه یادداشت"
+                    className="flex-1 bg-stone-900 dark:bg-stone-100 hover:bg-stone-800 dark:hover:bg-white text-stone-50 dark:text-stone-900 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
+                    title={t.addToJournal}
                   >
                     <Plus size={14} strokeWidth={2.5} />
-                    <span>افزودن</span>
+                    <span>{t.addToJournal}</span>
                   </button>
 
                   {tpl.isCustom && (
                     <button
                       type="button"
                       onClick={(e) => handleDeleteCustomHtmlTemplate(tpl.id, e)}
-                      className="w-9 h-9 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer shrink-0 border border-slate-200 hover:border-rose-200"
-                      title="حذف قالب"
+                      className="w-9 h-9 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-500 hover:text-rose-700 dark:text-stone-400 dark:hover:text-rose-400 flex items-center justify-center transition-colors cursor-pointer shrink-0 border border-stone-200 dark:border-stone-700"
+                      title={t.deleteTemplateConfirm}
                     >
                       <Trash2 size={14} />
                     </button>
@@ -708,8 +725,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
           }}
         />
       ) : (
-        /* Journal Cards Grid (Matching reference image) */
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        /* Journal Cards Grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filteredJournals.map((journal) => {
             const pageCount = Object.keys(journal.pages || {}).length;
             const isMenuOpen = activeMenuId === journal.id;
@@ -718,7 +735,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <div
                 key={journal.id}
                 onClick={() => onOpenJournal(journal.id)}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-3xl p-5 flex items-center justify-between gap-4 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer relative group hover:-translate-y-1"
+                className="bg-white dark:bg-[#1c1c1b] border border-stone-200/80 dark:border-stone-800/80 hover:border-stone-300 dark:hover:border-stone-700 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-200 cursor-pointer relative group"
               >
                 {/* Information (Right side in RTL) */}
                 <div className="flex-1 flex flex-col gap-2.5 min-w-0">
@@ -729,31 +746,31 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         e.stopPropagation();
                         onToggleStar(journal.id);
                       }}
-                      className="text-slate-300 dark:text-slate-600 hover:text-amber-400 transition-colors p-1 cursor-pointer"
+                      className="text-stone-300 dark:text-stone-600 hover:text-amber-500 transition-colors p-0.5 cursor-pointer"
                       title={journal.starred ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
                     >
                       <Star
-                        size={18}
-                        className={`transition-transform duration-200 hover:scale-125 ${
-                          journal.starred ? 'text-amber-400 fill-amber-400 drop-shadow-xs' : ''
+                        size={17}
+                        className={`transition-transform duration-200 hover:scale-110 ${
+                          journal.starred ? 'text-amber-500 fill-amber-500' : ''
                         }`}
                       />
                     </button>
-                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white truncate tracking-tight">
+                    <h3 className="text-sm sm:text-base font-semibold text-stone-900 dark:text-stone-100 truncate tracking-tight">
                       {journal.title}
                     </h3>
                   </div>
 
                   {/* Meta Row: Page Count + Date */}
-                  <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
-                    <span className="bg-[#ffede8] dark:bg-orange-950/50 text-[#ff542e] dark:text-orange-400 font-bold text-[11px] px-2.5 py-0.5 rounded-full inline-flex items-center">
+                  <div className="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500">
+                    <span className="bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-medium text-[11px] px-2 py-0.5 rounded-md inline-flex items-center">
                       {toPersianDigits(pageCount)} برگه
                     </span>
-                    <span className="font-mono text-[11px]">🕒 {toPersianDigits(journal.createdAt)}</span>
+                    <span className="font-mono text-[11px]">{toPersianDigits(journal.createdAt)}</span>
                   </div>
 
                   {/* Actions Row */}
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-1.5 mt-1">
                     {/* More dropdown button */}
                     <div className="relative">
                       <button
@@ -761,25 +778,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           e.stopPropagation();
                           setActiveMenuId(isMenuOpen ? null : journal.id);
                         }}
-                        className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg p-1.5 transition-colors cursor-pointer"
+                        className="bg-stone-100/80 dark:bg-stone-800/80 hover:bg-stone-200/80 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-lg p-1.5 transition-colors cursor-pointer"
                         title="عملیات بیشتر"
                       >
-                        <MoreHorizontal size={15} />
+                        <MoreHorizontal size={14} />
                       </button>
 
                       {isMenuOpen && (
                         <div
                           onClick={(e) => e.stopPropagation()}
-                          className="absolute right-0 bottom-full mb-2 w-36 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-1.5 flex flex-col gap-1 z-30"
+                          className="absolute right-0 bottom-full mb-2 w-36 bg-white dark:bg-[#20201f] border border-stone-200 dark:border-stone-700/80 rounded-xl shadow-lg p-1 flex flex-col gap-0.5 z-30"
                         >
                           <button
                             onClick={() => {
                               setActiveMenuId(null);
                               onEditCover(journal.id);
                             }}
-                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg w-full text-right cursor-pointer"
+                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg w-full text-right cursor-pointer"
                           >
-                            <Edit3 size={13} />
+                            <Edit3 size={12} />
                             <span>تغییر نام</span>
                           </button>
                           <button
@@ -787,9 +804,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                               setActiveMenuId(null);
                               onDuplicate(journal.id);
                             }}
-                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg w-full text-right cursor-pointer"
+                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg w-full text-right cursor-pointer"
                           >
-                            <Copy size={13} />
+                            <Copy size={12} />
                             <span>تکثیر ژورنال</span>
                           </button>
                           <button
@@ -799,7 +816,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                             }}
                             className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg w-full text-right cursor-pointer"
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={12} />
                             <span>حذف ژورنال</span>
                           </button>
                         </div>
@@ -811,7 +828,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         e.stopPropagation();
                         onEditCover(journal.id);
                       }}
-                      className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg py-1 px-2.5 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="bg-stone-100/80 dark:bg-stone-800/80 hover:bg-stone-200/80 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-lg py-1 px-2.5 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <Edit3 size={12} />
                       <span>ویرایش جلد</span>
@@ -819,9 +836,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                 </div>
 
-                {/* 3D Realistic Notebook Illustration (Left side in RTL) */}
+                {/* Tactile Archival Notebook Illustration */}
                 <div
-                  className="w-20 h-28 rounded-r-2xl rounded-l-xs shadow-md shrink-0 relative transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-2 notebook-spine overflow-hidden cursor-pointer flex flex-col justify-start border border-black/10"
+                  className="w-20 h-28 rounded-r-xl rounded-l-xs shadow-2xs shrink-0 relative transition-transform duration-200 group-hover:-translate-y-0.5 notebook-spine overflow-hidden cursor-pointer flex flex-col justify-start border border-stone-900/10 dark:border-white/10"
                   style={{
                     backgroundColor: journal.color,
                     backgroundImage: journal.coverImage ? `url(${journal.coverImage})` : undefined,
@@ -830,15 +847,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   }}
                 >
                   {!journal.coverImage && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/10 pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/5 pointer-events-none" />
                   )}
-                  {/* Spine Crease */}
-                  <div className="absolute top-0 bottom-0 left-0 w-2.5 bg-gradient-to-r from-black/30 to-transparent pointer-events-none z-10" />
-                  <div className="absolute top-0 bottom-0 left-[5px] w-[1px] bg-black/25 pointer-events-none z-10" />
+                  {/* Subtle Spine Crease */}
+                  <div className="absolute top-0 bottom-0 left-0 w-2 bg-gradient-to-r from-black/20 to-transparent pointer-events-none z-10" />
 
-                  {/* Cream Title Label Strip (matching image.png) */}
-                  <div className="relative mt-4 z-10 w-[84%] bg-[#fbf6f3] shadow-xs rounded-r-xl py-1 px-2 flex items-center border-y border-r border-[#eddcd4]/50">
-                    <span className="text-[10px] font-bold text-slate-800 truncate tracking-tight">
+                  {/* Clean Archival Label Strip */}
+                  <div className="relative mt-3.5 z-10 w-[86%] bg-[#fcfbf9]/95 dark:bg-[#232322]/95 shadow-2xs rounded-r-md py-1 px-2 flex items-center border-y border-r border-stone-200/60 dark:border-stone-700/60">
+                    <span className="text-[10px] font-medium text-stone-800 dark:text-stone-200 truncate tracking-tight">
                       {journal.title}
                     </span>
                   </div>
@@ -848,14 +864,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
           })}
 
           {filteredJournals.length === 0 && (
-            <div className="col-span-full py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
-              <span className="text-4xl">📖</span>
-              <p className="text-sm font-semibold text-slate-600">ژورنالی مطابق با جستجوی شما یافت نشد.</p>
+            <div className="col-span-full py-16 flex flex-col items-center justify-center gap-2.5 text-stone-400">
+              <BookOpen size={32} strokeWidth={1.5} className="text-stone-300 dark:text-stone-600" />
+              <p className="text-xs sm:text-sm font-medium text-stone-600 dark:text-stone-400">ژورنالی مطابق با جستجو یافت نشد.</p>
               <button
-                onClick={() => onCreateFromTemplate('ژورنال جدید من', '#5fa8e8')}
-                className="mt-2 text-xs font-bold text-[#ff6438] hover:underline cursor-pointer"
+                onClick={() => onCreateFromTemplate('ژورنال جدید من', '#526b58')}
+                className="mt-1 bg-stone-900 dark:bg-stone-100 text-stone-50 dark:text-stone-900 rounded-xl px-3.5 py-2 text-xs font-medium cursor-pointer transition-colors hover:bg-stone-800"
               >
-                + ساخت ژورنال جدید همین حالا
+                + ساخت ژورنال جدید
               </button>
             </div>
           )}
@@ -864,54 +880,54 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Modal: Choose Notebook for Selected Sheet Template */}
       {selectedTemplateForAdd && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/40 backdrop-blur-xs animate-in fade-in duration-150">
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl flex flex-col gap-5 border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-150"
+            className="bg-white dark:bg-[#1c1c1b] rounded-2xl p-6 sm:p-7 max-w-md w-full shadow-xl flex flex-col gap-4 border border-stone-200/80 dark:border-stone-800 animate-in zoom-in-95 duration-150"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-stone-200/60 dark:border-stone-800 pb-3">
               <div className="flex items-center gap-2">
-                <FileCheck size={18} className="text-emerald-700 dark:text-emerald-400" />
-                <h3 className="text-base font-black text-slate-900 dark:text-white">
+                <FileCheck size={17} className="text-stone-700 dark:text-stone-300" />
+                <h3 className="text-sm sm:text-base font-semibold text-stone-900 dark:text-stone-100">
                   استفاده از {selectedTemplateForAdd.title}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedTemplateForAdd(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 cursor-pointer"
+                className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 p-1 cursor-pointer transition-colors"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              این برگه ({selectedTemplateForAdd.title}) را به کدام‌یک از دفترچه‌های خود اضافه می‌کنید؟
+            <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+              این برگه را به کدام‌یک از دفترچه‌های خود اضافه می‌کنید؟
             </p>
 
             {/* List of User's Existing Notebooks */}
-            <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1">
+            <div className="flex flex-col gap-1.5 max-h-56 overflow-y-auto pr-1">
               {journals.map((j) => (
                 <button
                   key={j.id}
                   onClick={() => handleApplyTemplateToExistingJournal(j.id)}
-                  className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-emerald-600 dark:hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 transition-all text-right cursor-pointer group"
+                  className="flex items-center justify-between p-2.5 rounded-xl border border-stone-200/60 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-all text-right cursor-pointer group"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <div
-                      className="w-7 h-9 rounded-r-lg rounded-l-xs shadow-2xs shrink-0 relative notebook-spine"
+                      className="w-6 h-8 rounded-r-md rounded-l-xs shadow-2xs shrink-0 relative notebook-spine"
                       style={{ backgroundColor: j.color }}
                     />
                     <div>
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors">
+                      <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition-colors">
                         {j.title}
                       </span>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 block font-mono">
+                      <span className="text-[10px] text-stone-400 dark:text-stone-500 block font-mono">
                         {toPersianDigits(Object.keys(j.pages || {}).length)} برگه
                       </span>
                     </div>
                   </div>
 
-                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-xs font-medium text-stone-500 dark:text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity">
                     افزودن برگه ↵
                   </span>
                 </button>
@@ -919,10 +935,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             {/* Option to create a new notebook */}
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="pt-2 border-t border-stone-200/60 dark:border-stone-800">
               <button
                 onClick={handleCreateNewNotebookWithTemplate}
-                className="w-full bg-[#ff6438] hover:bg-[#f05427] text-white py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs cursor-pointer transition-colors"
+                className="w-full bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 py-2.5 px-4 rounded-xl text-xs font-medium flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-colors active:scale-[0.99]"
               >
                 <Plus size={15} />
                 <span>ایجاد یک دفترچه جدید با این برگه</span>
