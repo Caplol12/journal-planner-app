@@ -10,7 +10,7 @@ interface MobileBottomNavProps {
   isSettingsActive?: boolean;
   language?: Language;
   onSelectTab: (tab: 'all' | 'templates' | 'favorites') => void;
-  onOpenCalendar: () => void;
+  onOpenCalendar?: () => void;
   onOpenSettings?: () => void;
   onToggleMobileMenu: () => void;
   onNewJournal: () => void;
@@ -78,17 +78,19 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <Plus size={19} strokeWidth={2.4} />
       </button>
 
-      {/* 4. Calendar Tab */}
-      <button
-        onClick={() => {
-          sound.playTick(true);
-          onOpenCalendar();
-        }}
-        className={getTabClass(Boolean(isCalendarActive))}
-      >
-        <Orbit size={18} strokeWidth={1.8} />
-        <span className="text-[10px] mt-0.5 tracking-tight">{t.orbitCalendar}</span>
-      </button>
+      {/* 4. Calendar Tab (optional) */}
+      {onOpenCalendar && (
+        <button
+          onClick={() => {
+            sound.playTick(true);
+            onOpenCalendar();
+          }}
+          className={getTabClass(Boolean(isCalendarActive))}
+        >
+          <Orbit size={18} strokeWidth={1.8} />
+          <span className="text-[10px] mt-0.5 tracking-tight">{t.orbitCalendar}</span>
+        </button>
+      )}
 
       {/* 5. Settings Tab */}
       {onOpenSettings && (

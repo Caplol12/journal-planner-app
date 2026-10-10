@@ -118,6 +118,29 @@ export interface Translations {
   aboutSectionDesc: string;
   appVersionLabel: string;
   buildStatusLabel: string;
+
+  // Workspace
+  workspace: string;
+  workspaceSubtitle: string;
+  viewModeFeed: string;
+  viewModeCanvas: string;
+  viewModeGrid: string;
+  viewModeSplit: string;
+  viewModeTabs: string;
+  viewModeBook: string;
+  viewModeFloating: string;
+  viewModeStack: string;
+  addSheetToWorkspace: string;
+  existingPages: string;
+  templatesGallery: string;
+  focusDimLabel: string;
+  closeWorkspace: string;
+  sheetsCountWarning: string;
+  removeFromWorkspace: string;
+  pinSheet: string;
+  unpinSheet: string;
+  collapseSheet: string;
+  expandSheet: string;
 }
 
 const FA_TRANSLATIONS: Translations = {
@@ -237,6 +260,29 @@ const FA_TRANSLATIONS: Translations = {
   aboutSectionDesc: 'سیستم مینیمال یادداشت‌برداری، برنامه‌ریزی روزانه و تمرکز بر هدف',
   appVersionLabel: 'نسخه ۲.۰ — معماری مینیمال عملکردی (Functional Minimalism)',
   buildStatusLabel: 'محیط محلی و بدون ردیابی (Local-first & Privacy-first)',
+
+  // Workspace
+  workspace: 'فضای کار چندبرگه‌ای',
+  workspaceSubtitle: 'مشاهده و کار همزمان با چندین قالب و برگه در یک صفحه',
+  viewModeFeed: 'اسکرول عمودی (Feed)',
+  viewModeCanvas: 'بوم بی‌نهایت (Canvas)',
+  viewModeGrid: 'گرید بنتو (Grid)',
+  viewModeSplit: 'پنل‌های تقسیم‌شده (Split)',
+  viewModeTabs: 'تب و کنار هم (Tabs)',
+  viewModeBook: 'کتاب دو صفحه‌ای (Book)',
+  viewModeFloating: 'پنجره‌های شناور (Floating)',
+  viewModeStack: 'پشته کارتی (Stack)',
+  addSheetToWorkspace: 'افزودن برگه',
+  existingPages: 'برگه‌های موجود دفترچه',
+  templatesGallery: 'انتخاب از گالری قالب‌ها',
+  focusDimLabel: 'تمرکز بر برگه فعال',
+  closeWorkspace: 'بازگشت به نمای تک‌برگه',
+  sheetsCountWarning: 'بیش از ۵ برگه همزمان ممکن است سرعت برنامه را کاهش دهد.',
+  removeFromWorkspace: 'بستن از فضای کار',
+  pinSheet: 'پین کردن برگه در بالا',
+  unpinSheet: 'برداشتن پین',
+  collapseSheet: 'جمع کردن برگه',
+  expandSheet: 'گسترش برگه',
 };
 
 const EN_TRANSLATIONS: Translations = {
@@ -356,6 +402,29 @@ const EN_TRANSLATIONS: Translations = {
   aboutSectionDesc: 'A minimalist digital workspace for daily intention, reflection, and deep work',
   appVersionLabel: 'Version 2.0 — Functional Minimalism Architecture',
   buildStatusLabel: 'Local-first & Offline-capable with zero external tracking',
+
+  // Workspace
+  workspace: 'Multi-Page Workspace',
+  workspaceSubtitle: 'Simultaneously view and edit multiple sheets and templates in one place',
+  viewModeFeed: 'Vertical Feed',
+  viewModeCanvas: 'Infinite Canvas',
+  viewModeGrid: 'Bento Grid',
+  viewModeSplit: 'Split Panels',
+  viewModeTabs: 'Tabs & Columns',
+  viewModeBook: 'Two-Page Book',
+  viewModeFloating: 'Floating Windows',
+  viewModeStack: 'Card Stack',
+  addSheetToWorkspace: 'Add Sheet',
+  existingPages: 'Existing Journal Pages',
+  templatesGallery: 'Template Gallery',
+  focusDimLabel: 'Dim inactive sheets',
+  closeWorkspace: 'Back to single page',
+  sheetsCountWarning: 'More than 5 simultaneous sheets might impact system performance.',
+  removeFromWorkspace: 'Close from workspace',
+  pinSheet: 'Pin sheet to top',
+  unpinSheet: 'Unpin sheet',
+  collapseSheet: 'Collapse sheet',
+  expandSheet: 'Expand sheet',
 };
 
 export function getTranslations(lang: Language = 'fa'): Translations {

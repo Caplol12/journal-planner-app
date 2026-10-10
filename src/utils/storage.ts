@@ -1,9 +1,19 @@
-import { Journal, DayPage, AppSettings, CategoryOption, TemplateType, TimeBlockSlot, CustomHtmlTemplate } from '../types';
+import {
+  Journal,
+  DayPage,
+  AppSettings,
+  CategoryOption,
+  TemplateType,
+  TimeBlockSlot,
+  CustomHtmlTemplate,
+  Workspace,
+} from '../types';
 import { formatJalaliShort, getDateKey, formatJalaliDate, toPersianDigits } from './jalali';
 
 export const STORAGE_KEY_JOURNALS = 'planner_journals_v4';
 export const STORAGE_KEY_SETTINGS = 'planner_settings_v4';
 export const STORAGE_KEY_CUSTOM_TEMPLATES = 'planner_custom_html_templates_v2';
+export const STORAGE_KEY_WORKSPACES = 'planner_workspaces_v1';
 
 export function loadStoredCustomTemplates(): CustomHtmlTemplate[] {
   try {
@@ -751,4 +761,83 @@ export function exportJournalToMarkdown(journal: Journal, date: Date, page: DayP
 
   md += `---\n_تولید شده با سیستم دیجیتال پلنر و ژورنال روزانه_\n`;
   return md;
+}
+
+// ==========================================
+// Workspace Storage & Migration Helpers
+// ==========================================
+
+export function loadStoredWorkspaces(): Record<string, Workspace> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_WORKSPACES);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === 'object' && parsed !== null) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to load stored workspaces:', err);
+  }
+  return {};
+}
+
+export function saveStoredWorkspaces(workspaces: Record<string, Workspace>): boolean {
+  try {
+    localStorage.setItem(STORAGE_KEY_WORKSPACES, JSON.stringify(workspaces));
+    return true;
+  } catch (err) {
+    console.warn('Failed to save workspaces to localStorage:', err);
+    return false;
+  }
+}
+
+export function getOrCreateDefaultWorkspace(journalId: string, initialPageId?: string): Workspace {
+  const all = loadStoredWorkspaces();
+  const existingKey = Object.keys(all).find((k) => all[k].journalId === journalId);
+  if (existingKey && all[existingKey]) {
+    const ws = all[existingKey];
+    // If an initialPageId was provided and not in workspace, ensure it is added
+    if (initialPageId && !ws.items.some((i) => i.pageId === initialPageId)) {
+      ws.items.unshift({
+        id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        pageId: initialPageId,
+        feed: { order: 0, collapsed: false, pinned: false },
+        grid: { x: 0, y: 0, w: 6, h: 4 },
+      });
+      ws.activeItemId = ws.items[0].id;
+      all[ws.id] = ws;
+      saveStoredWorkspaces(all);
+    }
+    return ws;
+  }
+
+  // Safe migration: Create a new default workspace with mode 'feed'
+  const pageId = initialPageId || getDateKey(new Date());
+  const initialItemId = `item_${Date.now()}`;
+  const newWorkspace: Workspace = {
+    id: `ws_${journalId}`,
+    journalId,
+    title: 'فضای کار روزانه',
+    mode: 'feed',
+    items: [
+      {
+        id: initialItemId,
+        pageId,
+        feed: { order: 0, collapsed: false, pinned: false },
+        grid: { x: 0, y: 0, w: 12, h: 6 },
+      },
+    ],
+    activeItemId: initialItemId,
+    viewport: { x: 0, y: 0, zoom: 1 },
+    links: [],
+    groups: [],
+    notes: [],
+    focusDim: false,
+    updatedAt: new Date().toISOString(),
+  };
+
+  all[newWorkspace.id] = newWorkspace;
+  saveStoredWorkspaces(all);
+  return newWorkspace;
 }

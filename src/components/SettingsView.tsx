@@ -19,11 +19,13 @@ import {
   HardDrive,
   CheckCircle2,
   Sliders,
+  Orbit,
 } from 'lucide-react';
 import { AppSettings, Journal, Language, JournalTheme, ColorMode } from '../types';
 import { sound } from '../utils/audio';
 import { getTranslations, formatNumberByLang } from '../utils/i18n';
 import { INITIAL_JOURNALS, saveStoredJournals, saveStoredSettings } from '../utils/storage';
+import { DashboardCalendarWidget } from './dashboard/DashboardCalendarWidget';
 
 interface SettingsViewProps {
   settings: AppSettings;
@@ -32,6 +34,7 @@ interface SettingsViewProps {
   onUpdateJournals: (journals: Journal[]) => void;
   onBackToDashboard: () => void;
   onToggleColorMode?: () => void;
+  onOpenCalendar?: () => void;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
@@ -40,6 +43,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   journals,
   onUpdateJournals,
   onBackToDashboard,
+  onOpenCalendar,
 }) => {
   const lang = settings.language || 'fa';
   const t = getTranslations(lang);
@@ -386,6 +390,50 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               ))}
             </div>
           </div>
+        </section>
+
+        {/* SECTION: ORBIT CALENDAR & ASTRONOMICAL CHRONOLOGY */}
+        <section className="bg-white dark:bg-[#1a1a19] border border-stone-200/80 dark:border-stone-800/80 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col gap-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 dark:border-stone-800/60 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-cyan-50 dark:bg-cyan-950/50 border border-cyan-200/60 dark:border-cyan-800/60 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0">
+                <Orbit size={20} className="animate-[spin_20s_linear_infinite]" />
+              </div>
+              <div>
+                <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                  <span>{lang === 'fa' ? 'تقویم هوشمند مدار' : 'Orbit Dual Calendar'}</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-800/60">
+                    {lang === 'fa' ? 'شمسی و میلادی' : 'Solar & Gregorian'}
+                  </span>
+                </h2>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                  {lang === 'fa'
+                    ? 'گاه‌شماری کامل دوگانه خورشیدی و میلادی، رویدادهای تقویمی، وضعیت ماه و صورت فلکی'
+                    : 'Complete dual solar and gregorian calendar with celestial events and moon phases'}
+                </p>
+              </div>
+            </div>
+
+            {onOpenCalendar && (
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playSwoosh();
+                  onOpenCalendar();
+                }}
+                className="self-start sm:self-auto flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
+              >
+                <Orbit size={15} />
+                <span>{lang === 'fa' ? 'مشاهده تقویم کامل مدار' : 'Open Full Orbit Calendar'}</span>
+              </button>
+            )}
+          </div>
+
+          <DashboardCalendarWidget
+            onOpenFullCalendar={() => {
+              if (onOpenCalendar) onOpenCalendar();
+            }}
+          />
         </section>
 
         {/* SECTION 3: ANIMATIONS & TRANSITIONS */}

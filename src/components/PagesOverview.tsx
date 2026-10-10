@@ -15,6 +15,7 @@ import {
   Trash2,
   Palette,
   Sparkles,
+  Layers,
 } from 'lucide-react';
 import { Journal, TemplateType, CustomHtmlTemplate, DayPage, ColorMode } from '../types';
 import { formatJalaliDate, getDateKey, parseDateKey, toPersianDigits, PERSIAN_DAYS } from '../utils/jalali';
@@ -32,6 +33,7 @@ interface PagesOverviewProps {
   onAddNewPage: (dateKey: string, templateType?: string, initialData?: DayPage) => void;
   onDeletePage: (dateKey: string) => void;
   onEditCover: () => void;
+  onOpenWorkspace?: () => void;
   colorMode?: ColorMode;
   onToggleColorMode?: () => void;
 }
@@ -50,6 +52,7 @@ export const PagesOverview: React.FC<PagesOverviewProps> = ({
   onAddNewPage,
   onDeletePage,
   onEditCover,
+  onOpenWorkspace,
   colorMode,
   onToggleColorMode,
 }) => {
@@ -309,6 +312,20 @@ export const PagesOverview: React.FC<PagesOverviewProps> = ({
 
         {/* 2. Unified Primary Action (80/20 Pareto Consolidation) */}
         <div className="flex items-center gap-2">
+          {onOpenWorkspace && (
+            <button
+              onClick={() => {
+                sound.playSwoosh();
+                onOpenWorkspace();
+              }}
+              className="bg-stone-100 hover:bg-stone-200 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-200 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-stone-200/80 dark:border-stone-700/80 cursor-pointer transition-all shadow-2xs active:scale-95"
+              title="ورود به فضای کار چندبرگه‌ای (مشاهده و کار با چند برگه همزمان)"
+            >
+              <Layers size={14} />
+              <span className="hidden sm:inline">فضای کار چندبرگه‌ای</span>
+            </button>
+          )}
+
           {/* Split / Dropdown Action Button */}
           <div className="relative inline-flex items-stretch rounded-xl shadow-2xs" ref={createMenuRef}>
             {/* Primary Action Button */}

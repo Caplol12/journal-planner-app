@@ -63,6 +63,8 @@ export default function App() {
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'all' | 'templates' | 'favorites'>('all');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [calendarReturnView, setCalendarReturnView] = useState<'dashboard' | 'settings'>('settings');
+  const [isWorkspaceOpenDirectly, setIsWorkspaceOpenDirectly] = useState(false);
 
   // Modal states
   const [isNewJournalOpen, setIsNewJournalOpen] = useState(false);
@@ -204,12 +206,14 @@ export default function App() {
 
   const handleOpenPage = (dateKey: string) => {
     sound.playSwoosh();
+    setIsWorkspaceOpenDirectly(false);
     setSelectedDateKey(dateKey);
     setCurrentView('planner');
   };
 
   const handleAddNewPage = (dateKey: string, templateType?: string, initialData?: DayPage) => {
     if (!selectedJournalId) return;
+    setIsWorkspaceOpenDirectly(false);
 
     const tType: TemplateType =
       templateType === 'template-4-celestial-todo'
@@ -595,7 +599,7 @@ export default function App() {
         </div>
       ) : currentView === 'calendar' ? (
         <OrbitCalendar
-          onBackToApp={handleBackToDashboard}
+          onBackToApp={() => setCurrentView(calendarReturnView)}
           onOpenJournalDate={handleOpenCalendarDateInJournal}
           journals={journals}
         />
@@ -603,6 +607,7 @@ export default function App() {
         <PlannerView
           journal={selectedJournal}
           initialDateKey={selectedDateKey || undefined}
+          initialWorkspaceActive={isWorkspaceOpenDirectly}
           onBackToPagesOverview={handleBackToPagesOverview}
           onBackToDashboard={handleBackToDashboard}
           onUpdateJournalPage={handleUpdateJournalPage}
@@ -617,6 +622,11 @@ export default function App() {
           journal={selectedJournal}
           onBackToDashboard={handleBackToDashboard}
           onOpenPage={handleOpenPage}
+          onOpenWorkspace={() => {
+            sound.playSwoosh();
+            setIsWorkspaceOpenDirectly(true);
+            setCurrentView('planner');
+          }}
           onAddNewPage={handleAddNewPage}
           onDeletePage={handleDeletePage}
           onEditCover={() => setEditingJournal(selectedJournal)}
@@ -723,6 +733,10 @@ export default function App() {
                 onUpdateJournals={setJournals}
                 onBackToDashboard={() => setCurrentView('dashboard')}
                 onToggleColorMode={handleToggleColorMode}
+                onOpenCalendar={() => {
+                  setCalendarReturnView('settings');
+                  setCurrentView('calendar');
+                }}
               />
             </div>
           </div>
@@ -800,7 +814,6 @@ export default function App() {
               }}
               isDarkMode={settings.colorMode === 'dark'}
               onToggleColorMode={handleToggleColorMode}
-              onOpenCalendar={() => setCurrentView('calendar')}
               title="STRATEGY"
             />
             <div className="flex-1 min-w-0 pb-20 lg:pb-0">
@@ -834,7 +847,6 @@ export default function App() {
                 }}
                 colorMode={settings.colorMode}
                 onToggleColorMode={handleToggleColorMode}
-                onOpenCalendar={() => setCurrentView('calendar')}
                 onOpenUsers={() => setCurrentView('users')}
                 onOpenJournalPage={handleOpenJournalWithPage}
                 onUpdateJournalPage={handleUpdateAnyJournalPage}
@@ -897,7 +909,6 @@ export default function App() {
               setCurrentTab(tab);
               setCurrentView('dashboard');
             }}
-            onOpenCalendar={() => setCurrentView('calendar')}
             onOpenSettings={() => setCurrentView('settings')}
             onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             onNewJournal={() => {

@@ -423,18 +423,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
             />
           </div>
 
-          {onOpenCalendar && (
-            <button
-              type="button"
-              onClick={onOpenCalendar}
-              title="تقویم هوشمند مدار (شمسی و میلادی)"
-              className="flex items-center gap-1.5 px-3 py-2 bg-stone-100 dark:bg-stone-800/80 hover:bg-stone-200/80 dark:hover:bg-stone-700/80 border border-stone-200/60 dark:border-stone-700/60 rounded-xl text-stone-700 dark:text-stone-300 text-xs font-medium transition-all shrink-0 cursor-pointer active:scale-95"
-            >
-              <Orbit size={15} strokeWidth={1.8} />
-              <span className="hidden sm:inline">تقویم مدار</span>
-            </button>
-          )}
-
           {onOpenUsers && (
             <button
               type="button"

@@ -23,8 +23,6 @@ import {
   jdnToJalaliDateKey,
 } from '../../utils/celestialDateEngine';
 import {
-  SolarDayArcWidget,
-  ZodiacConstellationCard,
   loadStickersStorage,
   MOOD_STICKERS,
 } from '../calendar/CalendarVisualWidgets';
@@ -143,17 +141,8 @@ export const DashboardCalendarWidget: React.FC<DashboardCalendarWidgetProps> = (
         </button>
       </div>
 
-      {/* Visual Elements Grid (Solar Arc + Zodiac Constellation) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4 relative z-10">
-        {/* Visual Element 1: Zodiac Constellation */}
-        <ZodiacConstellationCard monthIndex={todayJalali.m} />
-
-        {/* Visual Element 2: Solar Day Horizon Arc */}
-        <SolarDayArcWidget />
-      </div>
-
       {/* 7-Day Week Strip */}
-      <div className="mt-4 pt-4 border-t border-slate-800/80 relative z-10">
+      <div className="mt-4 pt-1 relative z-10">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
             <Sparkles size={13} className="text-cyan-400" />

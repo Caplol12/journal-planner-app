@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronRight, ChevronLeft, Calendar, FileText, Settings, Volume2, VolumeX, ArrowRight, PenTool, Sun, Moon } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Calendar, FileText, Settings, Volume2, VolumeX, ArrowRight, PenTool, Sun, Moon, Layers } from 'lucide-react';
 import { Journal, DayPage, AppSettings, CategoryOption, DrawingStroke, PageTextFormat } from '../types';
 import { formatJalaliDate, getDateKey, parseDateKey } from '../utils/jalali';
 import { sound } from '../utils/audio';
@@ -15,6 +15,8 @@ import { createEmptyDayPage, DEFAULT_CATEGORIES } from '../utils/storage';
 import { WordStyleToolbar, PERSIAN_FONTS } from './WordStyleToolbar';
 import { DrawingCanvasOverlay } from './DrawingCanvasOverlay';
 import { injectHtmlSyncScript } from '../utils/htmlTemplates';
+import { WorkspaceProvider } from './workspace/WorkspaceProvider';
+import { WorkspaceShell } from './workspace/WorkspaceShell';
 
 interface PlannerViewProps {
   journal: Journal;
@@ -27,6 +29,7 @@ interface PlannerViewProps {
   settings: AppSettings;
   onUpdateSettings: (settings: AppSettings) => void;
   onOpenCalendar?: () => void;
+  initialWorkspaceActive?: boolean;
 }
 
 export const PlannerView: React.FC<PlannerViewProps> = ({
@@ -40,6 +43,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   settings,
   onUpdateSettings,
   onOpenCalendar,
+  initialWorkspaceActive = false,
 }) => {
   const [currentDate, setCurrentDate] = useState<Date>(() =>
     initialDateKey ? parseDateKey(initialDateKey) : new Date()
@@ -48,6 +52,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string | null>(null);
   const [pageFlipClass, setPageFlipClass] = useState<string>('');
   const [isFlipping, setIsFlipping] = useState<boolean>(false);
+  const [isWorkspaceActive, setIsWorkspaceActive] = useState<boolean>(() => Boolean(initialWorkspaceActive));
 
   useEffect(() => {
     if (initialDateKey) {
@@ -539,6 +544,19 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   };
 
 
+  if (isWorkspaceActive) {
+    return (
+      <WorkspaceProvider
+        journal={journal}
+        initialPageId={dateKey}
+        onUpdateJournalPage={onUpdateJournalPage}
+        onCloseWorkspace={() => setIsWorkspaceActive(false)}
+      >
+        <WorkspaceShell />
+      </WorkspaceProvider>
+    );
+  }
+
   return (
     <div
       className="min-h-screen w-full bg-[#f6f5f1] dark:bg-[#121211] p-3 sm:p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden pb-24 sm:pb-12 text-stone-900 dark:text-stone-100"
@@ -673,6 +691,19 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
                 ? 'قالب شماره ۲'
                 : 'قالب شماره ۱'}
             </span>
+          </button>
+
+          {/* Multi-Page Workspace Trigger Button */}
+          <button
+            onClick={() => {
+              sound.playSwoosh();
+              setIsWorkspaceActive(true);
+            }}
+            className="bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 rounded-lg px-2.5 py-1.5 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs active:scale-95"
+            title="ورود به فضای کار چندبرگه‌ای (مشاهده و کار با چند برگه همزمان)"
+          >
+            <Layers size={14} />
+            <span className="hidden sm:inline">فضای کار</span>
           </button>
 
           <button

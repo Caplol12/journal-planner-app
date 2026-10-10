@@ -194,3 +194,103 @@ export interface CategoryOption {
   color: string;
   icon: string;
 }
+
+// ==========================================
+// Multi-Page Workspace Data Model (فازهای ۱ تا ۶)
+// ==========================================
+
+export type ViewMode =
+  | 'feed'      // اسکرول عمودی
+  | 'canvas'    // بوم بینهایت
+  | 'grid'      // گرید / بنتو
+  | 'split'     // پنل‌های تقسیم‌شده
+  | 'tabs'      // تب + کنار هم
+  | 'book'      // ورق زدن افقی / کتاب دو صفحه‌ای
+  | 'floating'  // پنجره‌های شناور
+  | 'stack';    // پشته کارتی (موبایل)
+
+export interface WorkspaceItemFeedLayout {
+  order: number;
+  collapsed: boolean;
+  pinned: boolean;
+}
+
+export interface WorkspaceItemCanvasLayout {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  z: number;
+  groupId?: string;
+}
+
+export interface WorkspaceItemGridLayout {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export interface WorkspaceItemFloatingLayout {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  z: number;
+  minimized: boolean;
+  opacity: number;
+}
+
+export interface WorkspaceItem {
+  id: string;            // شناسه آیتم در workspace
+  pageId: string;        // اشاره مستقیم به کلید برگه در journal.pages (تفکیک کامل چیدمان از دیتا)
+  title?: string;        // عنوان اختیاری اختصاصی برای نمایش در هدر
+  feed?: WorkspaceItemFeedLayout;
+  canvas?: WorkspaceItemCanvasLayout;
+  grid?: WorkspaceItemGridLayout;
+  floating?: WorkspaceItemFloatingLayout;
+}
+
+export type SplitNode =
+  | { type: 'leaf'; itemId: string }
+  | { type: 'split'; dir: 'row' | 'col'; sizes: number[]; children: SplitNode[] };
+
+export interface CanvasLink {
+  id: string;
+  fromItemId: string;
+  toItemId: string;
+  label?: string;
+}
+
+export interface CanvasGroup {
+  id: string;
+  title: string;
+  color: string;
+}
+
+export interface CanvasNote {
+  id: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  text: string;
+  color: string;
+}
+
+export interface Workspace {
+  id: string;
+  journalId: string;
+  title: string;                 // e.g. «فضای کار اصلی»، «صبح»، «برنامه‌ریزی هفتگی»
+  mode: ViewMode;
+  items: WorkspaceItem[];        // حداکثر توصیه شده ۴ تا ۵ برگه، حداکثر نرم ۸
+  splitTree?: SplitNode;
+  activeTabIds?: string[];
+  activeItemId?: string;
+  viewport: { x: number; y: number; zoom: number }; // برای canvas
+  links: CanvasLink[];
+  groups: CanvasGroup[];
+  notes: CanvasNote[];
+  focusDim: boolean;
+  updatedAt: string;
+}

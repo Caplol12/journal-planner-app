@@ -250,27 +250,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             <div className="my-2 border-t border-stone-200/50 dark:border-stone-800/50" />
 
-            {/* Orbit Dual Calendar Button */}
-            {onOpenCalendar && (
-              <button
-                onClick={() =>
-                  handleAction(() => {
-                    sound.playTick(true);
-                    onOpenCalendar();
-                  })
-                }
-                className={navItemClass(Boolean(isCalendarActive))}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Orbit size={17} strokeWidth={1.8} />
-                  <span>{t.orbitCalendar}</span>
-                </div>
-                <span className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">
-                  {t.solar}
-                </span>
-              </button>
-            )}
-
             {/* User Registration and Database View Button */}
             {onOpenUsers && (
               <button
