@@ -510,7 +510,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f7f9] text-slate-800 flex flex-col antialiased">
+    <div className="min-h-screen bg-[#faf9f6] dark:bg-[#141413] text-stone-900 dark:text-stone-100 flex flex-col antialiased transition-colors">
       {/* 3-Tier Navigation View Routing */}
       {currentView === 'users' ? (
         <div className="flex min-h-screen w-full relative overflow-x-hidden">
@@ -598,11 +598,88 @@ export default function App() {
           />
         </div>
       ) : currentView === 'calendar' ? (
-        <OrbitCalendar
-          onBackToApp={() => setCurrentView(calendarReturnView)}
-          onOpenJournalDate={handleOpenCalendarDateInJournal}
-          journals={journals}
-        />
+        <div className="flex min-h-screen w-full relative overflow-x-hidden">
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+            <MobileTopBar
+              onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onNewJournal={() => {
+                setCurrentView('dashboard');
+                setIsNewJournalOpen(true);
+              }}
+              isDarkMode={settings.colorMode === 'dark'}
+              onToggleColorMode={handleToggleColorMode}
+              title="STRATEGY"
+            />
+            <div className="flex-1 min-w-0 pb-20 lg:pb-0">
+              <OrbitCalendar
+                onBackToApp={() => setCurrentView(calendarReturnView)}
+                onOpenJournalDate={handleOpenCalendarDateInJournal}
+                journals={journals}
+              />
+            </div>
+          </div>
+          <Sidebar
+            currentTab={currentTab}
+            onSelectTab={(tab) => {
+              setCurrentTab(tab);
+              setCurrentView('dashboard');
+              setIsMobileMenuOpen(false);
+            }}
+            onNewJournal={() => {
+              setCurrentView('dashboard');
+              setIsNewJournalOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+            journalCount={journals.length}
+            starredCount={journals.filter((j) => j.starred).length}
+            settings={settings}
+            onUpdateSettings={setSettings}
+            onOpenBackup={() => {
+              setIsBackupOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
+            onOpenSettings={() => {
+              setCurrentView('settings');
+              setIsMobileMenuOpen(false);
+            }}
+            isSettingsActive={false}
+            onOpenAdmin={() => {
+              setCurrentView('admin');
+              setIsMobileMenuOpen(false);
+            }}
+            isAdminActive={false}
+            onOpenCalendar={() => {
+              setCurrentView('calendar');
+              setIsMobileMenuOpen(false);
+            }}
+            isCalendarActive={true}
+            onOpenUsers={() => {
+              setCurrentView('users');
+              setIsMobileMenuOpen(false);
+            }}
+            isUsersActive={false}
+            onToggleColorMode={handleToggleColorMode}
+            isOpenMobile={isMobileMenuOpen}
+            onCloseMobile={() => setIsMobileMenuOpen(false)}
+          />
+          <MobileBottomNav
+            currentTab={currentTab}
+            isCalendarActive={true}
+            isSettingsActive={false}
+            language={settings.language}
+            onSelectTab={(tab) => {
+              setCurrentTab(tab);
+              setCurrentView('dashboard');
+            }}
+            onOpenCalendar={() => setCurrentView('calendar')}
+            onOpenSettings={() => setCurrentView('settings')}
+            onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            onNewJournal={() => {
+              setCurrentView('dashboard');
+              setIsNewJournalOpen(true);
+            }}
+          />
+        </div>
       ) : currentView === 'planner' && selectedJournal ? (
         <PlannerView
           journal={selectedJournal}

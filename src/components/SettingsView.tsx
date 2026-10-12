@@ -232,8 +232,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
         {/* Live Notification Feedback Pill */}
         {notificationMsg && (
-          <div className="sticky top-4 z-40 bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-medium shadow-lg flex items-center gap-2 self-center animate-in fade-in slide-in-from-top-2 duration-200">
-            <CheckCircle2 size={16} />
+          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-stone-900 text-stone-50 dark:bg-stone-100 dark:text-stone-900 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-float flex items-center gap-2 border border-stone-800/30 dark:border-stone-200/30 animate-in fade-in slide-in-from-top-3 duration-200">
+            <CheckCircle2 size={16} className="text-emerald-400 dark:text-emerald-600" />
             <span>{notificationMsg}</span>
           </div>
         )}
@@ -396,13 +396,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <section className="bg-white dark:bg-[#1a1a19] border border-stone-200/80 dark:border-stone-800/80 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col gap-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 dark:border-stone-800/60 pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-cyan-50 dark:bg-cyan-950/50 border border-cyan-200/60 dark:border-cyan-800/60 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0">
-                <Orbit size={20} className="animate-[spin_20s_linear_infinite]" />
+              <div className="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800/80 border border-stone-200/80 dark:border-stone-700/80 flex items-center justify-center text-stone-700 dark:text-stone-300 shrink-0">
+                <Orbit size={18} className="animate-[spin_24s_linear_infinite]" />
               </div>
               <div>
                 <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                   <span>{lang === 'fa' ? 'تقویم هوشمند مدار' : 'Orbit Dual Calendar'}</span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-800/60">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200/80 dark:border-stone-700">
                     {lang === 'fa' ? 'شمسی و میلادی' : 'Solar & Gregorian'}
                   </span>
                 </h2>
@@ -421,7 +421,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   sound.playSwoosh();
                   onOpenCalendar();
                 }}
-                className="self-start sm:self-auto flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
+                className="self-start sm:self-auto flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 text-xs font-semibold transition-all shadow-2xs active:scale-95 cursor-pointer"
               >
                 <Orbit size={15} />
                 <span>{lang === 'fa' ? 'مشاهده تقویم کامل مدار' : 'Open Full Orbit Calendar'}</span>
@@ -507,22 +507,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </span>
             </div>
             <button
+              type="button"
+              role="switch"
+              aria-checked={settings.soundEnabled}
               onClick={handleSoundToggle}
-              className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
-                settings.soundEnabled ? 'bg-stone-900 dark:bg-stone-100' : 'bg-stone-300 dark:bg-stone-700'
+              className={`w-11 h-6 rounded-full p-0.5 transition-colors cursor-pointer flex items-center ${
+                settings.soundEnabled ? 'bg-stone-900 dark:bg-stone-100 justify-end' : 'bg-stone-300 dark:bg-stone-700 justify-start'
               }`}
             >
-              <div
-                className={`w-4 h-4 rounded-full bg-white dark:bg-stone-900 absolute top-1 transition-transform ${
-                  settings.soundEnabled
-                    ? isRtl
-                      ? 'left-1'
-                      : 'right-1'
-                    : isRtl
-                    ? 'right-1'
-                    : 'left-1'
-                }`}
-              />
+              <span className="w-5 h-5 rounded-full bg-white dark:bg-stone-900 shadow-xs transition-all" />
             </button>
           </div>
 
@@ -609,24 +602,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </span>
             </div>
             <button
+              type="button"
+              role="switch"
+              aria-checked={settings.autoRolloverTasks}
               onClick={handleRolloverToggle}
-              className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${
+              className={`w-11 h-6 rounded-full p-0.5 transition-colors cursor-pointer flex items-center ${
                 settings.autoRolloverTasks
-                  ? 'bg-stone-900 dark:bg-stone-100'
-                  : 'bg-stone-300 dark:bg-stone-700'
+                  ? 'bg-stone-900 dark:bg-stone-100 justify-end'
+                  : 'bg-stone-300 dark:bg-stone-700 justify-start'
               }`}
             >
-              <div
-                className={`w-4 h-4 rounded-full bg-white dark:bg-stone-900 absolute top-1 transition-transform ${
-                  settings.autoRolloverTasks
-                    ? isRtl
-                      ? 'left-1'
-                      : 'right-1'
-                    : isRtl
-                    ? 'right-1'
-                    : 'left-1'
-                }`}
-              />
+              <span className="w-5 h-5 rounded-full bg-white dark:bg-stone-900 shadow-xs transition-all" />
             </button>
           </div>
         </section>

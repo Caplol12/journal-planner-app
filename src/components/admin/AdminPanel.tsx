@@ -322,46 +322,46 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
   };
 
   return (
-    <div className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-[#0b1120] text-slate-800 dark:text-slate-100 transition-colors duration-200">
+    <div className="flex-1 flex flex-col min-h-screen bg-[#faf9f6] dark:bg-[#141413] text-stone-900 dark:text-stone-100 transition-colors">
       {/* Top Header */}
-      <header className="bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between shrink-0 shadow-2xs">
+      <header className="bg-white dark:bg-[#1a1a19] border-b border-stone-200/80 dark:border-stone-800/80 px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between shrink-0 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-orange-100 dark:bg-orange-950/60 text-[#ff6438] dark:text-orange-400 flex items-center justify-center shadow-xs">
-            <Shield size={22} />
+          <div className="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700/60 flex items-center justify-center shrink-0 shadow-2xs">
+            <Shield size={18} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">پنل مدیریت سیستم</h1>
-              <span className="text-[10px] bg-slate-900 dark:bg-slate-700 text-white font-bold px-2 py-0.5 rounded-full">
+              <h1 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight">پنل مدیریت سیستم</h1>
+              <span className="text-[10px] bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200/80 dark:border-stone-700 font-mono font-medium px-2 py-0.5 rounded-md">
                 Supabase BaaS
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-stone-500 dark:text-stone-400">
               مدیریت و بارگذاری قالب‌های آنلاین، فایل‌های Storage و کنترل کاربران
             </p>
           </div>
         </div>
 
         {/* User / Auth Info */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={onBackToApp}
-            className="px-3.5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+            className="px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-stone-100 bg-stone-100 hover:bg-stone-200/80 dark:bg-stone-800 dark:hover:bg-stone-700 border border-stone-200/60 dark:border-stone-700/60 rounded-xl transition-all cursor-pointer"
           >
             ← بازگشت به برنامه
           </button>
 
           {user ? (
-            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-1.5 pr-3 rounded-2xl">
+            <div className="flex items-center gap-2 bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800/80 p-1.5 pr-3 rounded-xl">
               <div className="text-right">
-                <span className="block text-xs font-bold text-slate-800 dark:text-slate-100">
+                <span className="block text-xs font-bold text-stone-900 dark:text-stone-100">
                   {profile?.display_name || user.email?.split('@')[0]}
                 </span>
                 <span
-                  className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
+                  className={`text-[10px] font-medium px-1.5 py-0.2 rounded-md ${
                     isAdmin
-                      ? 'bg-orange-100 dark:bg-orange-950/60 text-[#ff6438] dark:text-orange-400'
-                      : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                      ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60'
+                      : 'bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-300'
                   }`}
                 >
                   {isAdmin ? 'مدیر کل (Admin)' : 'کاربر عادی'}
@@ -370,17 +370,17 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
               <button
                 onClick={logout}
                 title="خروج از حساب"
-                className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-rose-600 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-7 h-7 rounded-lg bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 hover:text-rose-600 text-stone-500 dark:text-stone-400 border border-stone-200/80 dark:border-stone-700 flex items-center justify-center transition-colors cursor-pointer"
               >
-                <LogOut size={15} />
+                <LogOut size={13} />
               </button>
             </div>
           ) : (
             <button
               onClick={() => setIsAuthModalOpen(true)}
-              className="bg-[#ff6438] hover:bg-[#f05427] text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs cursor-pointer transition-colors"
+              className="bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-2xs cursor-pointer transition-all active:scale-95"
             >
-              <LogIn size={15} />
+              <LogIn size={14} />
               <span>ورود ادمین</span>
             </button>
           )}
@@ -388,34 +388,34 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
       </header>
 
       {/* Navigation Tabs */}
-      <div className="bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800 px-6 flex items-center gap-4 shrink-0">
+      <div className="bg-white dark:bg-[#1a1a19] border-b border-stone-200/80 dark:border-stone-800/80 px-4 sm:px-6 flex items-center gap-2 sm:gap-4 shrink-0 overflow-x-auto">
         <button
           onClick={() => setActiveTab('templates')}
-          className={`flex items-center gap-2 py-3 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 py-3 px-3 text-xs transition-all cursor-pointer ${
             activeTab === 'templates'
-              ? 'border-[#ff6438] text-[#ff6438] dark:text-orange-400'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'border-b-2 border-stone-900 dark:border-stone-100 text-stone-900 dark:text-stone-100 font-bold'
+              : 'border-b-2 border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 font-medium'
           }`}
         >
-          <Layers size={16} />
+          <Layers size={15} />
           <span>مدیریت و بارگذاری قالب‌ها</span>
-          <span className="text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-mono bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 px-2 py-0.5 rounded-md">
             {toPersianDigits(templates.length)}
           </span>
         </button>
 
         <button
           onClick={() => setActiveTab('users')}
-          className={`flex items-center gap-2 py-3 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 py-3 px-3 text-xs transition-all cursor-pointer ${
             activeTab === 'users'
-              ? 'border-[#ff6438] text-[#ff6438] dark:text-orange-400'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'border-b-2 border-stone-900 dark:border-stone-100 text-stone-900 dark:text-stone-100 font-bold'
+              : 'border-b-2 border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 font-medium'
           }`}
         >
-          <Users size={16} />
+          <Users size={15} />
           <span>مدیریت کاربران و دسترسی‌ها</span>
           {profiles.length > 0 && (
-            <span className="text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 px-2 py-0.5 rounded-md">
               {toPersianDigits(profiles.length)}
             </span>
           )}
@@ -423,13 +423,13 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
 
         <button
           onClick={() => setActiveTab('settings')}
-          className={`flex items-center gap-2 py-3 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 py-3 px-3 text-xs transition-all cursor-pointer ${
             activeTab === 'settings'
-              ? 'border-[#ff6438] text-[#ff6438] dark:text-orange-400'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'border-b-2 border-stone-900 dark:border-stone-100 text-stone-900 dark:text-stone-100 font-bold'
+              : 'border-b-2 border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 font-medium'
           }`}
         >
-          <Database size={16} />
+          <Database size={15} />
           <span>تنظیمات اتصال Supabase</span>
           <span
             className={`w-2 h-2 rounded-full ${
@@ -440,15 +440,15 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-6 max-w-6xl w-full mx-auto">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-[1360px] w-full mx-auto">
         {/* ===================== TAB: TEMPLATES ===================== */}
         {activeTab === 'templates' && (
           <div className="flex flex-col gap-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-2xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#1a1a19] p-4 sm:p-5 rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-2xs">
               <div>
-                <h2 className="text-base font-black text-slate-900">قالب‌های ثبت‌شده در سرور Supabase</h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  فایل‌های قالب در باکت ذخیره‌سازی ابری (`templates`) بارگذاری شده و به صورت پویا در برنامه در دسترس قرار می‌گیرند.
+                <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100">قالب‌های ثبت‌شده در سرور Supabase</h2>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+                  فایل‌های قالب در باکت ذخیره‌سازی ابری (`templates`) بارگذاری شده و به صورت پویا در دسترس قرار می‌گیرند.
                 </p>
               </div>
 
@@ -456,10 +456,10 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
                 <button
                   onClick={loadTemplates}
                   disabled={isLoadingTemplates}
-                  className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-2xl border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="p-2 sm:px-3 sm:py-2 bg-stone-100 hover:bg-stone-200/80 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-xl border border-stone-200/60 dark:border-stone-700/60 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                   title="تازه‌سازی لیست"
                 >
-                  <RefreshCw size={15} className={isLoadingTemplates ? 'animate-spin' : ''} />
+                  <RefreshCw size={14} className={isLoadingTemplates ? 'animate-spin' : ''} />
                   <span>تازه‌سازی</span>
                 </button>
 
@@ -471,34 +471,34 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
                     }
                     setIsUploadModalOpen(true);
                   }}
-                  className="bg-[#ff6438] hover:bg-[#f05427] text-white px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-md shadow-orange-500/20 active:scale-[0.98] transition-all cursor-pointer"
+                  className="bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-2xs active:scale-[0.98] transition-all cursor-pointer"
                 >
-                  <Plus size={16} />
-                  <span>آپلود و ثبت قالب جدید</span>
+                  <Plus size={15} />
+                  <span>آپلود قالب جدید</span>
                 </button>
               </div>
             </div>
 
             {/* Templates Grid */}
             {isLoadingTemplates ? (
-              <div className="flex flex-col items-center justify-center p-12 text-slate-400 gap-3">
-                <RefreshCw size={28} className="animate-spin text-[#ff6438]" />
-                <span className="text-xs font-bold">در حال دریافت قالب‌ها از Supabase...</span>
+              <div className="flex flex-col items-center justify-center p-12 text-stone-400 gap-3">
+                <RefreshCw size={24} className="animate-spin text-stone-600 dark:text-stone-300" />
+                <span className="text-xs font-medium">در حال دریافت قالب‌ها از Supabase...</span>
               </div>
             ) : templates.length === 0 ? (
-              <div className="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-orange-50 text-[#ff6438] flex items-center justify-center">
-                  <Upload size={30} />
+              <div className="bg-white dark:bg-[#1a1a19] rounded-2xl border border-dashed border-stone-300 dark:border-stone-800 p-8 sm:p-12 text-center flex flex-col items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700/60 flex items-center justify-center">
+                  <Upload size={24} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-800">هیچ قالبی در دیتابیس ابری ثبت نشده است</h3>
-                  <p className="text-xs text-slate-500 max-w-md mt-1 leading-relaxed">
-                    می‌توانید با زدن دکمه «آپلود و ثبت قالب جدید»، فایل‌های HTML یا کدهای سفارشی خود را در باکت Storage ذخیره کنید تا به برنامه اضافه شوند.
+                  <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">هیچ قالبی در دیتابیس ابری ثبت نشده است</h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 max-w-md mt-1 leading-relaxed">
+                    می‌توانید با زدن دکمه «آپلود قالب جدید»، فایل‌های HTML یا کدهای سفارشی خود را در باکت Storage ذخیره کنید.
                   </p>
                 </div>
                 <button
                   onClick={() => setIsUploadModalOpen(true)}
-                  className="mt-2 bg-[#ff6438] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-xs cursor-pointer hover:bg-[#f05427]"
+                  className="mt-1 bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 px-4 py-2 rounded-xl text-xs font-bold shadow-2xs cursor-pointer transition-all"
                 >
                   اولین قالب را اضافه کنید
                 </button>
@@ -508,27 +508,27 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
                 {templates.map((tpl) => (
                   <div
                     key={tpl.id}
-                    className="bg-white rounded-3xl border border-slate-200 p-5 flex flex-col justify-between shadow-2xs hover:shadow-md transition-all gap-4"
+                    className="bg-white dark:bg-[#1a1a19] rounded-2xl border border-stone-200/80 dark:border-stone-800/80 p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:shadow-xs transition-all gap-4"
                   >
                     <div className="flex flex-col gap-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2.5">
-                          <span className="text-2xl p-2 rounded-2xl bg-slate-50 border border-slate-100">
+                          <span className="text-xl p-2 rounded-xl bg-stone-50 dark:bg-stone-850 border border-stone-200/60 dark:border-stone-700/60">
                             {tpl.icon || '📑'}
                           </span>
                           <div>
-                            <h3 className="text-sm font-black text-slate-900">{tpl.title}</h3>
-                            <span className="text-[10px] text-slate-400 font-mono">
+                            <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">{tpl.title}</h3>
+                            <span className="text-[10px] text-stone-400 font-mono">
                               {tpl.created_at ? formatJalaliShort(new Date(tpl.created_at)) : ''}
                             </span>
                           </div>
                         </div>
 
                         <span
-                          className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                          className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-md ${
                             tpl.is_active
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-slate-100 text-slate-500'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
+                              : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400'
                           }`}
                         >
                           {tpl.is_active ? 'فعال در برنامه' : 'غیرفعال'}
@@ -536,34 +536,34 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
                       </div>
 
                       {tpl.description && (
-                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        <p className="text-xs text-stone-600 dark:text-stone-400 line-clamp-2 leading-relaxed">
                           {tpl.description}
                         </p>
                       )}
 
                       {/* Storage path badge */}
                       {tpl.storage_path && (
-                        <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono bg-slate-50 p-2 rounded-xl border border-slate-100 truncate">
-                          <FileCode size={13} className="shrink-0 text-slate-400" />
+                        <div className="flex items-center gap-1.5 text-[10px] text-stone-500 dark:text-stone-400 font-mono bg-stone-50 dark:bg-stone-850 p-2 rounded-lg border border-stone-200/60 dark:border-stone-700/60 truncate">
+                          <FileCode size={13} className="shrink-0 text-stone-400" />
                           <span className="truncate">{tpl.storage_path}</span>
                         </div>
                       )}
                     </div>
 
                     {/* Actions */}
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <div className="pt-3 border-t border-stone-100 dark:border-stone-800/70 flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => setIsPreviewOpen(tpl)}
-                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                          className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200/80 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
                         >
-                          <Eye size={14} />
+                          <Eye size={13} />
                           <span>پیش‌نمایش</span>
                         </button>
 
                         <button
                           onClick={() => handleToggleTemplateActive(tpl)}
-                          className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl text-xs font-medium transition-colors cursor-pointer"
+                          className="px-2.5 py-1.5 bg-stone-50 hover:bg-stone-100 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 rounded-lg text-xs font-medium transition-colors cursor-pointer"
                         >
                           {tpl.is_active ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
                         </button>
@@ -571,10 +571,10 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
 
                       <button
                         onClick={() => handleDeleteTemplate(tpl)}
-                        className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                        className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
                         title="حذف قالب"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={15} />
                       </button>
                     </div>
                   </div>
@@ -588,43 +588,43 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
         {activeTab === 'users' && (
           <div className="flex flex-col gap-6">
             {!isAdmin ? (
-              <div className="bg-amber-50 border border-amber-200 rounded-3xl p-8 text-center flex flex-col items-center gap-4">
-                <AlertTriangle size={36} className="text-amber-600" />
-                <h3 className="text-base font-black text-amber-900">دسترسی به بخش کاربران محدود است</h3>
-                <p className="text-xs text-amber-700 max-w-md leading-relaxed">
+              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-6 sm:p-8 text-center flex flex-col items-center gap-4">
+                <AlertTriangle size={32} className="text-amber-600 dark:text-amber-400" />
+                <h3 className="text-sm sm:text-base font-bold text-amber-900 dark:text-amber-200">دسترسی به بخش کاربران محدود است</h3>
+                <p className="text-xs text-amber-700 dark:text-amber-400 max-w-md leading-relaxed">
                   تنها کاربرانی با نقش «مدیر کل» (Admin) امکان مشاهده و تغییر نقش کاربران را دارند. لطفاً با حساب ادمین وارد شوید.
                 </p>
                 {!user && (
                   <button
                     onClick={() => setIsAuthModalOpen(true)}
-                    className="bg-amber-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer hover:bg-amber-700"
+                    className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-2xs"
                   >
                     ورود به حساب ادمین
                   </button>
                 )}
               </div>
             ) : (
-              <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-2xs">
-                <div className="p-5 border-b border-slate-200 flex items-center justify-between">
+              <div className="bg-white dark:bg-[#1a1a19] rounded-2xl border border-stone-200/80 dark:border-stone-800/80 overflow-hidden shadow-2xs">
+                <div className="p-4 sm:p-5 border-b border-stone-200/80 dark:border-stone-800/80 flex items-center justify-between">
                   <div>
-                    <h2 className="text-base font-black text-slate-900">لیست کاربران سیستم</h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100">لیست کاربران سیستم</h2>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
                       مشاهده کاربران عضو و مدیریت دسترسی ادمین
                     </p>
                   </div>
                   <button
                     onClick={loadUsers}
                     disabled={isLoadingProfiles}
-                    className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="p-2 sm:px-3 sm:py-1.5 bg-stone-100 hover:bg-stone-200/80 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-xl border border-stone-200/60 dark:border-stone-700/60 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <RefreshCw size={14} className={isLoadingProfiles ? 'animate-spin' : ''} />
+                    <RefreshCw size={13} className={isLoadingProfiles ? 'animate-spin' : ''} />
                     <span>تازه‌سازی</span>
                   </button>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-right text-xs">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
+                    <thead className="bg-stone-50 dark:bg-stone-900/60 border-b border-stone-200/80 dark:border-stone-800/80 text-stone-500 dark:text-stone-400 font-bold">
                       <tr>
                         <th className="py-3 px-4">کاربر</th>
                         <th className="py-3 px-4">ایمیل</th>
@@ -633,37 +633,37 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
                         <th className="py-3 px-4 text-center">عملیات دسترسی</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-stone-100 dark:divide-stone-800/70">
                       {profiles.map((p) => (
-                        <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-3.5 px-4 font-bold text-slate-800">
+                        <tr key={p.id} className="hover:bg-stone-50/60 dark:hover:bg-stone-850/40 transition-colors">
+                          <td className="py-3.5 px-4 font-bold text-stone-900 dark:text-stone-100">
                             {p.display_name || 'بدون نام'}
                           </td>
-                          <td className="py-3.5 px-4 font-mono text-slate-600" dir="ltr">
+                          <td className="py-3.5 px-4 font-mono text-stone-600 dark:text-stone-400" dir="ltr">
                             {p.email}
                           </td>
                           <td className="py-3.5 px-4">
                             <span
-                              className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
+                              className={`px-2.5 py-0.5 rounded-md font-semibold text-[10px] ${
                                 p.role === 'admin'
-                                  ? 'bg-orange-100 text-[#ff6438]'
-                                  : 'bg-slate-100 text-slate-600'
+                                  ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60'
+                                  : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'
                               }`}
                             >
                               {p.role === 'admin' ? 'مدیر کل (Admin)' : 'کاربر عادی'}
                             </span>
                           </td>
-                          <td className="py-3.5 px-4 text-slate-400 font-mono">
+                          <td className="py-3.5 px-4 text-stone-400 font-mono">
                             {p.created_at ? formatJalaliShort(new Date(p.created_at)) : '-'}
                           </td>
                           <td className="py-3.5 px-4 text-center">
                             <button
                               disabled={userRoleUpdatingId === p.id || p.id === user?.id}
                               onClick={() => handleToggleUserRole(p)}
-                              className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer disabled:opacity-40 ${
+                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer disabled:opacity-40 ${
                                 p.role === 'admin'
-                                  ? 'bg-rose-50 hover:bg-rose-100 text-rose-600'
-                                  : 'bg-orange-50 hover:bg-orange-100 text-[#ff6438]'
+                                  ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-900/60'
+                                  : 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200/80 dark:border-stone-700'
                               }`}
                             >
                               {p.role === 'admin' ? 'تبدیل به کاربر عادی' : 'ارتقا به مدیر کل'}
@@ -683,24 +683,24 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
         {activeTab === 'settings' && (
           <div className="flex flex-col gap-6">
             {/* Supabase API Connection Card */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col gap-5 shadow-2xs">
+            <div className="bg-white dark:bg-[#1a1a19] rounded-2xl border border-stone-200/80 dark:border-stone-800/80 p-5 sm:p-6 flex flex-col gap-5 shadow-2xs">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
-                    <Database size={18} className="text-[#ff6438]" />
+                  <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                    <Database size={16} className="text-stone-500 dark:text-stone-400" />
                     <span>تنظیمات و احراز هویت Supabase</span>
                   </h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    آدرس پروژه (Project URL) و کلید عمومی (anon key) را وارد کنید تا اتصال ذخیره‌سازی ابری و دیتابیس فعال شود.
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+                    آدرس پروژه (Project URL) و کلید عمومی (anon key) را وارد کنید تا اتصال ذخیره‌سازی ابری و پایگاه‌داده فعال شود.
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold ${
                       isSupabaseConfigured()
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : 'bg-amber-50 text-amber-700 border border-amber-200'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
+                        : 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60'
                     }`}
                   >
                     <span
@@ -715,8 +715,8 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5 text-right">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                    <Globe size={14} className="text-slate-400" />
+                  <label className="text-xs font-semibold text-stone-700 dark:text-stone-300 flex items-center gap-1">
+                    <Globe size={13} className="text-stone-400" />
                     <span>آدرس پروژه (Project URL)</span>
                   </label>
                   <input
@@ -725,13 +725,13 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
                     onChange={(e) => setSupabaseUrl(e.target.value)}
                     placeholder="https://xyzcompany.supabase.co"
                     dir="ltr"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-mono outline-none focus:border-[#ff6438] focus:bg-white transition-all text-left"
+                    className="w-full bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800/80 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 dark:text-stone-100 font-mono outline-none focus:border-stone-400 dark:focus:border-stone-600 focus:ring-1 focus:ring-stone-400/20 transition-all text-left"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5 text-right">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                    <Key size={14} className="text-slate-400" />
+                  <label className="text-xs font-semibold text-stone-700 dark:text-stone-300 flex items-center gap-1">
+                    <Key size={13} className="text-stone-400" />
                     <span>کلید عمومی ناشناس (anon key)</span>
                   </label>
                   <input
@@ -740,34 +740,34 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
                     onChange={(e) => setSupabaseKey(e.target.value)}
                     placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                     dir="ltr"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 font-mono outline-none focus:border-[#ff6438] focus:bg-white transition-all text-left"
+                    className="w-full bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800/80 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 dark:text-stone-100 font-mono outline-none focus:border-stone-400 dark:focus:border-stone-600 focus:ring-1 focus:ring-stone-400/20 transition-all text-left"
                   />
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
+              <div className="flex flex-wrap items-center gap-3 pt-1">
                 <button
                   onClick={handleSaveConfig}
-                  className="bg-[#ff6438] hover:bg-[#f05427] text-white px-5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-xs cursor-pointer transition-colors"
+                  className="bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-2xs cursor-pointer transition-all active:scale-95"
                 >
-                  <Check size={16} />
+                  <Check size={14} />
                   <span>ذخیره و آزمایش اتصال</span>
                 </button>
 
                 <button
                   onClick={handleTestConnection}
                   disabled={isTesting}
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
+                  className="bg-stone-100 hover:bg-stone-200/80 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 px-3.5 py-2 rounded-xl text-xs font-semibold border border-stone-200/60 dark:border-stone-700/60 flex items-center gap-2 transition-colors cursor-pointer"
                 >
-                  <RefreshCw size={14} className={isTesting ? 'animate-spin' : ''} />
+                  <RefreshCw size={13} className={isTesting ? 'animate-spin' : ''} />
                   <span>{isTesting ? 'در حال تست...' : 'تست مجدد اتصال'}</span>
                 </button>
 
                 {isSupabaseConfigured() && (
                   <button
                     onClick={handleClearConfig}
-                    className="text-slate-400 hover:text-rose-600 text-xs font-bold px-3 py-2 transition-colors cursor-pointer"
+                    className="text-stone-400 hover:text-rose-600 text-xs font-medium px-2 py-1.5 transition-colors cursor-pointer"
                   >
                     حذف تنظیمات ذخیره‌شده
                   </button>
@@ -777,17 +777,17 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
               {/* Diagnostic Test Result Box */}
               {testResult && (
                 <div
-                  className={`p-4 rounded-2xl border text-xs flex flex-col gap-2 ${
+                  className={`p-3.5 rounded-xl border text-xs flex flex-col gap-2 ${
                     testResult.success
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                      : 'bg-rose-50 border-rose-200 text-rose-800'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200'
+                      : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200'
                   }`}
                 >
                   <div className="flex items-center gap-2 font-bold">
                     {testResult.success ? (
-                      <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                      <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                     ) : (
-                      <AlertTriangle size={16} className="text-rose-600 shrink-0" />
+                      <AlertTriangle size={15} className="text-rose-600 dark:text-rose-400 shrink-0" />
                     )}
                     <span>{testResult.message}</span>
                   </div>
@@ -809,28 +809,28 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
             </div>
 
             {/* SQL Migration Schema & Instructions */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col gap-4 shadow-2xs">
+            <div className="bg-white dark:bg-[#1a1a19] rounded-2xl border border-stone-200/80 dark:border-stone-800/80 p-5 sm:p-6 flex flex-col gap-4 shadow-2xs">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
-                    <FileCode size={18} className="text-[#ff6438]" />
+                  <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                    <FileCode size={16} className="text-stone-500 dark:text-stone-400" />
                     <span>اسکریپت ساخت دیتابیس و باکت Storage در Supabase</span>
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
                     کد زیر را کپی کرده و در بخش <b>SQL Editor</b> پنل Supabase دکمه <b>Run</b> را بزنید تا جداول و باکت به صورت خودکار ایجاد شوند.
                   </p>
                 </div>
 
                 <button
                   onClick={copySqlToClipboard}
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="bg-stone-100 hover:bg-stone-200/80 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 px-3 py-1.5 rounded-lg text-xs font-semibold border border-stone-200/60 dark:border-stone-700/60 flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  {copiedSql ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
-                  <span>{copiedSql ? 'کپی شد!' : 'کپی کل اسکریپت SQL'}</span>
+                  {copiedSql ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+                  <span>{copiedSql ? 'کپی شد!' : 'کپی اسکریپت SQL'}</span>
                 </button>
               </div>
 
-              <div className="bg-slate-900 text-slate-200 p-4 rounded-2xl font-mono text-[11px] max-h-64 overflow-y-auto leading-relaxed text-left" dir="ltr">
+              <div className="bg-stone-900 text-stone-200 p-4 rounded-xl font-mono text-[11px] max-h-64 overflow-y-auto leading-relaxed text-left border border-stone-800" dir="ltr">
                 <pre>{sqlSchemaSnippet}</pre>
               </div>
             </div>
@@ -840,28 +840,28 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
 
       {/* ===================== UPLOAD MODAL ===================== */}
       {isUploadModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-xl w-full shadow-2xl border border-slate-100 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-xs">
+          <div className="bg-white dark:bg-[#1a1a19] rounded-2xl p-5 sm:p-6 max-w-xl w-full shadow-xl border border-stone-200/80 dark:border-stone-800/80 flex flex-col gap-5 max-h-[90vh] overflow-y-auto text-stone-900 dark:text-stone-100">
+            <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800/70 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-orange-100 text-[#ff6438] flex items-center justify-center">
-                  <Upload size={20} />
+                <div className="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700/60 flex items-center justify-center">
+                  <Upload size={17} />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900">آپلود و انتشار قالب جدید</h3>
-                  <span className="text-xs text-slate-500">ذخیره در Storage و همگام‌سازی ابری</span>
+                  <h3 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100">آپلود و انتشار قالب جدید</h3>
+                  <span className="text-xs text-stone-500 dark:text-stone-400">ذخیره در Storage و همگام‌سازی ابری</span>
                 </div>
               </div>
               <button
                 onClick={() => setIsUploadModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             {uploadError && (
-              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-2xl flex items-center gap-2">
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-rose-200 text-xs rounded-xl flex items-center gap-2">
                 <AlertTriangle size={15} className="shrink-0" />
                 <span>{uploadError}</span>
               </div>
@@ -870,47 +870,47 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
             <form onSubmit={handleUploadTemplateSubmit} className="flex flex-col gap-4 text-right">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-700">عنوان قالب</label>
+                  <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">عنوان قالب</label>
                   <input
                     type="text"
                     required
                     value={uploadTitle}
                     onChange={(e) => setUploadTitle(e.target.value)}
                     placeholder="مثلاً: پلنر هفتگی اولویت‌ها"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-[#ff6438] focus:bg-white"
+                    className="w-full bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800/80 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 dark:text-stone-100 outline-none focus:border-stone-400 dark:focus:border-stone-600 focus:ring-1 focus:ring-stone-400/20"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-700">نشان / برچسب (Badge)</label>
+                  <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">نشان / برچسب (Badge)</label>
                   <input
                     type="text"
                     value={uploadBadge}
                     onChange={(e) => setUploadBadge(e.target.value)}
                     placeholder="مثلاً: قالب اختصاصی"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-[#ff6438] focus:bg-white"
+                    className="w-full bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800/80 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 dark:text-stone-100 outline-none focus:border-stone-400 dark:focus:border-stone-600 focus:ring-1 focus:ring-stone-400/20"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-700">آیکون (ایموجی)</label>
+                  <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">آیکون (ایموجی)</label>
                   <input
                     type="text"
                     value={uploadIcon}
                     onChange={(e) => setUploadIcon(e.target.value)}
                     placeholder="📑"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-[#ff6438] focus:bg-white text-center"
+                    className="w-full bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800/80 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 dark:text-stone-100 outline-none focus:border-stone-400 dark:focus:border-stone-600 focus:ring-1 focus:ring-stone-400/20 text-center"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-700">دسته‌بندی</label>
+                  <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">دسته‌بندی</label>
                   <select
                     value={uploadCategory}
                     onChange={(e) => setUploadCategory(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-[#ff6438] focus:bg-white cursor-pointer"
+                    className="w-full bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800/80 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 dark:text-stone-100 outline-none focus:border-stone-400 dark:focus:border-stone-600 cursor-pointer"
                   >
                     <option value="daily">برنامه روزانه (Daily)</option>
                     <option value="weekly">برنامه هفتگی (Weekly)</option>
@@ -922,30 +922,30 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">توضیحات کوتاه</label>
+                <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">توضیحات کوتاه</label>
                 <input
                   type="text"
                   value={uploadDesc}
                   onChange={(e) => setUploadDesc(e.target.value)}
                   placeholder="توضیح کوتاه درباره کاربرد و نحوه تکمیل این برگه..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-[#ff6438] focus:bg-white"
+                  className="w-full bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800/80 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 dark:text-stone-100 outline-none focus:border-stone-400 dark:focus:border-stone-600 focus:ring-1 focus:ring-stone-400/20"
                 />
               </div>
 
               {/* Upload File Box */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-slate-700">
+                <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
                   انتخاب فایل HTML قالب (اختیاری در صورت نوشتن مستقیم کد)
                 </label>
-                <div className="border border-dashed border-slate-300 rounded-2xl p-4 bg-slate-50 flex items-center justify-between">
+                <div className="border border-dashed border-stone-300 dark:border-stone-700 rounded-xl p-3.5 bg-stone-50 dark:bg-stone-900/40 flex items-center justify-between">
                   <input
                     type="file"
                     accept=".html,.htm"
                     onChange={handleHtmlFileChange}
-                    className="text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#ff6438] file:text-white hover:file:bg-[#f05427] cursor-pointer"
+                    className="text-xs text-stone-600 dark:text-stone-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-stone-900 file:text-stone-100 dark:file:bg-stone-100 dark:file:text-stone-900 hover:file:bg-stone-800 cursor-pointer"
                   />
                   {htmlFile && (
-                    <span className="text-xs font-bold text-emerald-600">
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                       ✓ {htmlFile.name}
                     </span>
                   )}
@@ -954,7 +954,7 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
 
               {/* Raw HTML Code Editor / Paste Box */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">
+                <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
                   محتوای کد HTML قالب
                 </label>
                 <textarea
@@ -963,15 +963,15 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
                   rows={6}
                   dir="ltr"
                   placeholder="<!DOCTYPE html>..."
-                  className="w-full bg-slate-900 text-slate-100 font-mono text-xs p-3 rounded-2xl outline-none focus:ring-2 focus:ring-[#ff6438]"
+                  className="w-full bg-stone-900 text-stone-100 font-mono text-xs p-3 rounded-xl outline-none border border-stone-800 focus:border-stone-600"
                 />
               </div>
 
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-3">
+              <div className="pt-2 border-t border-stone-100 dark:border-stone-800/70 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsUploadModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 cursor-pointer"
+                  className="px-3.5 py-2 rounded-lg text-xs font-semibold text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer transition-colors"
                 >
                   انصراف
                 </button>
@@ -979,9 +979,9 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
                 <button
                   type="submit"
                   disabled={isSubmittingTemplate}
-                  className="bg-[#ff6438] hover:bg-[#f05427] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-xs cursor-pointer transition-colors disabled:opacity-50"
+                  className="bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-white text-stone-50 dark:text-stone-900 px-4 py-2 rounded-xl text-xs font-bold shadow-2xs cursor-pointer transition-all disabled:opacity-50"
                 >
-                  {isSubmittingTemplate ? 'در حال آپلود در Storage...' : 'ذخیره و انتشار قالب'}
+                  {isSubmittingTemplate ? 'در حال آپلود...' : 'ذخیره و انتشار قالب'}
                 </button>
               </div>
             </form>
@@ -991,25 +991,25 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
 
       {/* ===================== PREVIEW MODAL ===================== */}
       {isPreviewOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl p-5 max-w-3xl w-full shadow-2xl border border-slate-100 flex flex-col gap-4 max-h-[90vh]">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-xs">
+          <div className="bg-white dark:bg-[#1a1a19] rounded-2xl p-5 max-w-3xl w-full shadow-xl border border-stone-200/80 dark:border-stone-800/80 flex flex-col gap-4 max-h-[90vh]">
+            <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800/70 pb-3">
               <div className="flex items-center gap-2">
                 <span className="text-xl">{isPreviewOpen.icon}</span>
-                <h3 className="text-sm font-black text-slate-900">{isPreviewOpen.title}</h3>
-                <span className="text-[10px] bg-orange-100 text-[#ff6438] font-bold px-2 py-0.5 rounded-full">
+                <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">{isPreviewOpen.title}</h3>
+                <span className="text-[10px] bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-medium px-2 py-0.5 rounded-md border border-stone-200/60 dark:border-stone-700/60">
                   {isPreviewOpen.badge}
                 </span>
               </div>
               <button
                 onClick={() => setIsPreviewOpen(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden min-h-[450px]">
+            <div className="flex-1 bg-stone-50 dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800/80 rounded-xl overflow-hidden min-h-[450px]">
               <iframe
                 srcDoc={isPreviewOpen.html_content}
                 title={isPreviewOpen.title}

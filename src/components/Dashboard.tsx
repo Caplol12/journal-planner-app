@@ -469,6 +469,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             {/* Actions: Add HTML Template Button + Counter */}
             <div className="flex items-center gap-2.5">
+              <a
+                href="/planner_motion_video.html"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => sound.playSwoosh()}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs active:scale-95"
+                title="مشاهده نمایشگر حرکتی و گیمینگ افقی پلنرها"
+              >
+                <Sparkles size={14} />
+                <span>استودیوی گیمینگ و موشن پلنر</span>
+              </a>
+
               <button
                 type="button"
                 onClick={() => {

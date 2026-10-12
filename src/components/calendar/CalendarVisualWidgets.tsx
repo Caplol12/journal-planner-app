@@ -456,13 +456,13 @@ export const SolarDayArcWidget: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex flex-col gap-2">
+    <div className="p-3.5 rounded-2xl bg-stone-50/80 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800/80 flex flex-col gap-2 transition-colors">
       <div className="flex items-center justify-between text-xs">
-        <span className="font-semibold text-slate-300 flex items-center gap-1.5">
-          <Sun size={13} className="text-amber-400" />
+        <span className="font-semibold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
+          <Sun size={13} className="text-amber-500" />
           <span>افق خورشیدی و روشنایی روز</span>
         </span>
-        <span className="text-[10px] font-mono text-cyan-300">
+        <span className="text-[10px] font-mono text-stone-600 dark:text-stone-400">
           {toPersianDigits(metrics.progressPct)}٪ روز سپری شده
         </span>
       </div>
@@ -472,12 +472,12 @@ export const SolarDayArcWidget: React.FC = () => {
         <svg viewBox="0 0 200 80" className="w-full h-full max-w-[240px]">
           <defs>
             <linearGradient id="solarArcGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.4" />
-              <stop offset="50%" stopColor="#38bdf8" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.4" />
+              <stop offset="0%" stopColor="#b47820" stopOpacity="0.5" />
+              <stop offset="50%" stopColor="#c2593f" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#b47820" stopOpacity="0.5" />
             </linearGradient>
             <filter id="sunGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -486,14 +486,15 @@ export const SolarDayArcWidget: React.FC = () => {
           </defs>
 
           {/* Horizon Base Line */}
-          <line x1="25" y1="70" x2="175" y2="70" stroke="#334155" strokeWidth="1.5" strokeDasharray="3 3" />
+          <line x1="25" y1="70" x2="175" y2="70" stroke="currentColor" className="text-stone-300 dark:text-stone-700" strokeWidth="1.2" strokeDasharray="3 3" />
 
           {/* Dotted Orbit Path Arc */}
           <path
             d="M 45 70 A 55 55 0 0 1 155 70"
             fill="none"
-            stroke="#1e293b"
-            strokeWidth="3"
+            stroke="currentColor"
+            className="text-stone-200 dark:text-stone-800"
+            strokeWidth="2.5"
           />
 
           {/* Active Colored Arc */}
@@ -508,39 +509,39 @@ export const SolarDayArcWidget: React.FC = () => {
           />
 
           {/* Sunrise indicator */}
-          <circle cx="45" cy="70" r="3" fill="#f59e0b" />
-          <text x="45" y="79" fontSize="6" fill="#94a3b8" textAnchor="middle" fontFamily="sans-serif">
+          <circle cx="45" cy="70" r="3" fill="#b47820" />
+          <text x="45" y="79" fontSize="6" fill="currentColor" className="text-stone-500 dark:text-stone-400" textAnchor="middle" fontFamily="sans-serif">
             ۰۶:۰۰
           </text>
 
           {/* Sunset indicator */}
-          <circle cx="155" cy="70" r="3" fill="#f43f5e" />
-          <text x="155" y="79" fontSize="6" fill="#94a3b8" textAnchor="middle" fontFamily="sans-serif">
+          <circle cx="155" cy="70" r="3" fill="#c2593f" />
+          <text x="155" y="79" fontSize="6" fill="currentColor" className="text-stone-500 dark:text-stone-400" textAnchor="middle" fontFamily="sans-serif">
             ۱۸:۳۰
           </text>
 
           {/* Moving Sun Orb */}
           {metrics.isDay ? (
             <g transform={`translate(${metrics.sunX}, ${metrics.sunY})`}>
-              <circle r="7" fill="#facc15" filter="url(#sunGlow)" opacity="0.9" />
-              <circle r="3.5" fill="#ffffff" />
+              <circle r="6" fill="#f59e0b" filter="url(#sunGlow)" opacity="0.95" />
+              <circle r="3" fill="#ffffff" />
             </g>
           ) : (
             <g transform="translate(100, 70)">
-              <circle r="4" fill="#64748b" opacity="0.7" />
+              <circle r="3.5" fill="#78716c" opacity="0.6" />
             </g>
           )}
         </svg>
       </div>
 
-      <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono px-1">
+      <div className="flex items-center justify-between text-[10px] text-stone-500 dark:text-stone-400 font-mono px-1">
         <span className="flex items-center gap-1">
-          <Sunrise size={11} className="text-amber-400" />
+          <Sunrise size={11} className="text-amber-500" />
           <span>طلوع آفتاب</span>
         </span>
-        <span className="text-slate-300 font-semibold">{metrics.nowStr} اکنون</span>
+        <span className="text-stone-700 dark:text-stone-300 font-semibold">{metrics.nowStr} اکنون</span>
         <span className="flex items-center gap-1">
-          <Sunset size={11} className="text-rose-400" />
+          <Sunset size={11} className="text-rose-500" />
           <span>غروب آفتاب</span>
         </span>
       </div>
@@ -576,28 +577,22 @@ export const ZodiacConstellationCard: React.FC<ZodiacConstellationCardProps> = (
 
   return (
     <div
-      className={`p-3.5 rounded-2xl bg-gradient-to-br ${zodiac.gradient} bg-slate-950/70 border border-slate-800/90 relative overflow-hidden transition-all duration-300`}
+      className="p-3.5 rounded-2xl bg-stone-50/80 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800/80 relative overflow-hidden transition-all duration-300"
     >
-      {/* Background Star Glow */}
-      <div
-        className="absolute top-0 right-0 w-28 h-28 rounded-full blur-2xl opacity-20 pointer-events-none"
-        style={{ backgroundColor: zodiac.glowColor }}
-      />
-
       <div className="flex items-center justify-between relative z-10">
         <div>
           <div className="flex items-center gap-1.5">
             <span className="text-sm">{zodiac.symbol}</span>
-            <span className="text-xs font-bold text-white tracking-wide">
+            <span className="text-xs font-bold text-stone-900 dark:text-stone-100 tracking-wide">
               صورت فلکی {zodiac.zodiacSign}
             </span>
           </div>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-[10px] font-mono text-slate-400">
+            <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
               {zodiac.latinName} · فصل {zodiac.seasonName}
             </span>
-            <span className="inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.2 rounded-md bg-slate-800/80 text-slate-300 border border-slate-700">
-              <ElementIcon size={10} className="text-cyan-400" />
+            <span className="inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.2 rounded-md bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-300/60 dark:border-stone-700">
+              <ElementIcon size={10} className="text-stone-600 dark:text-stone-400" />
               <span>عنصر {zodiac.element}</span>
             </span>
           </div>
@@ -618,9 +613,10 @@ export const ZodiacConstellationCard: React.FC<ZodiacConstellationCardProps> = (
                   y1={s1.y}
                   x2={s2.x}
                   y2={s2.y}
-                  stroke={zodiac.glowColor}
+                  stroke="currentColor"
+                  className="text-stone-400 dark:text-stone-600"
                   strokeWidth="1.2"
-                  strokeOpacity="0.45"
+                  strokeOpacity="0.7"
                   strokeDasharray="2 1"
                 />
               );
@@ -633,8 +629,8 @@ export const ZodiacConstellationCard: React.FC<ZodiacConstellationCardProps> = (
                   <circle
                     cx={s.x}
                     cy={s.y}
-                    r={s.r * 2}
-                    fill={zodiac.glowColor}
+                    r={s.r * 1.8}
+                    fill="#c2593f"
                     opacity="0.3"
                   />
                 )}
@@ -642,9 +638,8 @@ export const ZodiacConstellationCard: React.FC<ZodiacConstellationCardProps> = (
                   cx={s.x}
                   cy={s.y}
                   r={s.r}
-                  fill="#ffffff"
-                  stroke={zodiac.glowColor}
-                  strokeWidth="0.8"
+                  fill={s.main ? '#c2593f' : 'currentColor'}
+                  className={s.main ? '' : 'text-stone-800 dark:text-stone-200'}
                 />
               </g>
             ))}
@@ -670,17 +665,17 @@ export const DayMoodStickerPicker: React.FC<DayMoodStickerPickerProps> = ({
   onSelectSticker,
 }) => {
   return (
-    <div className="flex flex-col gap-2 p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80">
+    <div className="flex flex-col gap-2 p-3 rounded-2xl bg-stone-50/80 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800/80 transition-colors">
       <div className="flex items-center justify-between text-xs">
-        <span className="font-semibold text-slate-300 flex items-center gap-1.5">
-          <Sparkles size={13} className="text-cyan-400" />
+        <span className="font-semibold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
+          <Sparkles size={13} className="text-amber-500" />
           <span>استیکر و حال‌وهوای این روز</span>
         </span>
         {activeStickerId && (
           <button
             type="button"
             onClick={() => onSelectSticker(null)}
-            className="text-[10px] text-slate-400 hover:text-rose-400 cursor-pointer"
+            className="text-[10px] text-stone-500 hover:text-rose-600 dark:text-stone-400 dark:hover:text-rose-400 cursor-pointer transition-colors"
           >
             حذف برچسب
           </button>
@@ -699,12 +694,12 @@ export const DayMoodStickerPicker: React.FC<DayMoodStickerPickerProps> = ({
               title={stk.title}
               className={`p-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 active:scale-95 ${
                 isSelected
-                  ? 'bg-cyan-500/20 border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.4)] scale-105'
-                  : 'bg-slate-900/50 hover:bg-slate-800/60 border-slate-800/70'
+                  ? 'bg-stone-200 dark:bg-stone-800 border-stone-800 dark:border-stone-200 ring-1 ring-stone-800 dark:ring-stone-200 shadow-2xs'
+                  : 'bg-white dark:bg-stone-900/60 hover:bg-stone-100 dark:hover:bg-stone-800/60 border-stone-200/60 dark:border-stone-800'
               }`}
             >
               <span className="text-base leading-none">{stk.emoji}</span>
-              <span className="text-[9px] text-slate-300 truncate w-full text-center">
+              <span className="text-[9px] text-stone-700 dark:text-stone-300 truncate w-full text-center">
                 {stk.title}
               </span>
             </button>

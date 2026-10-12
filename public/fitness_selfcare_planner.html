@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>برنامه‌ریز سلامتی و مراقبت فردی تعاملی</title>
+  
+  <!-- ۱. بارگذاری فونت‌های فارسی استاندارد و پشتیبان -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600;700&family=Lalezar&family=Playfair+Display:ital,wght@1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v3.4.0/dist/font-face.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@v5.0.1/dist/font-face.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@v4.0.5/dist/font-face.css">
+
+  <style>
+    /* ۲. اتصال کامل به متغیرهای تایپوگرافی والد سیستم ژورنال بدون هاردکد */
+    :root {
+      --sheet-font-family: 'Vazirmatn', sans-serif;
+      --sheet-font-size: 14px;
+      --sheet-font-weight: 400;
+      --sheet-font-style: normal;
+      --sheet-text-decoration: none;
+      --sheet-text-align: right;
+      --sheet-text-color: #1e293b;
+
+      --primary-green: #7d9d83;
+      --light-green: #d1dfd4;
+      --table-border: #4d5e52;
+      --bg-page: #f4f6f4;
+      --ink: #1f3a2b;
+      --water-blue: #72b7d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    /* ۳. هماهنگی با ابزار قلم و دست‌نویس: بدون اسکرول داخلی و با ارتفاع طبیعی */
+    html, body {
+      height: auto;
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: visible;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      font-family: var(--sheet-font-family, 'Vazirmatn', sans-serif);
+      font-size: var(--sheet-font-size, 14px);
+      font-weight: var(--sheet-font-weight, 400);
+      font-style: var(--sheet-font-style, normal);
+      text-decoration: var(--sheet-text-decoration, none);
+      text-align: var(--sheet-text-align, right);
+      color: var(--sheet-text-color, #1e293b);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+
+    /* تمام المان‌های متنی متغیرهای تایپوگرافی را به ارث می‌برند */
+    input, textarea, p, h1, h2, h3, h4, li, span, td, th {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    /* نوار کنترل بالا */
+    .app-header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      background: #ffffff;
+      padding: 10px 18px;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      font-family: var(--sheet-font-family, 'Vazirmatn', sans-serif);
+    }
+
+    .tabs-nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      background: #eef3ef;
+      border: 1px solid #d4dfd6;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 13px;
+      color: #435948;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-green);
+      color: white;
+      border-color: var(--primary-green);
+      box-shadow: 0 3px 10px rgba(125, 157, 131, 0.35);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .action-btn {
+      background: #ffffff;
+      border: 1px solid #cfdad1;
+      padding: 7px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: #3b4c3e;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: #f0f4f1;
+    }
+
+    /* کانتینر اصلی برگه‌ها */
+    .planners-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    /* استایل برگه کاغذی: بدون اسکرول داخلی، هماهنگ با لایه قلم و طراحی */
+    .sheet-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 540px;
+      min-height: 955px;
+      height: auto;
+      border-radius: 4px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid #e1e7e2;
+      padding: 30px 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      user-select: none;
+      overflow: visible;
+    }
+
+    /* ورودی‌های متنی با پس‌زمینه دفترچه‌ای و اتصال به فونت والد */
+    input.handwrite, textarea.handwrite {
+      font-family: var(--sheet-font-family, 'Vazirmatn', 'Caveat', cursive, sans-serif);
+      font-size: var(--sheet-font-size, 14px);
+      font-weight: var(--sheet-font-weight, 500);
+      font-style: var(--sheet-font-style, normal);
+      text-decoration: var(--sheet-text-decoration, none);
+      text-align: var(--sheet-text-align, right);
+      color: var(--sheet-text-color, var(--ink));
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 100%;
+      transition: background 0.15s;
+    }
+
+    input.handwrite:focus, textarea.handwrite:focus {
+      background: rgba(209, 223, 212, 0.2);
+    }
+
+    /* پس‌زمینه خط‌دار دفترچه‌ای (repeating-linear-gradient) برای بخش‌های یادداشت و برنامه‌ریزی */
+    .meal-lines,
+    .grid-table td,
+    .cat-table td.act-cell {
+      background-image: repeating-linear-gradient(
+        transparent,
+        transparent 23px,
+        rgba(125, 157, 131, 0.25) 24px
+      );
+      background-size: 100% 24px;
+      line-height: 24px;
+    }
+
+    .cat-table td.act-cell {
+      background-image: repeating-linear-gradient(
+        transparent,
+        transparent 19px,
+        rgba(108, 136, 114, 0.22) 20px
+      );
+      background-size: 100% 20px;
+      line-height: 20px;
+    }
+
+    /* =================== برگه اول: فیتنس =================== */
+    .fitness-title {
+      font-family: var(--sheet-font-family, 'Playfair Display', 'Vazirmatn', serif);
+      font-size: calc(var(--sheet-font-size, 14px) * 2.2);
+      font-weight: var(--sheet-font-weight, 700);
+      font-style: var(--sheet-font-style, italic);
+      text-decoration: var(--sheet-text-decoration, none);
+      text-align: center;
+      color: #4a6750;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      cursor: text;
+      outline: none;
+    }
+
+    .date-day-row {
+      background: #d8e6db;
+      border-radius: 2px;
+      padding: 6px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: var(--sheet-font-size, 13px);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .meta-field {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1.5px solid var(--table-border);
+      margin-bottom: 14px;
+    }
+
+    .grid-table th {
+      background: #c5dac9;
+      color: #1f2b22;
+      font-weight: 600;
+      font-size: calc(var(--sheet-font-size, 14px) * 0.92);
+      padding: 6px 4px;
+      border: 1px solid var(--table-border);
+      text-align: center;
+    }
+
+    .grid-table td {
+      border: 1px solid var(--table-border);
+      padding: 2px 4px;
+      height: 24px;
+      vertical-align: middle;
+    }
+
+    /* آیکون‌های ورزشی انتخابی */
+    .activity-icons {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 4px 0 10px 0;
+    }
+
+    .act-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    .act-btn svg {
+      width: 30px;
+      height: 30px;
+      stroke: #6c8a73;
+      stroke-width: 1.6;
+      fill: none;
+      transition: all 0.2s;
+    }
+
+    .act-btn.selected {
+      background: #d6e5d9;
+      transform: scale(1.15);
+    }
+
+    .act-btn.selected svg {
+      stroke: #254a2e;
+      stroke-width: 2.2;
+    }
+
+    /* کارت‌های وعده غذایی */
+    .meals-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      margin-bottom: 12px;
+    }
+
+    .meal-box {
+      border: 1px solid #7d9982;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .meal-header {
+      background: #c6dacb;
+      text-align: center;
+      font-size: calc(var(--sheet-font-size, 14px) * 0.88);
+      font-weight: 700;
+      padding: 3px;
+      color: #2b3a2f;
+      letter-spacing: 0.3px;
+    }
+
+    .meal-lines {
+      padding: 4px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meal-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bullet {
+      width: 4px;
+      height: 4px;
+      background: #2b3a2f;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* مصرف آب (لیوان‌ها) */
+    .water-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .water-label {
+      font-size: calc(var(--sheet-font-size, 14px) * 0.88);
+      font-weight: 700;
+      line-height: 1.2;
+      color: #2d3f32;
+    }
+
+    .glasses-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .glass-btn {
+      width: 21px;
+      height: 30px;
+      background: transparent;
+      border: 1.5px solid #6b8672;
+      border-radius: 2px 2px 5px 5px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .glass-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 0%;
+      background: #76bdda;
+      transition: height 0.25s ease;
+    }
+
+    .glass-btn.filled {
+      border-color: #4a91ad;
+    }
+
+    .glass-btn.filled::after {
+      height: 75%;
+    }
+
+    /* =================== برگه دوم: چک‌لیست خودمراقبتی =================== */
+    .banner-ribbon {
+      background: #c1d5c5;
+      text-align: center;
+      padding: 8px 16px;
+      clip-path: polygon(4% 0%, 96% 0%, 100% 50%, 96% 100%, 4% 100%, 0% 50%);
+      margin-bottom: 14px;
+    }
+
+    .checklist-title {
+      font-family: var(--sheet-font-family, 'Playfair Display', 'Vazirmatn', serif);
+      font-size: calc(var(--sheet-font-size, 14px) * 1.85);
+      font-weight: var(--sheet-font-weight, 700);
+      font-style: var(--sheet-font-style, italic);
+      text-decoration: var(--sheet-text-decoration, none);
+      text-align: center;
+      color: #2e4533;
+      cursor: text;
+      outline: none;
+    }
+
+    .category-card {
+      border: 1.5px solid #6c8872;
+      margin-bottom: 12px;
+      border-radius: 2px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .category-title {
+      background: #9ab9a0;
+      color: #17271b;
+      text-align: center;
+      font-weight: 700;
+      font-size: calc(var(--sheet-font-size, 14px) * 0.92);
+      padding: 3px;
+    }
+
+    .cat-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .cat-table th {
+      background: #d6e4d9;
+      font-size: calc(var(--sheet-font-size, 14px) * 0.8);
+      font-weight: 700;
+      border: 1px solid #738f79;
+      padding: 3px 1px;
+      text-align: center;
+      color: #2b3a2e;
+    }
+
+    .cat-table th.act-head {
+      text-align: start;
+      padding-right: 8px;
+      padding-left: 8px;
+      width: 48%;
+    }
+
+    .cat-table td {
+      border: 1px solid #829d88;
+      height: 20px;
+      padding: 0;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .cat-table td.act-cell {
+      padding-right: 6px;
+      padding-left: 6px;
+      text-align: start;
+    }
+
+    /* دایره‌های تیک چک‌لیست */
+    .circle-check {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid #6d8673;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: #ffffff;
+      transition: all 0.15s ease;
+      margin: auto;
+    }
+
+    .circle-check.checked {
+      background: #507b5a;
+      border-color: #38593f;
+    }
+
+    .circle-check.checked::after {
+      content: '✓';
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    /* ذرات جرقه‌ای انیمیشن */
+    .particle {
+      position: absolute;
+      pointer-events: none;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      animation: fly 0.6s ease-out forwards;
+      z-index: 999;
+    }
+
+    @keyframes fly {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .app-header { display: none; }
+      .planners-wrapper { display: block; }
+      .sheet-card { box-shadow: none; border: none; page-break-after: always; max-width: 100%; min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- نوار ابزار کنترل بالا -->
+  <header class="app-header">
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchView('both')">نمایش هر دو صفحه</button>
+      <button class="tab-btn" onclick="switchView('fitness')">Daily Fitness Tracker</button>
+      <button class="tab-btn" onclick="switchView('checklist')">Daily Self-care Checklist</button>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn" id="soundToggle" onclick="toggleMute()">
+        <span id="soundIcon">🔊</span> صدا فعال
+      </button>
+      <button class="action-btn" onclick="fillSampleData()">⚡ پر کردن نمونه</button>
+      <button class="action-btn" onclick="clearAllData()">🗑️ پاکسازی</button>
+      <button class="action-btn" onclick="window.print()">🖨️ چاپ / PDF</button>
+    </div>
+  </header>
+
+  <main class="planners-wrapper">
+    
+    <!-- برگه ۱: Daily Fitness Tracker -->
+    <div class="sheet-card" id="sheet-fitness">
+      <h1 class="fitness-title" tabindex="0" role="textbox" aria-label="Daily Fitness Tracker">Daily Fitness Tracker</h1>
+
+      <div class="date-day-row">
+        <div class="meta-field">
+          <span>Date:</span>
+          <input type="text" class="handwrite" id="fit_date" placeholder="____ /____ /____" style="width: 120px;">
+        </div>
+        <div class="meta-field">
+          <span>Day:</span>
+          <input type="text" class="handwrite" id="fit_day" placeholder="____________" style="width: 100px;">
+        </div>
+      </div>
+
+      <!-- جدول بخش اول: Workout / Time / Daily Goal -->
+      <table class="grid-table">
+        <thead>
+          <tr>
+            <th style="width: 40%;">Workout</th>
+            <th style="width: 25%;">Time</th>
+            <th style="width: 35%;">Daily Goal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" class="handwrite" id="fit_w1"></td>
+            <td><input type="text" class="handwrite" id="fit_t1"></td>
+            <td><input type="text" class="handwrite" id="fit_g1"></td>
+          </tr>
+          <tr>
+            <td><input type="text" class="handwrite" id="fit_w2"></td>
+            <td><input type="text" class="handwrite" id="fit_t2"></td>
+            <td><input type="text" class="handwrite" id="fit_g2"></td>
+          </tr>
+          <tr>
+            <td><input type="text" class="handwrite" id="fit_w3"></td>
+            <td><input type="text" class="handwrite" id="fit_t3"></td>
+            <td><input type="text" class="handwrite" id="fit_g3"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- آیکون‌های تعاملی ورزش -->
+      <div class="activity-icons">
+        <button class="act-btn" onclick="toggleActivity(this)" title="وزنه‌برداری">
+          <svg viewBox="0 0 24 24"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12M4 7v10M20 7v10"/></svg>
+        </button>
+        <button class="act-btn" onclick="toggleActivity(this)" title="دویدن / پیاده‌روی">
+          <svg viewBox="0 0 24 24"><path d="M3 16l4-2 3 2 4-2 5 1 2-3M4 14l3-6 5 2 3-3 4 1"/></svg>
+        </button>
+        <button class="act-btn" onclick="toggleActivity(this)" title="دوچرخه‌سواری">
+          <svg viewBox="0 0 24 24"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h-3l-4 7h6l2-4h3"/></svg>
+        </button>
+        <button class="act-btn" onclick="toggleActivity(this)" title="یوگا / مت">
+          <svg viewBox="0 0 24 24"><ellipse cx="7" cy="17" rx="3" ry="5"/><path d="M7 12l10-4c2 0 3 2 3 4s-2 3-5 3l-8 2"/></svg>
+        </button>
+        <button class="act-btn" onclick="toggleActivity(this)" title="شنا">
+          <svg viewBox="0 0 24 24"><path d="M2 18c2 0 3-1 5-1s3 1 5 1 3-1 5-1 3 1 5 1M2 21c2 0 3-1 5-1s3 1 5 1 3-1 5-1 3 1 5 1M16 11l-3-3 2-2M10 13l2-2"/></svg>
+        </button>
+        <button class="act-btn" onclick="toggleActivity(this)" title="طناب‌زنی">
+          <svg viewBox="0 0 24 24"><path d="M7 16v5M17 16v5M7 16c0-6 10-6 10 0"/></svg>
+        </button>
+      </div>
+
+      <!-- وعده‌های غذایی -->
+      <div class="meals-grid">
+        <div class="meal-box">
+          <div class="meal-header">Breakfast</div>
+          <div class="meal-lines">
+            <div class="meal-row"><span class="bullet"></span><input type="text" class="handwrite" id="meal_b1"></div>
+            <div class="meal-row"><span class="bullet"></span><input type="text" class="handwrite" id="meal_b2"></div>
+          </div>
+        </div>
+        <div class="meal-box">
+          <div class="meal-header">Lunch</div>
+          <div class="meal-lines">
+            <div class="meal-row"><span class="bullet"></span><input type="text" class="handwrite" id="meal_l1"></div>
+            <div class="meal-row"><span class="bullet"></span><input type="text" class="handwrite" id="meal_l2"></div>
+          </div>
+        </div>
+        <div class="meal-box">
+          <div class="meal-header">Dinner</div>
+          <div class="meal-lines">
+            <div class="meal-row"><span class="bullet"></span><input type="text" class="handwrite" id="meal_d1"></div>
+            <div class="meal-row"><span class="bullet"></span><input type="text" class="handwrite" id="meal_d2"></div>
+            <div class="meal-row"><span class="bullet"></span><input type="text" class="handwrite" id="meal_d3"></div>
+          </div>
+        </div>
+        <div class="meal-box">
+          <div class="meal-header">Snacks</div>
+          <div class="meal-lines">
+            <div class="meal-row"><span class="bullet"></span><input type="text" class="handwrite" id="meal_s1"></div>
+            <div class="meal-row"><span class="bullet"></span><input type="text" class="handwrite" id="meal_s2"></div>
+            <div class="meal-row"><span class="bullet"></span><input type="text" class="handwrite" id="meal_s3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ردیاب مصرف آب ۸ لیوان -->
+      <div class="water-section">
+        <div class="water-label">Water<br>Intake</div>
+        <div class="glasses-row" id="waterRow">
+          <!-- با جاوااسکریپت ۸ لیوان تولید می‌شود -->
+        </div>
+      </div>
+
+      <!-- جدول حرکات و تمرین‌ها (Exercise / Sets / Reps / Weight / Cardio) -->
+      <table class="grid-table" style="margin-bottom: 0;">
+        <thead>
+          <tr>
+            <th style="width: 32%;">EXERCISE</th>
+            <th style="width: 14%;">SETS</th>
+            <th style="width: 14%;">REPS</th>
+            <th style="width: 20%;">WEIGHT<br><span style="font-size: 9px; font-weight: normal;">(lbs/kg)</span></th>
+            <th style="width: 20%;">CARDIO<br><span style="font-size: 9px; font-weight: normal;">(min/dist)</span></th>
+          </tr>
+        </thead>
+        <tbody id="exerciseTableBody">
+          <!-- ۹ ردیف تمرینی -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- برگه ۲: Daily Self-care Checklist -->
+    <div class="sheet-card" id="sheet-checklist">
+      <div class="banner-ribbon">
+        <h1 class="checklist-title" tabindex="0" role="textbox" aria-label="Daily Self-care Checklist">Daily Self-care Checklist</h1>
+      </div>
+
+      <!-- بخش ۱: Physical -->
+      <div class="category-card">
+        <div class="category-title">Physical</div>
+        <table class="cat-table" data-cat="phys">
+          <thead>
+            <tr>
+              <th class="act-head">Activities</th>
+              <th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th><th>S</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-phys"></tbody>
+        </table>
+      </div>
+
+      <!-- بخش ۲: Emotional -->
+      <div class="category-card">
+        <div class="category-title">Emotional</div>
+        <table class="cat-table" data-cat="emot">
+          <thead>
+            <tr>
+              <th class="act-head">Activities</th>
+              <th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th><th>S</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-emot"></tbody>
+        </table>
+      </div>
+
+      <!-- بخش ۳: Spiritual -->
+      <div class="category-card">
+        <div class="category-title">Spiritual</div>
+        <table class="cat-table" data-cat="spir">
+          <thead>
+            <tr>
+              <th class="act-head">Activities</th>
+              <th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th><th>S</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-spir"></tbody>
+        </table>
+      </div>
+
+      <!-- بخش ۴: Mental -->
+      <div class="category-card">
+        <div class="category-title">Mental</div>
+        <table class="cat-table" data-cat="ment">
+          <thead>
+            <tr>
+              <th class="act-head">Activities</th>
+              <th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th><th>S</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-ment"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // سیستم صدای Web Audio API
+    let audioCtx = null;
+    let isMuted = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(freq, type = 'sine', duration = 0.12) {
+      if (isMuted) return;
+      initAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playWaterSound() {
+      playTone(520, 'sine', 0.18);
+      setTimeout(() => playTone(680, 'sine', 0.22), 60);
+    }
+
+    function toggleMute() {
+      isMuted = !isMuted;
+      document.getElementById('soundIcon').innerText = isMuted ? '🔇' : '🔊';
+      document.getElementById('soundToggle').innerHTML = `<span id="soundIcon">${isMuted ? '🔇' : '🔊'}</span> صدا ${isMuted ? 'غیرفعال' : 'فعال'}`;
+    }
+
+    // تولید اثر انفجار ذرات روی المان‌ها
+    function spawnParticles(x, y, color = '#7ca483') {
+      for (let i = 0; i < 6; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.backgroundColor = color;
+        p.style.left = `${x}px`;
+        p.style.top = `${y}px`;
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 18 + Math.random() * 20;
+        p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+        p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 600);
+      }
+    }
+
+    // ساخت جدول تمرینات (۹ سطر)
+    const exTbody = document.getElementById('exerciseTableBody');
+    for (let i = 0; i < 9; i++) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" class="handwrite" id="ex_name_${i}"></td>
+        <td><input type="text" class="handwrite" id="ex_set_${i}" style="text-align: center;"></td>
+        <td><input type="text" class="handwrite" id="ex_rep_${i}" style="text-align: center;"></td>
+        <td><input type="text" class="handwrite" id="ex_wt_${i}" style="text-align: center;"></td>
+        <td><input type="text" class="handwrite" id="ex_card_${i}" style="text-align: center;"></td>
+      `;
+      exTbody.appendChild(tr);
+    }
+
+    // ساخت ۸ لیوان آب
+    const waterRow = document.getElementById('waterRow');
+    for (let i = 0; i < 8; i++) {
+      const g = document.createElement('button');
+      g.className = 'glass-btn';
+      g.dataset.index = i;
+      g.onclick = function (e) {
+        this.classList.toggle('filled');
+        if (this.classList.contains('filled')) {
+          playWaterSound();
+          const rect = this.getBoundingClientRect();
+          spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#6bb8db');
+        } else {
+          playTone(320, 'triangle', 0.1);
+        }
+        saveAllData();
+      };
+      waterRow.appendChild(g);
+    }
+
+    // ساخت سطرهای دسته‌بندی‌های چک‌لیست خودمراقبتی
+    const cats = [
+      { id: 'tbody-phys', prefix: 'p', count: 7 },
+      { id: 'tbody-emot', prefix: 'e', count: 7 },
+      { id: 'tbody-spir', prefix: 's', count: 6 },
+      { id: 'tbody-ment', prefix: 'm', count: 6 }
+    ];
+
+    cats.forEach(cat => {
+      const tbody = document.getElementById(cat.id);
+      for (let r = 0; r < cat.count; r++) {
+        const tr = document.createElement('tr');
+        let cells = `<td class="act-cell"><input type="text" class="handwrite" id="chk_${cat.prefix}_act_${r}"></td>`;
+        for (let d = 0; d < 7; d++) {
+          cells += `
+            <td>
+              <div class="circle-check" id="chk_${cat.prefix}_${r}_${d}" onclick="toggleCheck(this, event)"></div>
+            </td>
+          `;
+        }
+        tr.innerHTML = cells;
+        tbody.appendChild(tr);
+      }
+    });
+
+    function toggleCheck(el, event) {
+      el.classList.toggle('checked');
+      if (el.classList.contains('checked')) {
+        playTone(659.25, 'sine', 0.15); // صدای نت E5
+        const rect = el.getBoundingClientRect();
+        spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#487d55');
+      } else {
+        playTone(392, 'sine', 0.1);
+      }
+      saveAllData();
+    }
+
+    function toggleActivity(btn) {
+      btn.classList.toggle('selected');
+      if (btn.classList.contains('selected')) {
+        playTone(587.33, 'triangle', 0.15);
+      }
+      saveAllData();
+    }
+
+    // سوییچ بین تب‌ها
+    function switchView(view) {
+      const fSheet = document.getElementById('sheet-fitness');
+      const cSheet = document.getElementById('sheet-checklist');
+      const btns = document.querySelectorAll('.tab-btn');
+      btns.forEach(b => b.classList.remove('active'));
+
+      if (view === 'both') {
+        fSheet.style.display = 'flex';
+        cSheet.style.display = 'flex';
+        btns[0].classList.add('active');
+      } else if (view === 'fitness') {
+        fSheet.style.display = 'flex';
+        cSheet.style.display = 'none';
+        btns[1].classList.add('active');
+      } else if (view === 'checklist') {
+        fSheet.style.display = 'none';
+        cSheet.style.display = 'flex';
+        btns[2].classList.add('active');
+      }
+    }
+
+    // ذخیره‌سازی داده‌ها در localStorage
+    function saveAllData() {
+      try {
+        const data = {};
+        document.querySelectorAll('input.handwrite').forEach(input => {
+          if (input.id) data[input.id] = input.value;
+        });
+
+        // ذخیره عینک‌های آب
+        data.water = Array.from(document.querySelectorAll('.glass-btn')).map(g => g.classList.contains('filled'));
+
+        // ذخیره آیکون‌های ورزشی
+        data.activities = Array.from(document.querySelectorAll('.act-btn')).map(a => a.classList.contains('selected'));
+
+        // ذخیره چک‌لیست‌ها
+        data.checks = {};
+        document.querySelectorAll('.circle-check').forEach(c => {
+          data.checks[c.id] = c.classList.contains('checked');
+        });
+
+        localStorage.setItem('fitness_selfcare_data', JSON.stringify(data));
+      } catch (err) {
+        console.warn('ذخیره‌سازی با خطا مواجه شد:', err);
+      }
+    }
+
+    // بارگذاری داده‌ها از localStorage
+    function loadData() {
+      try {
+        const raw = localStorage.getItem('fitness_selfcare_data');
+        if (!raw) return;
+        const data = JSON.parse(raw);
+
+        Object.keys(data).forEach(k => {
+          const el = document.getElementById(k);
+          if (el && el.tagName === 'INPUT') {
+            el.value = data[k];
+          }
+        });
+
+        if (data.water) {
+          const glasses = document.querySelectorAll('.glass-btn');
+          data.water.forEach((filled, idx) => {
+            if (glasses[idx] && filled) glasses[idx].classList.add('filled');
+          });
+        }
+
+        if (data.activities) {
+          const acts = document.querySelectorAll('.act-btn');
+          data.activities.forEach((sel, idx) => {
+            if (acts[idx] && sel) acts[idx].classList.add('selected');
+          });
+        }
+
+        if (data.checks) {
+          Object.keys(data.checks).forEach(id => {
+            const circle = document.getElementById(id);
+            if (circle && data.checks[id]) circle.classList.add('checked');
+          });
+        }
+      } catch (err) {}
+    }
+
+    // اتصال رویداد ورودی جهت ذخیره بلادرنگ
+    document.addEventListener('input', (e) => {
+      if (e.target.classList.contains('handwrite')) {
+        saveAllData();
+      }
+    });
+
+    // پر کردن داده‌های نمونه
+    function fillSampleData() {
+      document.getElementById('fit_date').value = '14/10/2026';
+      document.getElementById('fit_day').value = 'Wednesday';
+      document.getElementById('fit_w1').value = 'Morning Run & Core';
+      document.getElementById('fit_t1').value = '7:00 AM';
+      document.getElementById('fit_g1').value = '5 km under 28m';
+      
+      document.getElementById('meal_b1').value = 'Oatmeal with chia seeds & berries';
+      document.getElementById('meal_b2').value = 'Black coffee';
+      document.getElementById('meal_l1').value = 'Grilled chicken salad';
+      document.getElementById('meal_l2').value = 'Avocado & olive oil';
+      document.getElementById('meal_d1').value = 'Steamed salmon & broccoli';
+
+      document.getElementById('ex_name_0').value = 'Barbell Squat';
+      document.getElementById('ex_set_0').value = '4';
+      document.getElementById('ex_rep_0').value = '10';
+      document.getElementById('ex_wt_0').value = '60 kg';
+
+      document.getElementById('ex_name_1').value = 'Bench Press';
+      document.getElementById('ex_set_1').value = '3';
+      document.getElementById('ex_rep_1').value = '12';
+      document.getElementById('ex_wt_1').value = '45 kg';
+
+      // پر کردن نمونه فعالیت‌های خودمراقبتی
+      const sampleActivities = {
+        'chk_p_act_0': 'Morning walk (20m)',
+        'chk_p_act_1': 'Drink 2L water',
+        'chk_p_act_2': 'Stretching & Mobility',
+        'chk_e_act_0': 'Daily Gratitude journaling',
+        'chk_e_act_1': 'Call family / close friend',
+        'chk_s_act_0': '10 mins breathwork',
+        'chk_s_act_1': 'Mindful reflection',
+        'chk_m_act_0': 'Read 15 pages',
+        'chk_m_act_1': 'No screen before bed'
+      };
+
+      Object.entries(sampleActivities).forEach(([id, val]) => {
+        const inp = document.getElementById(id);
+        if (inp) inp.value = val;
+      });
+
+      // پر کردن چند تیک نمونه
+      ['chk_p_0_0', 'chk_p_0_1', 'chk_p_0_2', 'chk_e_0_0', 'chk_s_0_1', 'chk_m_0_0'].forEach(id => {
+        const c = document.getElementById(id);
+        if (c) c.classList.add('checked');
+      });
+
+      // پر کردن چند لیوان آب نمونه
+      document.querySelectorAll('.glass-btn').forEach((g, idx) => {
+        if (idx < 5) g.classList.add('filled');
+      });
+
+      playTone(523.25, 'sine', 0.2);
+      saveAllData();
+    }
+
+    // پاکسازی کل اطلاعات
+    function clearAllData() {
+      if (!confirm('آیا از پاک‌کردن تمامی اطلاعات هر دو برگه اطمینان دارید؟')) return;
+      document.querySelectorAll('input.handwrite').forEach(i => i.value = '');
+      document.querySelectorAll('.circle-check').forEach(c => c.classList.remove('checked'));
+      document.querySelectorAll('.glass-btn').forEach(g => g.classList.remove('filled'));
+      document.querySelectorAll('.act-btn').forEach(a => a.classList.remove('selected'));
+      localStorage.removeItem('fitness_selfcare_data');
+      playTone(260, 'sawtooth', 0.15);
+    }
+
+    // =========================================================================
+    // ۴. موتور ناوبری خطوط با کلیدهای کیبورد (Enter / فلش‌ها / Backspace)
+    // =========================================================================
+    function setupKeyboardNavigation() {
+      const fitnessTitle = document.querySelector('.fitness-title');
+      const checklistTitle = document.querySelector('.checklist-title');
+
+      // روی عنوان بالا هم Enter تو را به خط اول می‌برد
+      if (fitnessTitle) {
+        fitnessTitle.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const firstLine = document.getElementById('fit_date') || document.querySelector('#sheet-fitness input.handwrite');
+            if (firstLine) firstLine.focus();
+          }
+        });
+      }
+
+      if (checklistTitle) {
+        checklistTitle.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const firstLine = document.getElementById('chk_p_act_0') || document.querySelector('#sheet-checklist input.handwrite');
+            if (firstLine) firstLine.focus();
+          }
+        });
+      }
+
+      // توالی منظم خطوط ورودی برگه ۱
+      function getSheet1MainLines() {
+        const ids = [
+          'fit_date',
+          'fit_day',
+          'fit_w1',
+          'fit_w2',
+          'fit_w3',
+          'meal_b1',
+          'meal_b2',
+          'meal_l1',
+          'meal_l2',
+          'meal_d1',
+          'meal_d2',
+          'meal_d3',
+          'meal_s1',
+          'meal_s2',
+          'meal_s3'
+        ];
+        for (let i = 0; i < 9; i++) {
+          ids.push(`ex_name_${i}`);
+        }
+        return ids.map(id => document.getElementById(id)).filter(Boolean);
+      }
+
+      // توالی منظم خطوط ورودی برگه ۲ (تمام ردیف‌های فعالیت‌ها)
+      function getSheet2MainLines() {
+        const list = [];
+        const catsConfig = [
+          { p: 'p', n: 7 },
+          { p: 'e', n: 7 },
+          { p: 's', n: 6 },
+          { p: 'm', n: 6 }
+        ];
+        catsConfig.forEach(c => {
+          for (let r = 0; r < c.n; r++) {
+            const el = document.getElementById(`chk_${c.p}_act_${r}`);
+            if (el) list.push(el);
+          }
+        });
+        return list;
+      }
+
+      // مدیریت ناوبری ستونی جدول‌ها (Time, Daily Goal, Sets, Reps, Weight, Cardio)
+      function handleColumnNav(e, input) {
+        const id = input.id;
+        const match = id.match(/^(fit_[tg]|ex_(?:set|rep|wt|card))_(\d+)$/);
+        if (!match) return false;
+
+        const prefix = match[1];
+        const row = parseInt(match[2], 10);
+
+        if (e.key === 'Enter' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = document.getElementById(`${prefix}_${row + 1}`);
+          if (next) {
+            next.focus();
+          } else {
+            // در پایان ستون به وعده غذایی یا ستون بعدی بروید
+            if (prefix.startsWith('fit_')) {
+              const mealFirst = document.getElementById('meal_b1');
+              if (mealFirst) mealFirst.focus();
+            }
+          }
+          return true;
+        }
+
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = document.getElementById(`${prefix}_${row - 1}`);
+          if (prev) {
+            prev.focus();
+            const len = prev.value.length;
+            try { prev.setSelectionRange(len, len); } catch(_) {}
+          } else {
+            const dateField = document.getElementById('fit_day') || document.getElementById('fit_date');
+            if (dateField) dateField.focus();
+          }
+          return true;
+        }
+
+        if (e.key === 'Backspace' && input.value === '') {
+          e.preventDefault();
+          const prev = document.getElementById(`${prefix}_${row - 1}`);
+          if (prev) {
+            prev.focus();
+            const len = prev.value.length;
+            try { prev.setSelectionRange(len, len); } catch(_) {}
+          }
+          return true;
+        }
+
+        return false;
+      }
+
+      function attachNavigation(input, getList, sheetTitle) {
+        input.addEventListener('keydown', function(e) {
+          // اگر ستون جانبی جدول باشد، ناوبری ستونی جدول انجام شود
+          if (handleColumnNav(e, input)) return;
+
+          const list = getList();
+          const idx = list.indexOf(input);
+          if (idx === -1) return;
+
+          // ۱. Enter یا فلش پایین: به خط بعدی می‌روی
+          if (e.key === 'Enter' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (idx + 1 < list.length) {
+              list[idx + 1].focus();
+            }
+            return;
+          }
+
+          // ۲. فلش بالا: به خط قبلی برمی‌گردی
+          if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (idx > 0) {
+              const prev = list[idx - 1];
+              prev.focus();
+              const len = prev.value.length;
+              try { prev.setSelectionRange(len, len); } catch(_) {}
+            } else if (sheetTitle) {
+              sheetTitle.focus();
+            }
+            return;
+          }
+
+          // ۳. Backspace روی خطِ خالی: به خط قبلی می‌روی
+          if (e.key === 'Backspace') {
+            if (input.value === '') {
+              e.preventDefault();
+              if (idx > 0) {
+                const prev = list[idx - 1];
+                prev.focus();
+                const len = prev.value.length;
+                try { prev.setSelectionRange(len, len); } catch(_) {}
+              } else if (sheetTitle) {
+                sheetTitle.focus();
+              }
+            }
+          }
+        });
+      }
+
+      // اتصال ناوبری خطوط به تمام ورودی‌های برگه ۱
+      document.querySelectorAll('#sheet-fitness input.handwrite').forEach(inp => {
+        attachNavigation(inp, getSheet1MainLines, fitnessTitle);
+      });
+
+      // اتصال ناوبری خطوط به تمام ورودی‌های برگه ۲
+      document.querySelectorAll('#sheet-checklist input.handwrite').forEach(inp => {
+        attachNavigation(inp, getSheet2MainLines, checklistTitle);
+      });
+    }
+
+    // همگام‌سازی بلادرنگ استایل‌های تایپوگرافی از والد در صورت ارسال پیام
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'CUSTOM_HTML_SET_TYPOGRAPHY') {
+        const root = document.documentElement;
+        if (e.data.fontFamily) root.style.setProperty('--sheet-font-family', `'${e.data.fontFamily}', sans-serif`);
+        if (e.data.fontSize) root.style.setProperty('--sheet-font-size', `${e.data.fontSize}px`);
+        if (e.data.fontWeight) root.style.setProperty('--sheet-font-weight', e.data.fontWeight);
+        if (e.data.fontStyle) root.style.setProperty('--sheet-font-style', e.data.fontStyle);
+        if (e.data.textDecoration) root.style.setProperty('--sheet-text-decoration', e.data.textDecoration);
+        if (e.data.textAlign) root.style.setProperty('--sheet-text-align', e.data.textAlign);
+        if (e.data.textColor) root.style.setProperty('--sheet-text-color', e.data.textColor);
+      }
+    });
+
+    // راه‌اندازی اولیه
+    window.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      setupKeyboardNavigation();
+    });
+  </script>
+</body>
+</html>
